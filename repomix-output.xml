@@ -1,0 +1,6007 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.claude/memory.db
+.claude/memory.db-shm
+.claude/memory.db-wal
+.gitignore
+.swarm/memory.db
+.swarm/memory.db-shm
+.swarm/memory.db-wal
+.swarm/schema.sql
+app/.gitignore
+app/AGENTS.md
+app/CLAUDE.md
+app/components.json
+app/eslint.config.mjs
+app/next.config.ts
+app/package.json
+app/postcss.config.mjs
+app/public/file.svg
+app/public/globe.svg
+app/public/next.svg
+app/public/vercel.svg
+app/public/window.svg
+app/README.md
+app/src/api/docs.ts
+app/src/api/share.ts
+app/src/api/signin.ts
+app/src/api/user.ts
+app/src/app/docs/d/[id]/BlockEditor.tsx
+app/src/app/docs/d/[id]/op.ts
+app/src/app/docs/d/[id]/page.tsx
+app/src/app/docs/d/[id]/SharePopover.tsx
+app/src/app/docs/d/[id]/TextEditor.tsx
+app/src/app/docs/d/[id]/update.ts
+app/src/app/docs/d/[id]/utils.ts
+app/src/app/docs/ListDocs.tsx
+app/src/app/docs/ListDocsShared.tsx
+app/src/app/docs/page.tsx
+app/src/app/docs/TemplateDocs.tsx
+app/src/app/favicon.ico
+app/src/app/globals.css
+app/src/app/layout.tsx
+app/src/app/middleware.ts
+app/src/app/page.tsx
+app/src/app/signin/AuthCard.tsx
+app/src/app/signin/handlers.ts
+app/src/app/signin/page.tsx
+app/src/app/signin/SigninPage.tsx
+app/src/components/Editor.tsx
+app/src/components/LatexRenderer.tsx
+app/src/components/Navbar.tsx
+app/src/components/PDFPreview.tsx
+app/src/components/ui/button.tsx
+app/src/components/ui/card.tsx
+app/src/components/ui/input.tsx
+app/src/components/ui/label.tsx
+app/src/components/ui/popover.tsx
+app/src/components/ui/select.tsx
+app/src/hooks/autoSaveDoc.ts
+app/src/hooks/useAuth.ts
+app/src/hooks/useDocs.ts
+app/tsconfig.json
+README.md
+ruvector.db
+SETUP.md
+src/db/base.py
+src/db/core/auth/crud.py
+src/db/core/auth/models.py
+src/db/core/auth/schemas.py
+src/db/core/auth/services.py
+src/db/core/auth/utils/password.py
+src/db/core/auth/utils/token.py
+src/db/database.py
+src/db/modules/docs/crud.py
+src/db/modules/docs/models.py
+src/db/modules/docs/routes.py
+src/db/modules/docs/schemas.py
+src/db/modules/docs/services.py
+src/db/modules/liveshare/connection_manager.py
+src/db/modules/liveshare/op.py
+src/db/modules/liveshare/routes.py
+src/db/modules/users/crud.py
+src/db/modules/users/models.py
+src/db/modules/users/routes.py
+src/db/modules/users/schemas.py
+src/db/modules/users/services.py
+src/db/modules/users/utils/validate.py
+src/main.py
+src/modules/test/routes.py
+src/requirements.txt
+TODO.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".claude/memory.db-wal">
+
+</file>
+
+<file path=".gitignore">
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# UV
+#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#uv.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+#poetry.toml
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
+#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
+#pdm.lock
+#pdm.toml
+.pdm-python
+.pdm-build/
+
+# pixi
+#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
+#pixi.lock
+#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
+#   in the .venv directory. It is recommended not to include this directory in version control.
+.pixi
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+
+# Abstra
+# Abstra is an AI-powered process automation framework.
+# Ignore directories containing user credentials, local state, and settings.
+# Learn more at https://abstra.io/docs
+.abstra/
+
+# Visual Studio Code
+#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#  you could uncomment the following to ignore the entire vscode folder
+# .vscode/
+
+# Ruff stuff:
+.ruff_cache/
+
+# PyPI configuration file
+.pypirc
+
+# Cursor
+#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
+#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
+#  refer to https://docs.cursor.com/context/ignore-files
+.cursorignore
+.cursorindexingignore
+
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
+</file>
+
+<file path=".swarm/schema.sql">
+-- RuFlo V3 Memory Database
+-- Version: 3.0.0
+-- Features: Pattern learning, vector embeddings, temporal decay, migration tracking
+
+PRAGMA journal_mode = WAL;
+PRAGMA synchronous = NORMAL;
+PRAGMA foreign_keys = ON;
+
+-- ============================================
+-- CORE MEMORY TABLES
+-- ============================================
+
+-- Memory entries (main storage)
+CREATE TABLE IF NOT EXISTS memory_entries (
+  id TEXT PRIMARY KEY,
+  key TEXT NOT NULL,
+  namespace TEXT DEFAULT 'default',
+  content TEXT NOT NULL,
+  type TEXT DEFAULT 'semantic' CHECK(type IN ('semantic', 'episodic', 'procedural', 'working', 'pattern')),
+
+  -- Vector embedding for semantic search (stored as JSON array)
+  embedding TEXT,
+  embedding_model TEXT DEFAULT 'local',
+  embedding_dimensions INTEGER,
+
+  -- Metadata
+  tags TEXT, -- JSON array
+  metadata TEXT, -- JSON object
+  owner_id TEXT,
+
+  -- Timestamps
+  created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+  updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+  expires_at INTEGER,
+  last_accessed_at INTEGER,
+
+  -- Access tracking for hot/cold detection
+  access_count INTEGER DEFAULT 0,
+
+  -- Status
+  status TEXT DEFAULT 'active' CHECK(status IN ('active', 'archived', 'deleted')),
+
+  UNIQUE(namespace, key)
+);
+
+-- Indexes for memory entries
+CREATE INDEX IF NOT EXISTS idx_memory_namespace ON memory_entries(namespace);
+CREATE INDEX IF NOT EXISTS idx_memory_key ON memory_entries(key);
+CREATE INDEX IF NOT EXISTS idx_memory_type ON memory_entries(type);
+CREATE INDEX IF NOT EXISTS idx_memory_status ON memory_entries(status);
+CREATE INDEX IF NOT EXISTS idx_memory_created ON memory_entries(created_at);
+CREATE INDEX IF NOT EXISTS idx_memory_accessed ON memory_entries(last_accessed_at);
+CREATE INDEX IF NOT EXISTS idx_memory_owner ON memory_entries(owner_id);
+
+-- ============================================
+-- PATTERN LEARNING TABLES
+-- ============================================
+
+-- Learned patterns with confidence scoring and versioning
+CREATE TABLE IF NOT EXISTS patterns (
+  id TEXT PRIMARY KEY,
+
+  -- Pattern identification
+  name TEXT NOT NULL,
+  pattern_type TEXT NOT NULL CHECK(pattern_type IN (
+    'task-routing', 'error-recovery', 'optimization', 'learning',
+    'coordination', 'prediction', 'code-pattern', 'workflow'
+  )),
+
+  -- Pattern definition
+  condition TEXT NOT NULL, -- Regex or semantic match
+  action TEXT NOT NULL, -- What to do when pattern matches
+  description TEXT,
+
+  -- Confidence scoring (0.0 - 1.0)
+  confidence REAL DEFAULT 0.5,
+  success_count INTEGER DEFAULT 0,
+  failure_count INTEGER DEFAULT 0,
+
+  -- Temporal decay
+  decay_rate REAL DEFAULT 0.01, -- How fast confidence decays
+  half_life_days INTEGER DEFAULT 30, -- Days until confidence halves without use
+
+  -- Vector embedding for semantic pattern matching
+  embedding TEXT,
+  embedding_dimensions INTEGER,
+
+  -- Versioning
+  version INTEGER DEFAULT 1,
+  parent_id TEXT REFERENCES patterns(id),
+
+  -- Metadata
+  tags TEXT, -- JSON array
+  metadata TEXT, -- JSON object
+  source TEXT, -- Where the pattern was learned from
+
+  -- Timestamps
+  created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+  updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+  last_matched_at INTEGER,
+  last_success_at INTEGER,
+  last_failure_at INTEGER,
+
+  -- Status
+  status TEXT DEFAULT 'active' CHECK(status IN ('active', 'archived', 'deprecated', 'experimental'))
+);
+
+-- Indexes for patterns
+CREATE INDEX IF NOT EXISTS idx_patterns_type ON patterns(pattern_type);
+CREATE INDEX IF NOT EXISTS idx_patterns_confidence ON patterns(confidence DESC);
+CREATE INDEX IF NOT EXISTS idx_patterns_status ON patterns(status);
+CREATE INDEX IF NOT EXISTS idx_patterns_last_matched ON patterns(last_matched_at);
+
+-- Pattern evolution history (for versioning)
+CREATE TABLE IF NOT EXISTS pattern_history (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  pattern_id TEXT NOT NULL REFERENCES patterns(id),
+  version INTEGER NOT NULL,
+
+  -- Snapshot of pattern state
+  confidence REAL,
+  success_count INTEGER,
+  failure_count INTEGER,
+  condition TEXT,
+  action TEXT,
+
+  -- What changed
+  change_type TEXT CHECK(change_type IN ('created', 'updated', 'success', 'failure', 'decay', 'merged', 'split')),
+  change_reason TEXT,
+
+  created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pattern_history_pattern ON pattern_history(pattern_id);
+
+-- ============================================
+-- LEARNING & TRAJECTORY TABLES
+-- ============================================
+
+-- Learning trajectories (SONA integration)
+CREATE TABLE IF NOT EXISTS trajectories (
+  id TEXT PRIMARY KEY,
+  session_id TEXT,
+
+  -- Trajectory state
+  status TEXT DEFAULT 'active' CHECK(status IN ('active', 'completed', 'failed', 'abandoned')),
+  verdict TEXT CHECK(verdict IN ('success', 'failure', 'partial', NULL)),
+
+  -- Context
+  task TEXT,
+  context TEXT, -- JSON object
+
+  -- Metrics
+  total_steps INTEGER DEFAULT 0,
+  total_reward REAL DEFAULT 0,
+
+  -- Timestamps
+  started_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+  ended_at INTEGER,
+
+  -- Reference to extracted pattern (if any)
+  extracted_pattern_id TEXT REFERENCES patterns(id)
+);
+
+-- Trajectory steps
+CREATE TABLE IF NOT EXISTS trajectory_steps (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  trajectory_id TEXT NOT NULL REFERENCES trajectories(id),
+  step_number INTEGER NOT NULL,
+
+  -- Step data
+  action TEXT NOT NULL,
+  observation TEXT,
+  reward REAL DEFAULT 0,
+
+  -- Metadata
+  metadata TEXT, -- JSON object
+
+  created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000)
+);
+
+CREATE INDEX IF NOT EXISTS idx_steps_trajectory ON trajectory_steps(trajectory_id);
+
+-- ============================================
+-- MIGRATION STATE TRACKING
+-- ============================================
+
+-- Migration state (for resume capability)
+CREATE TABLE IF NOT EXISTS migration_state (
+  id TEXT PRIMARY KEY,
+  migration_type TEXT NOT NULL, -- 'v2-to-v3', 'pattern', 'memory', etc.
+
+  -- Progress tracking
+  status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'in_progress', 'completed', 'failed', 'rolled_back')),
+  total_items INTEGER DEFAULT 0,
+  processed_items INTEGER DEFAULT 0,
+  failed_items INTEGER DEFAULT 0,
+  skipped_items INTEGER DEFAULT 0,
+
+  -- Current position (for resume)
+  current_batch INTEGER DEFAULT 0,
+  last_processed_id TEXT,
+
+  -- Source/destination info
+  source_path TEXT,
+  source_type TEXT,
+  destination_path TEXT,
+
+  -- Backup info
+  backup_path TEXT,
+  backup_created_at INTEGER,
+
+  -- Error tracking
+  last_error TEXT,
+  errors TEXT, -- JSON array of errors
+
+  -- Timestamps
+  started_at INTEGER,
+  completed_at INTEGER,
+  created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+  updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000)
+);
+
+-- ============================================
+-- SESSION MANAGEMENT
+-- ============================================
+
+-- Sessions for context persistence
+CREATE TABLE IF NOT EXISTS sessions (
+  id TEXT PRIMARY KEY,
+
+  -- Session state
+  state TEXT NOT NULL, -- JSON object with full session state
+  status TEXT DEFAULT 'active' CHECK(status IN ('active', 'paused', 'completed', 'expired')),
+
+  -- Context
+  project_path TEXT,
+  branch TEXT,
+
+  -- Metrics
+  tasks_completed INTEGER DEFAULT 0,
+  patterns_learned INTEGER DEFAULT 0,
+
+  -- Timestamps
+  created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+  updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+  expires_at INTEGER
+);
+
+-- ============================================
+-- VECTOR INDEX METADATA (for HNSW)
+-- ============================================
+
+-- Track HNSW index state
+CREATE TABLE IF NOT EXISTS vector_indexes (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE,
+
+  -- Index configuration
+  dimensions INTEGER NOT NULL,
+  metric TEXT DEFAULT 'cosine' CHECK(metric IN ('cosine', 'euclidean', 'dot')),
+
+  -- HNSW parameters
+  hnsw_m INTEGER DEFAULT 16,
+  hnsw_ef_construction INTEGER DEFAULT 200,
+  hnsw_ef_search INTEGER DEFAULT 100,
+
+  -- Quantization
+  quantization_type TEXT CHECK(quantization_type IN ('none', 'scalar', 'product')),
+  quantization_bits INTEGER DEFAULT 8,
+
+  -- Statistics
+  total_vectors INTEGER DEFAULT 0,
+  last_rebuild_at INTEGER,
+
+  created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+  updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000)
+);
+
+-- ============================================
+-- SYSTEM METADATA
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS metadata (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at INTEGER DEFAULT (strftime('%s', 'now') * 1000)
+);
+
+
+INSERT OR REPLACE INTO metadata (key, value) VALUES
+  ('schema_version', '3.0.0'),
+  ('backend', 'hybrid'),
+  ('created_at', '2026-05-03T19:24:19.345Z'),
+  ('sql_js', 'true'),
+  ('vector_embeddings', 'enabled'),
+  ('pattern_learning', 'enabled'),
+  ('temporal_decay', 'enabled'),
+  ('hnsw_indexing', 'enabled');
+
+-- Create default vector index configuration
+INSERT OR IGNORE INTO vector_indexes (id, name, dimensions) VALUES
+  ('default', 'default', 768),
+  ('patterns', 'patterns', 768);
+</file>
+
+<file path="app/.gitignore">
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+</file>
+
+<file path="app/AGENTS.md">
+<!-- BEGIN:nextjs-agent-rules -->
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+<!-- END:nextjs-agent-rules -->
+</file>
+
+<file path="app/CLAUDE.md">
+@AGENTS.md
+</file>
+
+<file path="app/components.json">
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "radix-nova",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "src/app/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "rtl": false,
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "menuColor": "default",
+  "menuAccent": "subtle",
+  "registries": {}
+}
+</file>
+
+<file path="app/eslint.config.mjs">
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
+
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  // Override default ignores of eslint-config-next.
+  globalIgnores([
+    // Default ignores of eslint-config-next:
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+  ]),
+]);
+
+export default eslintConfig;
+</file>
+
+<file path="app/next.config.ts">
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  /* config options here */
+  reactCompiler: true,
+};
+
+export default nextConfig;
+</file>
+
+<file path="app/package.json">
+{
+  "name": "app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@tanstack/react-table": "^8.21.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "katex": "^0.16.45",
+    "lucide-react": "^1.8.0",
+    "next": "16.2.4",
+    "radix-ui": "^1.4.3",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "shadcn": "^4.3.1",
+    "tailwind-merge": "^3.5.0",
+    "tw-animate-css": "^1.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
+</file>
+
+<file path="app/postcss.config.mjs">
+const config = {
+  plugins: {
+    "@tailwindcss/postcss": {},
+  },
+};
+
+export default config;
+</file>
+
+<file path="app/public/file.svg">
+<svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M14.5 13.5V5.41a1 1 0 0 0-.3-.7L9.8.29A1 1 0 0 0 9.08 0H1.5v13.5A2.5 2.5 0 0 0 4 16h8a2.5 2.5 0 0 0 2.5-2.5m-1.5 0v-7H8v-5H3v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1M9.5 5V2.12L12.38 5zM5.13 5h-.62v1.25h2.12V5zm-.62 3h7.12v1.25H4.5zm.62 3h-.62v1.25h7.12V11z" clip-rule="evenodd" fill="#666" fill-rule="evenodd"/></svg>
+</file>
+
+<file path="app/public/globe.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><g clip-path="url(#a)"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.27 14.1a6.5 6.5 0 0 0 3.67-3.45q-1.24.21-2.7.34-.31 1.83-.97 3.1M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.48-1.52a7 7 0 0 1-.96 0H7.5a4 4 0 0 1-.84-1.32q-.38-.89-.63-2.08a40 40 0 0 0 3.92 0q-.25 1.2-.63 2.08a4 4 0 0 1-.84 1.31zm2.94-4.76q1.66-.15 2.95-.43a7 7 0 0 0 0-2.58q-1.3-.27-2.95-.43a18 18 0 0 1 0 3.44m-1.27-3.54a17 17 0 0 1 0 3.64 39 39 0 0 1-4.3 0 17 17 0 0 1 0-3.64 39 39 0 0 1 4.3 0m1.1-1.17q1.45.13 2.69.34a6.5 6.5 0 0 0-3.67-3.44q.65 1.26.98 3.1M8.48 1.5l.01.02q.41.37.84 1.31.38.89.63 2.08a40 40 0 0 0-3.92 0q.25-1.2.63-2.08a4 4 0 0 1 .85-1.32 7 7 0 0 1 .96 0m-2.75.4a6.5 6.5 0 0 0-3.67 3.44 29 29 0 0 1 2.7-.34q.31-1.83.97-3.1M4.58 6.28q-1.66.16-2.95.43a7 7 0 0 0 0 2.58q1.3.27 2.95.43a18 18 0 0 1 0-3.44m.17 4.71q-1.45-.12-2.69-.34a6.5 6.5 0 0 0 3.67 3.44q-.65-1.27-.98-3.1" fill="#666"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+</file>
+
+<file path="app/public/next.svg">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 394 80"><path fill="#000" d="M262 0h68.5v12.7h-27.2v66.6h-13.6V12.7H262V0ZM149 0v12.7H94v20.4h44.3v12.6H94v21h55v12.6H80.5V0h68.7zm34.3 0h-17.8l63.8 79.4h17.9l-32-39.7 32-39.6h-17.9l-23 28.6-23-28.6zm18.3 56.7-9-11-27.1 33.7h17.8l18.3-22.7z"/><path fill="#000" d="M81 79.3 17 0H0v79.3h13.6V17l50.2 62.3H81Zm252.6-.4c-1 0-1.8-.4-2.5-1s-1.1-1.6-1.1-2.6.3-1.8 1-2.5 1.6-1 2.6-1 1.8.3 2.5 1a3.4 3.4 0 0 1 .6 4.3 3.7 3.7 0 0 1-3 1.8zm23.2-33.5h6v23.3c0 2.1-.4 4-1.3 5.5a9.1 9.1 0 0 1-3.8 3.5c-1.6.8-3.5 1.3-5.7 1.3-2 0-3.7-.4-5.3-1s-2.8-1.8-3.7-3.2c-.9-1.3-1.4-3-1.4-5h6c.1.8.3 1.6.7 2.2s1 1.2 1.6 1.5c.7.4 1.5.5 2.4.5 1 0 1.8-.2 2.4-.6a4 4 0 0 0 1.6-1.8c.3-.8.5-1.8.5-3V45.5zm30.9 9.1a4.4 4.4 0 0 0-2-3.3 7.5 7.5 0 0 0-4.3-1.1c-1.3 0-2.4.2-3.3.5-.9.4-1.6 1-2 1.6a3.5 3.5 0 0 0-.3 4c.3.5.7.9 1.3 1.2l1.8 1 2 .5 3.2.8c1.3.3 2.5.7 3.7 1.2a13 13 0 0 1 3.2 1.8 8.1 8.1 0 0 1 3 6.5c0 2-.5 3.7-1.5 5.1a10 10 0 0 1-4.4 3.5c-1.8.8-4.1 1.2-6.8 1.2-2.6 0-4.9-.4-6.8-1.2-2-.8-3.4-2-4.5-3.5a10 10 0 0 1-1.7-5.6h6a5 5 0 0 0 3.5 4.6c1 .4 2.2.6 3.4.6 1.3 0 2.5-.2 3.5-.6 1-.4 1.8-1 2.4-1.7a4 4 0 0 0 .8-2.4c0-.9-.2-1.6-.7-2.2a11 11 0 0 0-2.1-1.4l-3.2-1-3.8-1c-2.8-.7-5-1.7-6.6-3.2a7.2 7.2 0 0 1-2.4-5.7 8 8 0 0 1 1.7-5 10 10 0 0 1 4.3-3.5c2-.8 4-1.2 6.4-1.2 2.3 0 4.4.4 6.2 1.2 1.8.8 3.2 2 4.3 3.4 1 1.4 1.5 3 1.5 5h-5.8z"/></svg>
+</file>
+
+<file path="app/public/vercel.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1155 1000"><path d="m577.3 0 577.4 1000H0z" fill="#fff"/></svg>
+</file>
+
+<file path="app/public/window.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 2.5h13v10a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1zM0 1h16v11.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 0 12.5zm3.75 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5M7 4.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5" fill="#666"/></svg>
+</file>
+
+<file path="app/README.md">
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+</file>
+
+<file path="app/src/api/docs.ts">
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+export type CreateDocInput = {
+    template?: string
+    title?: string
+}
+
+export type CreateDocResponse = {
+    doc_id: string
+}
+
+export async function createDoc(
+  data: CreateDocInput
+): Promise<CreateDocResponse> {
+  const token = localStorage.getItem("token")
+
+  const res = await fetch(`${API_URL}/docs/new`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!res.ok) {
+    throw new Error("Network error")
+  }
+
+  return res.json()
+}
+
+export type DocumentResponse = {
+  id: number
+  title: string
+  text: string
+}
+
+export type DocumentBlock = {
+  id: string
+  doc_id: number
+  position: number
+  type: string
+  content: string
+  updated_at: string
+}
+
+export type DocumentResponsePermission = {
+  id: number
+  owner_id: number
+  owner: any
+
+  title: string
+  text: string
+  blocks: DocumentBlock[]
+
+  created_at: string
+  updated_at: string
+
+  permission: "read" | "write" | "owner"
+  owner_username: string
+}
+</file>
+
+<file path="app/src/api/share.ts">
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+export type CreateShareDocInput = {
+    doc_id: number;
+    user_id: number;
+    share_type: string;
+}
+
+export type SuccessResponse = {
+    success: boolean
+}
+
+export async function createOrUpdateShareDoc(
+  data: CreateShareDocInput
+): Promise<SuccessResponse> {
+  const token = localStorage.getItem("token")
+
+  const res = await fetch(`${API_URL}/doc-share`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!res.ok) {
+    throw new Error("Network error")
+  }
+
+  return res.json()
+}
+
+export type ShareDocResponseExpanded = {
+    doc_id: number;
+    user_id: number;
+    permission: "read" | "write";
+
+    username: string;
+}
+
+export async function getShareDocs(
+  doc_id: number | string
+): Promise<ShareDocResponseExpanded[]> {
+  const token = localStorage.getItem("token")
+
+  const res = await fetch(`${API_URL}/doc-shares?doc_id=${doc_id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
+  if (!res.ok) {
+    throw new Error("Network error")
+  }
+
+  return res.json()
+}
+
+export type DeleteShareDocInput = {
+    doc_id: number;
+    user_id: number;
+}
+
+export async function deleteShareDoc(
+  data: DeleteShareDocInput
+): Promise<SuccessResponse> {
+  const token = localStorage.getItem("token")
+
+  const res = await fetch(`${API_URL}/doc-share`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!res.ok) {
+    throw new Error("Network error")
+  }
+
+  return res.json()
+}
+</file>
+
+<file path="app/src/api/signin.ts">
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+export type CreateUserInput = {
+  username: string
+  email: string
+  password: string
+}
+
+export type CreateUserResponse = {
+  code: number
+  user?: any
+  token?: string
+}
+
+export async function createUser(data: CreateUserInput): Promise<CreateUserResponse> {
+  const res = await fetch(`${API_URL}/create-user`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!res.ok) {
+    throw new Error("Network error")
+  }
+
+  return res.json()
+}
+
+export type SigninUserInput = {
+    username: string
+    password: string
+}
+
+export type SigninUserResponse = {
+    user: any
+    token?: string
+}
+
+export async function signinUser(data: SigninUserInput): Promise<SigninUserResponse> {
+  const res = await fetch(`${API_URL}/signin`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+
+  console.log({res})
+
+  if (!res.ok) {
+    throw new Error("Network error")
+  }
+
+  return res.json()
+}
+</file>
+
+<file path="app/src/api/user.ts">
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+export type UserPublicResponse = {
+    id: number
+    authuser_id: number
+    authuser: any
+}
+
+export type GetUserResponse = {
+    success: boolean
+    user?: UserPublicResponse
+}
+
+export async function getUserByUsername(
+  username: string
+): Promise<GetUserResponse> {
+  const token = localStorage.getItem("token")
+
+  const res = await fetch(`${API_URL}/user?username=${username}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    }
+  })
+
+  if (!res.ok) {
+    throw new Error("Network error")
+  }
+
+  return res.json()
+}
+</file>
+
+<file path="app/src/app/docs/d/[id]/BlockEditor.tsx">
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { DocumentBlock2, Op } from "./op"
+import LatexRenderer from "@/components/LatexRenderer"
+import { getDiff } from "./utils"
+
+export function BlockEditor({
+    block,
+    position,
+    sendOp,
+    permission,
+    textareaRef,
+    requestFocus,
+    containerRef,
+    emptyDoc,
+}: {
+    block: DocumentBlock2
+    position: number
+    sendOp: (op: Op) => void
+    permission: "owner" | "read" | "write"
+    textareaRef: (el: HTMLTextAreaElement | null) => void
+    requestFocus: (index: number, atEnd?: boolean) => void
+    containerRef: any
+    emptyDoc: boolean
+}) {
+    const [isFocused, setIsFocused] = useState(false)
+    const localRef = useRef<HTMLTextAreaElement | null>(null);
+    const [value, setValue] = useState(block.content)
+
+    useEffect(() => {
+        if (emptyDoc && position === 0) {
+            setIsFocused(true)
+        }
+    }, [])
+
+
+    // keep local state in sync with external updates
+useEffect(() => {
+    const el = localRef.current;
+    if (!el) return;
+
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+
+    setValue(block.content);
+
+    requestAnimationFrame(() => {
+        const el2 = localRef.current;
+        if (!el2) return;
+
+        const max = el2.value.length;
+
+        el2.setSelectionRange(
+            Math.min(start, max),
+            Math.min(end, max)
+        );
+    });
+}, [block.content]);
+
+    useEffect(() => {
+        // removes extra line browsers leave for textarea at bottom for consistent vertical spacing
+        const el = localRef.current;
+        if (!el) return;
+
+        el.style.height = "0px";
+        el.style.height = el.scrollHeight + "px";
+
+        ensureVisibleWithBuffer();
+    }, [value])
+
+    const ensureVisibleWithBuffer = () => {
+        const el = localRef.current;
+        const container = containerRef.current;
+        if (!el || !container) return;
+
+        const buffer = 120;
+
+        // position of textarea bottom INSIDE scroll container
+        const elBottom = el.offsetTop + el.scrollHeight;
+
+        // current visible bottom of container
+        const containerBottom =
+            container.scrollTop + container.clientHeight;
+
+        const distanceFromBottom = containerBottom - elBottom;
+
+        if (distanceFromBottom < buffer) {
+            container.scrollTop += buffer - distanceFromBottom;
+        }
+    };
+
+    const prevValueRef = useRef(value);
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const newValue = e.target.value;
+        const prevValue = value;
+        const diff = getDiff(prevValue, newValue);
+        setValue(newValue)
+
+
+        sendOp({
+            type: "update_block",
+            position,
+            block_type: block.type,
+            diff
+        })
+
+        prevValueRef.current = newValue;
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        // SHIFT+ENTER → allow newline
+        if (e.key === "Enter" && e.shiftKey) {
+            return; // let textarea handle it naturally
+        }
+
+        // ENTER → create new block
+        if (e.key === "Enter") {
+            e.preventDefault()
+
+            sendOp({
+                id: crypto.randomUUID(),
+                type: "create_block",
+                position: position + 1,
+            })
+
+            requestFocus(position + 1)
+        }
+
+        // BACKSPACE on empty → delete block
+        if (e.key === "Backspace" && value === "" && position !== 0) {
+            console.log("BACKSPACE", position)
+            e.preventDefault()
+
+            sendOp({
+                type: "delete_block",
+                position
+            })
+
+            requestFocus(position - 1, true)
+        }
+    }
+
+    useLayoutEffect(() => {
+        if (!isFocused) return;
+        const el = localRef.current;
+        if (!el) return;
+        el.focus();
+        const len = el.value.length;
+        el.setSelectionRange(len, len);
+        ensureVisibleWithBuffer();
+    }, [isFocused]);
+
+    return (
+        <div className="w-full flex justify-center">
+            <div key={block.id} className="w-full max-w-4xl grid">
+                <div
+                    onClick={() => setIsFocused(true)}
+                    className={`
+                        col-start-1 row-start-1
+                        text-base font-serif leading-relaxed whitespace-pre-wrap break-words
+                        ${isFocused ? "opacity-0 pointer-events-none" : "opacity-100"}
+                        z-0
+                        px-10 py-2
+                    `}
+                >
+                    <LatexRenderer content={value} />
+                </div>
+                <textarea
+                    ref={(el) => {
+                        localRef.current = el;
+                        textareaRef(el);
+                    }}
+                    value={value}
+                    onChange={handleChange}
+                    onKeyDown={handleKeyDown}
+                    placeholder={position == 0 ? "Start writing..." : ""}
+                    className={`
+                        col-start-1 row-start-1
+                        leading-relaxed
+                        px-10 py-2
+                        w-full
+                        resize-none
+                        outline-none
+                        text-base
+                        font-serif
+                        ${isFocused ? "bg-gray-100" : "bg-transparent"}
+                        ${isFocused ? "opacity-100" : "opacity-0 pointer-events-none"}
+                        z-10
+                    `}
+                    disabled={permission === "read"}
+                    onBlur={() => {
+                        if (isFocused) setIsFocused(false)
+                    }}
+                    onFocus={() => {
+                        if (!isFocused) setIsFocused(true)
+                    }}
+                />
+            </div>
+        </div>
+    )
+}
+</file>
+
+<file path="app/src/app/docs/d/[id]/op.ts">
+import { DocumentBlock } from "@/api/docs";
+
+export type CharOp = 
+  | { type: "insert", index: number, text: string }
+  | { type: "delete", index: number, length: number }
+  | { type: "replace", index: number, text: string, length: number }
+
+export type Op =
+  | { type: "insert"; pos: number; text: string }
+  | { type: "delete"; pos: number; length: number }
+  | { type: "init"; content: DocumentBlock[]; }
+
+  | { type: "create_block"; position: number; id: string }
+  | { type: "update_block"; position: number; block_type: string; diff: CharOp }
+  | { type: "delete_block"; position: number }
+
+export const applyOp = (val: string, op: any) => {
+  if (op.type === "insert") {
+    return val.slice(0, op.pos) + op.text + val.slice(op.pos)
+  }
+
+  if (op.type === "delete") {
+    return val.slice(0, op.pos) + val.slice(op.pos + op.length)
+  }
+
+  return val
+}
+
+const applyCharOp = (val: string, op: CharOp) => {
+  if (op.type == "insert") {
+    return val.slice(0, op.index) + op.text + val.slice(op.index)
+  }
+  if (op.type == "delete") {
+    return val.slice(0, op.index) + val.slice(op.index + op.length)
+  }
+  if (op.type == "replace") {
+    return val.slice(0, op.index) + op.text + val.slice(op.index + op.length)
+  }
+  return val
+}
+
+export type Block =
+  | {
+    id: string;
+    type: "paragraph";
+    content: string;
+  }
+  | {
+    id: string;
+    type: "math_block";
+    latex: string;
+  };
+
+export type DocumentBlock2 = {
+  id: string;
+  doc_id?: number;
+  position?: number;
+  type: string;
+  content: string;
+  updated_at?: string;
+}
+
+
+type DocumentState = {
+  order: string[]                         // [block_id, block_id, ...]
+  blocks: Record<string, DocumentBlock2>   // block_id -> block
+}
+
+
+export function reducer(state: DocumentState, op: Op): DocumentState {
+  const newState = {
+    order: [...state.order],
+    blocks: { ...state.blocks }
+  }
+
+  switch (op.type) {
+    case "init": {
+      const blocksArray = op.content
+
+      const order: string[] = []
+      const blocks: Record<string, DocumentBlock2> = {}
+
+      for (const block of blocksArray) {
+        order.push(block.id)
+        blocks[block.id] = block
+      }
+
+      return {
+        order,
+        blocks
+      }
+    }
+
+    case "create_block": {
+      const id = op.id
+
+      newState.order.splice(op.position, 0, id)
+      newState.blocks[id] = {
+        id,
+        type: "paragraph",
+        content: ""
+      }
+      return newState
+    }
+
+    case "update_block": {
+      const id = newState.order[op.position]
+      if (!id) return state
+
+      newState.blocks[id] = {
+        ...newState.blocks[id],
+        type: op.block_type,
+        content: applyCharOp(newState.blocks[id].content, op.diff)
+      }
+      console.log({newState})
+      return newState
+    }
+
+    case "delete_block": {
+      const id = newState.order[op.position]
+      if (!id) return state
+
+      newState.order.splice(op.position, 1)
+      delete newState.blocks[id]
+      return newState
+    }
+
+    default:
+      return state
+  }
+}
+</file>
+
+<file path="app/src/app/docs/d/[id]/page.tsx">
+"use client"
+
+import { useEffect, useState } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { TextEditor } from "./TextEditor"
+import { Button } from "@/components/ui/button"
+import { updateTitle } from "@/hooks/autoSaveDoc"
+import { SharePopover } from "./SharePopover"
+import { DocumentResponsePermission } from "@/api/docs"
+import { useAuth } from "@/hooks/useAuth"
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+export default function DocPage() {
+  const router = useRouter()
+  const params = useParams();
+  const id = params?.id as string;
+
+
+  const [doc, setDoc] = useState<DocumentResponsePermission | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  const { user, loading: authLoading } = useAuth()
+  const isOwner = doc && user && doc.owner_id == user.id;
+
+  const [title, setTitle] = useState("Untitled Document")
+  useEffect(() => {
+    if (!doc) {
+      return
+    }
+    console.log({doc})
+    setTitle(doc.title)
+  }, [doc])
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+    updateTitle(id, e.target.value);
+  };
+
+  useEffect(() => {
+    async function loadDoc() {
+      const token = localStorage.getItem("token")
+
+      if (!token) {
+        router.replace("/signin")
+        return
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/docs/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (!res.ok) throw new Error("Failed to load doc")
+
+        const data = await res.json()
+        setDoc(data)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadDoc()
+  }, [id, router])
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center text-sm text-muted-foreground">
+        Loading document...
+      </div>
+    )
+  }
+
+  if (!doc) {
+    return (
+      <div className="h-screen flex items-center justify-center text-sm text-red-500">
+        Document not found
+      </div>
+    )
+  }
+
+  return (
+    <div className="h-screen w-full flex flex-col bg-white">
+
+      {/* TOP BAR */}
+      <div className="flex items-center justify-between border-b px-4 py-2">
+
+        {/* Left side */}
+        <div className="flex items-center gap-3">
+          <Button
+            className="text-sm"
+            onClick={() => router.push("/docs")}
+          >
+            ← Back
+          </Button>
+
+          <input
+            value={title}
+            onChange={handleTitleChange}
+            className="text-sm font-medium outline-none bg-transparent border-b border-transparent focus:border-muted"
+            disabled={doc.permission === "read"}
+          />
+
+          <div className="text-xs text-muted-foreground">
+            Last saved: just now
+          </div>
+        </div>
+
+        {/* Right side */}
+        <div className="flex items-center gap-2">
+          <Button
+            className="text-sm"
+          >
+            Export
+          </Button>
+
+          <SharePopover doc={doc} user={user}/>
+        </div>
+      </div>
+
+      {/* TOOLBAR (future formatting controls) */}
+      <div className="flex items-center gap-2 border-b px-4 py-2 bg-muted/20">
+        <div className="w-8 h-8 bg-muted rounded" />
+        <div className="w-8 h-8 bg-muted rounded" />
+        <div className="w-8 h-8 bg-muted rounded" />
+        <div className="w-8 h-8 bg-muted rounded" />
+        <div className="w-8 h-8 bg-muted rounded" />
+
+        {/* spacer */}
+        <div className="flex-1" />
+
+        <div className="text-xs text-muted-foreground">
+          formatting tools
+        </div>
+      </div>
+
+      {/* EDITOR AREA */}
+      <TextEditor doc={doc} user={user} initialValue={doc.text}/>
+
+    </div>
+  )
+}
+</file>
+
+<file path="app/src/app/docs/d/[id]/SharePopover.tsx">
+"use client"
+import { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Trash } from "lucide-react"
+import { createOrUpdateShareDoc, deleteShareDoc, getShareDocs } from "@/api/share"
+import { getUserByUsername, GetUserResponse } from "@/api/user"
+import { DocumentResponsePermission } from "@/api/docs"
+
+interface SharedUser {
+  user_id: number
+  username: string
+  permission: "read" | "write"
+}
+
+export function SharePopover({
+  doc,
+  user
+}: {
+  doc: DocumentResponsePermission,
+  user: any
+}) {
+  const docId = doc.id;
+  const isOwner = doc && user && doc.owner_id == user.id;
+  const [copied, setCopied] = useState(false)
+  const [usernameInput, setUsernameInput] = useState("")
+
+  const [sharedUsers, setSharedUsers] = useState<SharedUser[]>([])
+  useEffect(() => {
+    const fetchShares = async () => {
+      const shares = await getShareDocs(docId)
+      setSharedUsers(shares)
+    }
+
+    fetchShares()
+  }, [docId])
+
+  const shareLink = `${process.env.NEXT_PUBLIC_APP_URL}/docs/d/${docId}`
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(shareLink)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+
+  const handleAddUser = async (username: string, shareType: string) => {
+    if (!username.trim()) return
+
+    // fetch user - see if it exists
+    const userResponse: GetUserResponse = await getUserByUsername(username)
+    const user = userResponse?.user
+    if (!user) return
+
+    setSharedUsers((prev) => {
+      // check if username is already in sharedUsers
+      const exists = sharedUsers.some(user => user.username === username)
+      if (exists) {
+        return prev.map(u => 
+          u.username === username
+            ? { ...u, permission: shareType as "read" | "write" }
+            : u
+        )
+      }
+
+      return [
+        ...prev,
+        { user_id: user.id, username: username.trim(), permission: "read" },
+      ]
+    })
+
+    createOrUpdateShareDoc({ doc_id: docId as unknown as number, user_id: user.id, share_type: shareType })
+  }
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline">Share</Button>
+      </PopoverTrigger>
+
+      <PopoverContent align="start" className="w-80 space-y-2">
+        <PopoverHeader>
+          <PopoverTitle>Share document</PopoverTitle>
+          <PopoverDescription>
+            {
+              doc.permission === "read"
+                ? "See who has access to this document."
+                : "Invite people by username and share via link."
+            }
+          </PopoverDescription>
+        </PopoverHeader>
+
+        {/* Add user by username */}
+        {doc.permission !== "read" && <div className="flex items-center gap-2">
+          <Input
+            placeholder="Enter username"
+            value={usernameInput}
+            onChange={(e) => setUsernameInput(e.target.value)}
+          />
+          <Button
+            size="sm"
+            onClick={() => {
+              handleAddUser(usernameInput, "read");
+              setUsernameInput("");
+            }}
+          >
+            Add
+          </Button>
+        </div>}
+
+        {/* Shared users list */}
+        <div className="space-y-2 px-4">
+          <div
+            className="flex items-center justify-between border rounded-md px-2 py-1 gap-2"
+          >
+            <span className="text-sm">{doc.owner_username}</span>
+
+            <div className="flex items-center gap-2">
+              <Select
+                value={"owner"}
+                disabled
+              >
+                <SelectTrigger className="w-[90px] h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent
+                  position="popper"
+                  sideOffset={4}
+                  avoidCollisions={false}
+                  className="min-w-[90px] w-[90px]">
+                  <SelectItem value="owner" className="pl-4">owner</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-2 px-4">
+          {isOwner && sharedUsers.length === 0 ? (
+            <div className="text-xs text-muted-foreground">
+              No users added yet.
+            </div>
+          ) : (
+
+
+            sharedUsers.map((user, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between border rounded-md px-2 py-1 gap-2"
+              >
+                <span className="text-sm">{user.username}</span>
+
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={user.permission}
+                    disabled={doc.permission === "read"}
+                    onValueChange={(value: string) => handleAddUser(user.username, value)}
+                  >
+                    <SelectTrigger className="w-[90px] h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent
+                      position="popper"
+                      sideOffset={4}
+                      avoidCollisions={false}
+                      className="min-w-[90px] w-[90px]">
+                      <SelectItem value="read" className="pl-4">read</SelectItem>
+                      <SelectItem value="write" className="pl-4">write</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {doc.permission !== "read" && <Button
+                    size="icon"
+                    variant="ghost"
+                    className="text-red-500 hover:text-red-600"
+                    onClick={() => {
+                      setSharedUsers((prev) =>
+                        prev.filter((_, i) => i !== index)
+                      )
+                      deleteShareDoc({ doc_id: docId as unknown as number, user_id: user.user_id })
+                    }}
+                  >
+                    <Trash className="w-4 h-4" />
+                  </Button>}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Share link */}
+        <div className="flex items-center gap-2">
+          <Input value={shareLink} readOnly />
+          <Button onClick={handleCopy} size="sm">
+            {copied ? "Copied" : "Copy"}
+          </Button>
+        </div>
+
+        {/* <div className="text-xs text-muted-foreground">
+          Permissions: Link = Viewer only
+        </div> */}
+      </PopoverContent>
+    </Popover>
+  )
+}
+</file>
+
+<file path="app/src/app/docs/d/[id]/TextEditor.tsx">
+"use client"
+
+import { DocumentResponsePermission } from "@/api/docs"
+import { useEffect, useReducer, useRef, useState } from "react"
+import { Op, reducer } from "./op"
+import { BlockEditor } from "./BlockEditor"
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL
+
+type Props = {
+    doc: DocumentResponsePermission
+    user: any
+    initialValue?: string
+}
+
+export function TextEditor({
+    doc,
+    user,
+    initialValue = ""
+}: Props) {
+    const [value, setValue] = useState(initialValue)
+    const prevValueRef = useRef(initialValue)
+
+    useEffect(() => {
+        const token = localStorage.getItem("token")
+        const socket = new WebSocket(`${WS_URL}/ws/docs/${doc.id}?token=${token}`)
+        wsRef.current = socket
+
+        socket.onmessage = (event) => {
+            const op: Op = JSON.parse(event.data)
+
+            dispatch(op)
+        }
+
+        return () => {
+            socket.close()
+        }
+    }, [])
+
+    const [state, dispatch] = useReducer(reducer, {
+        order: [],
+        blocks: {}
+    })
+
+    const wsRef = useRef<WebSocket | null>(null)
+
+    const sendOp = (op: Op) => {
+        // optimistic update
+        dispatch(op)
+
+        wsRef.current?.send(JSON.stringify(op))
+    }
+
+    const blockRefs = useRef<(HTMLTextAreaElement | null)[]>([])
+    const [focusIndex, setFocusIndex] = useState<number | null>(null)
+    const [focusAtEnd, setFocusAtEnd] = useState(false)
+
+    const requestFocus = (index: number, atEnd = false) => {
+        setFocusIndex(index)
+        setFocusAtEnd(atEnd)
+    }
+
+    const sendOpWithFocus = (op: Op, focus?: { index: number, atEnd?: boolean }) => {
+        if (focus) {
+            setFocusIndex(focus.index)
+            setFocusAtEnd(!!focus.atEnd)
+        }
+
+        sendOp(op)
+    }
+
+    useEffect(() => {
+        if (focusIndex === null) return
+
+        const el = blockRefs.current[focusIndex]
+        if (!el) return
+
+        el.focus()
+
+        if (focusAtEnd) {
+            const length = el.value.length
+            el.setSelectionRange(length, length)
+        } else {
+            el.setSelectionRange(0, 0)
+        }
+
+        setFocusIndex(null)
+    }, [state.order])
+
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    return (
+        <div className="flex-1 flex flex-col bg-white align-items
+                h-[calc(100vh-180px)] p-16
+                overflow-y-auto
+        "
+            ref={containerRef}
+        >
+            {state.order.map((id, i) =>
+                <BlockEditor
+                    key={id}
+                    block={state.blocks[id]}
+                    position={i}
+                    sendOp={sendOpWithFocus}
+                    permission={doc.permission}
+                    textareaRef={(el) => (blockRefs.current[i] = el)}
+                    requestFocus={requestFocus}
+                    containerRef={containerRef}
+                    emptyDoc={state.blocks[state.order[0]].content === ""}
+                />
+            )}
+            <div className="h-[240px] shrink-0" />
+        </div>
+    )
+}
+</file>
+
+<file path="app/src/app/docs/d/[id]/update.ts">
+
+</file>
+
+<file path="app/src/app/docs/d/[id]/utils.ts">
+import { CharOp } from "./op";
+
+export function getDiff(prev: string, next: string) {
+    let start = 0;
+
+    // find first difference
+    while (
+        start < prev.length &&
+        start < next.length &&
+        prev[start] === next[start]
+    ) {
+        start++;
+    }
+
+    let endPrev = prev.length - 1;
+    let endNext = next.length - 1;
+
+    // find last difference
+    while (
+        endPrev >= start &&
+        endNext >= start &&
+        prev[endPrev] === next[endNext]
+    ) {
+        endPrev--;
+        endNext--;
+    }
+
+    // insertion
+    if (next.length > prev.length) {
+        return {
+            type: "insert",
+            index: start,
+            text: next.slice(start, endNext + 1),
+        } as CharOp;
+    }
+
+    // deletion
+    if (next.length < prev.length) {
+        return {
+            type: "delete",
+            index: start,
+            length: endPrev - start + 1,
+        } as CharOp;
+    }
+
+    // replace (treat as delete + insert)
+    return {
+        type: "replace",
+        index: start,
+        length: endPrev - start + 1,
+        text: next.slice(start, endNext + 1),
+    } as CharOp;
+}
+</file>
+
+<file path="app/src/app/docs/ListDocs.tsx">
+//  where my docs will go; Shared with me, Owned, All;
+// - also filters by alpha asc/desc, time asc/desc
+
+"use client";
+
+import { useRouter } from "next/navigation";
+import {
+  ColumnDef,
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+} from "@tanstack/react-table";
+import { useState } from "react";
+import { Document } from "@/hooks/useDocs";
+import { SortingState } from "@tanstack/react-table";
+
+type Props = {
+  docs: Document[];
+};
+
+export default function ListDocs({ docs }: Props) {
+  const router = useRouter();
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  const columns: ColumnDef<Document>[] = [
+    {
+      accessorKey: "title",
+      header: "Title",
+      cell: ({ row }) => (
+        <div className="text-sm font-medium truncate">
+          {row.original.title || "Untitled"}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "updated_at",
+      header: "Last edited",
+      cell: ({ row }) => (
+        <div className="text-xs text-muted-foreground">
+          {row.original.updated_at
+            ? new Date(row.original.updated_at).toLocaleDateString()
+            : ""}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "created_at",
+      header: "Created at",
+      cell: ({ row }) => (
+        <div className="text-xs text-muted-foreground">
+          {row.original.created_at
+            ? new Date(row.original.created_at).toLocaleDateString()
+            : ""}
+        </div>
+      ),
+    },
+  ];
+
+  const table = useReactTable({
+    data: docs,
+    columns,
+    state: { sorting },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  if (!docs.length) {
+    return (
+      <div className="text-sm text-muted-foreground p-4">
+        No documents yet
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full">
+      {/* Header */}
+      <div className="grid grid-cols-3 px-3 py-2 text-xs text-muted-foreground border-b">
+        {table.getHeaderGroups().map((headerGroup) =>
+          headerGroup.headers.map((header) => (
+            <div
+              key={header.id}
+              className="cursor-pointer select-none"
+              onClick={header.column.getToggleSortingHandler()}
+            >
+              {flexRender(
+                header.column.columnDef.header,
+                header.getContext()
+              )}
+              {{
+                asc: " ↑",
+                desc: " ↓",
+              }[header.column.getIsSorted() as string] ?? ""}
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Rows */}
+      <div className="divide-y">
+        {table.getRowModel().rows.map((row) => (
+          <div
+            key={row.id}
+            onClick={() => router.push(`/docs/d/${row.original.id}`)}
+            className="grid grid-cols-3 px-3 py-2 hover:bg-muted cursor-pointer transition-colors"
+          >
+            {row.getVisibleCells().map((cell) => (
+              <div key={cell.id}>
+                {flexRender(
+                  cell.column.columnDef.cell,
+                  cell.getContext()
+                )}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="app/src/app/docs/ListDocsShared.tsx">
+//  where my docs will go; Shared with me, Owned, All;
+// - also filters by alpha asc/desc, time asc/desc
+
+"use client";
+
+import { useRouter } from "next/navigation";
+import {
+  ColumnDef,
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+} from "@tanstack/react-table";
+import { useState } from "react";
+import { Document } from "@/hooks/useDocs";
+import { SortingState } from "@tanstack/react-table";
+
+type Props = {
+  docs: Document[];
+};
+
+export default function ListDocsShared({ docs }: Props) {
+  const router = useRouter();
+  const [sorting, setSorting] = useState<SortingState>([]);
+  console.log({docs})
+
+  const columns: ColumnDef<Document>[] = [
+    {
+      accessorKey: "title",
+      header: "Title",
+      cell: ({ row }) => (
+        <div className="text-sm font-medium truncate">
+          {row.original.title || "Untitled"}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "owner",
+      header: "Owner",
+      cell: ({ row }) => (
+        <div className="text-sm font-medium truncate">
+          {row.original.owner_username || "Unkown"}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "permission",
+      header: "Permission",
+      cell: ({ row }) => (
+        <div className="text-sm font-medium truncate">
+          {row.original.permission || ""}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "updated_at",
+      header: "Last edited",
+      cell: ({ row }) => (
+        <div className="text-xs text-muted-foreground">
+          {row.original.updated_at
+            ? new Date(row.original.updated_at).toLocaleDateString()
+            : ""}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "created_at",
+      header: "Created at",
+      cell: ({ row }) => (
+        <div className="text-xs text-muted-foreground">
+          {row.original.created_at
+            ? new Date(row.original.created_at).toLocaleDateString()
+            : ""}
+        </div>
+      ),
+    },
+  ];
+
+  const table = useReactTable({
+    data: docs,
+    columns,
+    state: { sorting },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  if (!docs.length) {
+    return (
+      <div className="text-sm text-muted-foreground p-4">
+        No documents yet
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full">
+      {/* Header */}
+      <div className="grid grid-cols-5 px-3 py-2 text-xs text-muted-foreground border-b">
+        {table.getHeaderGroups().map((headerGroup) =>
+          headerGroup.headers.map((header) => (
+            <div
+              key={header.id}
+              className="cursor-pointer select-none"
+              onClick={header.column.getToggleSortingHandler()}
+            >
+              {flexRender(
+                header.column.columnDef.header,
+                header.getContext()
+              )}
+              {{
+                asc: " ↑",
+                desc: " ↓",
+              }[header.column.getIsSorted() as string] ?? ""}
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Rows */}
+      <div className="divide-y">
+        {table.getRowModel().rows.map((row) => (
+          <div
+            key={row.id}
+            onClick={() => router.push(`/docs/d/${row.original.id}`)}
+            className="grid grid-cols-5 px-3 py-2 hover:bg-muted cursor-pointer transition-colors"
+          >
+            {row.getVisibleCells().map((cell) => (
+              <div key={cell.id}>
+                {flexRender(
+                  cell.column.columnDef.cell,
+                  cell.getContext()
+                )}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="app/src/app/docs/page.tsx">
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { useAuth } from "@/hooks/useAuth"
+import { useDocuments, useSharedDocuments } from "@/hooks/useDocs"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
+import { TemplateDocsRow } from "./TemplateDocs"
+import ListDocs from "./ListDocs"
+import ListDocsShared from "./ListDocsShared"
+
+export default function DocsPage() {
+  const router = useRouter()
+
+  const { user, loading: authLoading } = useAuth()
+  const { docs, loading: docsLoading } = useDocuments()
+  const { docs: sharedDocs, loading: sharedDocsLoading } = useSharedDocuments()
+
+  // auth guard
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/signin?redirect=/docs")
+    }
+  }, [user, authLoading, router])
+
+  // loading state
+  if (authLoading || docsLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center text-sm text-muted-foreground">
+        Loading your workspace...
+      </div>
+    )
+  }
+
+  // not authenticated (avoid flicker)
+  if (!user) return null
+
+  return (
+    <div className="
+          flex-1 flex flex-col bg-white align-items
+          h-[calc(100vh-180px)] p-16 pt-8
+          overflow-y-auto
+        ">
+      {/* Top bar */}
+      <div className="px-4 py-2 font-medium">
+        Mathboard Docs
+      </div>
+
+      <div className="flex flex-1 flex-col gap-4">
+        {/* Left-side */}
+        <div className="w-full border p-3 bg-muted/20 flex flex-col gap-3">
+          <div className="text-xs text-muted-foreground mb-2 px-2">
+            START NEW DOCUMENT
+          </div>
+
+          <TemplateDocsRow />
+
+        </div>
+        <div className="w-full border p-3 bg-muted/20 flex flex-col gap-3">
+          <div className="text-xs text-muted-foreground mb-2 px-2">
+            YOUR DOCUMENTS
+          </div>
+          <div className="space-y-1  max-h-84 overflow-y-auto">
+            <ListDocs docs={docs} />
+          </div>
+        </div>
+
+        <div className="w-full border p-3 bg-muted/20 flex flex-col gap-3">
+          <div className="text-xs text-muted-foreground mb-2 px-2">
+            SHARED WITH YOU
+          </div>
+          <div className="space-y-1  max-h-84 overflow-y-auto">
+            <ListDocsShared docs={sharedDocs} />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-16"/>
+    </div>
+  )
+}
+</file>
+
+<file path="app/src/app/docs/TemplateDocs.tsx">
+"use client"
+
+import { createDoc } from "@/api/docs"
+import { useRouter } from "next/navigation"
+
+export function TemplateDocsRow() {
+  const router = useRouter()
+
+  const templateDocs = [
+    "Blank Document",
+    "Math Notes",
+    "Homework Template",
+    "Lecture Summary",
+    "Research Paper",
+    "Proof Writing",
+    "Exam Prep Sheet",
+  ]
+
+  async function handleSelect(template: string) {
+    try {
+      const res = await createDoc({
+        template,
+        title: template
+      })
+
+      console.log(res);
+
+      router.push(`/docs/d/${res.doc_id}`)
+    } catch (err) {
+      console.error("Failed to create doc:", err)
+    }
+  }
+
+  return (
+    <div className="overflow-x-auto px-4 pb-4">
+      <div className="flex gap-4 pr-5 w-max">
+        {templateDocs.map((doc, idx) => (
+          <div key={idx} className="flex flex-col items-center shrink-0">
+            <div
+              onClick={() => handleSelect(doc)}
+              className="w-40 h-54 bg-muted rounded-md border hover:bg-muted/70 cursor-pointer transition"
+            />
+            <div className="mt-2 text-xs text-muted-foreground text-center max-w-40 truncate">
+              {doc}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+</file>
+
+<file path="app/src/app/globals.css">
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+</file>
+
+<file path="app/src/app/layout.tsx">
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+import "katex/dist/katex.min.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Create Next App",
+  description: "Generated by create next app",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col">{children}</body>
+    </html>
+  );
+}
+</file>
+
+<file path="app/src/app/middleware.ts">
+// middleware.ts
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+export function middleware(request: NextRequest) {
+  const isLoggedIn = false; // replace
+
+  if (!isLoggedIn && request.nextUrl.pathname.startsWith("/docs")) {
+    const url = new URL("/signin", request.url);
+    url.searchParams.set("redirect", request.nextUrl.pathname);
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
+}
+</file>
+
+<file path="app/src/app/page.tsx">
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { ArrowRight, Sigma, FileText, Users, Sparkles } from "lucide-react"
+import Link from "next/link"
+
+export default function HomePage() {
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {/* NAV */}
+      <header className="border-b">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-2 font-semibold text-lg">
+            <Sigma className="h-5 w-5" />
+            mathboard
+          </div>
+
+          <nav className="flex items-center gap-6 text-sm text-muted-foreground">
+            <a href="#features" className="hover:text-foreground">Features</a>
+            <a href="/docs" className="hover:text-foreground">Docs</a>
+          </nav>
+
+          <Link href="/signin">
+            <Button size="sm">Sign in</Button>
+          </Link>
+        </div>
+      </header>
+
+      {/* HERO */}
+      <section className="mx-auto max-w-6xl px-6 py-24 text-center">
+        <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs text-muted-foreground">
+          <Sparkles className="h-3 w-3" />
+          Now in beta
+        </div>
+
+        <h1 className="mt-6 text-5xl font-bold tracking-tight">
+          Google Docs for <span className="text-primary">LaTeX</span>
+        </h1>
+
+        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+          Write, collaborate, and render beautiful mathematical documents in real time.
+          Mathboard brings modern collaboration to LaTeX editing.
+        </p>
+
+        <div className="mt-8 flex justify-center gap-3">
+          <Link href="/signin">
+            <Button size="lg">
+              Get started
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+          <Button variant="outline" size="lg">
+            View demo
+          </Button>
+        </div>
+
+        <div className="mt-12 rounded-xl border bg-muted/30 p-6 shadow-sm">
+          <div className="text-sm text-muted-foreground">
+            Live preview coming soon
+          </div>
+          <div className="mt-2 font-mono text-xs text-muted-foreground">
+            hi
+          </div>
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section id="features" className="border-t bg-muted/30">
+        <div className="mx-auto max-w-6xl px-6 py-20">
+          <h2 className="text-center text-3xl font-semibold">
+            Built for modern math writing
+          </h2>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            <Card className="p-6">
+              <FileText className="h-5 w-5 text-primary" />
+              <h3 className="mt-4 font-semibold">Real-time LaTeX editor</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Instant rendering with zero refresh friction.
+              </p>
+            </Card>
+
+            <Card className="p-6">
+              <Users className="h-5 w-5 text-primary" />
+              <h3 className="mt-4 font-semibold">Collaborative editing</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Work together on proofs and papers in real time.
+              </p>
+            </Card>
+
+            <Card className="p-6">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <h3 className="mt-4 font-semibold">Smart rendering</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Clean, fast MathJax/KaTeX output for every expression.
+              </p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="mx-auto max-w-6xl px-6 py-24 text-center">
+        <h2 className="text-3xl font-semibold">
+          Start writing mathematics like a document.
+        </h2>
+        <p className="mt-4 text-muted-foreground">
+          No compile step. No friction. Just LaTeX that feels modern.
+        </p>
+
+        <Link href="/docs">
+          <Button size="lg" className="mt-8">
+            Launch Mathboard
+          </Button>
+        </Link>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t">
+        <div className="mx-auto flex max-w-6xl justify-between px-6 py-8 text-sm text-muted-foreground">
+          <div>© {new Date().getFullYear()} mathboard</div>
+          <div className="flex gap-4">
+            <a href="#">GitHub</a>
+            <a href="#">Twitter</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
+</file>
+
+<file path="app/src/app/signin/AuthCard.tsx">
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { createAccountHandler, signinHandler } from "./handlers"
+import { useState } from "react"
+
+export const CreateAccount = ({
+    handleRedirect,
+    setMode
+}: {
+    handleRedirect: () => void
+    setMode: (arg0: Mode) => void
+}) => {
+    const [username, setUsername] = useState("")
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+
+    const [error, setError] = useState<string | null>(null)
+    const [loading, setLoading] = useState(false)
+
+    async function handleSignUp() {
+        setLoading(true)
+
+        const result = await createAccountHandler({
+            username,
+            email,
+            password,
+        })
+
+        setLoading(false)
+
+        if (!result.ok) {
+            setError(result.error)
+            return
+        }
+
+        localStorage.setItem("token", result.token)
+        handleRedirect()
+    }
+
+    return (
+        <Card className="w-full max-w-md">
+            <CardHeader className="text-center space-y-1">
+                <CardTitle className="text-2xl">Create account for Mathboard</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                    Continue to your LaTeX workspace
+                </p>
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label>Username</Label>
+                    <Input
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@example.com"
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <Label>Password</Label>
+                    <Input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                    />
+                </div>
+
+                {error && (
+                    <div className="text-sm text-red-500">
+                        {error}
+                    </div>
+                )}
+
+                <Button className="w-full py-4" onClick={handleSignUp}>
+                    Create Account
+                </Button>
+
+                <div className="text-center text-xs text-muted-foreground">
+                    No account? You’ll be able to sign up soon.
+                </div>
+
+                <div className="text-center text-xs text-muted-foreground space-y-2">
+                    <p>
+                        Already have an account?{" "}
+                        <button
+                            className="underline hover:text-foreground"
+                            onClick={() => setMode("signin")}
+                        >
+                            Sign in
+                        </button>
+                    </p>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+export const Signin = ({
+    handleRedirect,
+    setMode
+}: {
+    handleRedirect: () => void
+    setMode: (arg0: Mode) => void
+}) => {
+    const [username, setUsername] = useState("")
+    const [password, setPassword] = useState("")
+
+    const [error, setError] = useState<string | null>(null)
+    const [loading, setLoading] = useState(false)
+
+    async function handleSignin() {
+        setLoading(true)
+
+        const result = await signinHandler({
+            username,
+            password,
+        })
+
+        setLoading(false)
+
+        console.log({result})
+
+        if (!result.ok) {
+            setError(result.error || "Incorrect credentials")
+            return
+        }
+
+        localStorage.setItem("token", result.token)
+        handleRedirect()
+    }
+
+    return (
+        <Card className="w-full max-w-md">
+            <CardHeader className="text-center space-y-1">
+                <CardTitle className="text-2xl">Sign in to Mathboard</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                    Continue to your LaTeX workspace
+                </p>
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label>Username/email</Label>
+                    <Input
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <Label>Password</Label>
+                    <Input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                    />
+                </div>
+
+                {error && (
+                    <div className="text-sm text-red-500">
+                        {error}
+                    </div>
+                )}
+
+                <Button className="w-full py-4" onClick={handleSignin}>
+                    Sign in
+                </Button>
+
+                <div className="text-center text-xs text-muted-foreground">
+                    No account? You’ll be able to sign up soon.
+                </div>
+
+                <div className="text-center text-xs text-muted-foreground space-y-2">
+                    <p>
+                        No account?{" "}
+                        <button
+                            className="underline hover:text-foreground"
+                            onClick={() => setMode("signup")}
+                        >
+                            Create one
+                        </button>
+                    </p>
+
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+type Mode = "signin" | "signup"
+
+export const AuthCard = ({
+    handleRedirect,
+    paramMode = "signup"
+}: {
+    handleRedirect: () => void
+    paramMode?: Mode
+}) => {
+    const [mode, setMode] = useState<Mode>(paramMode)
+
+    return mode === "signup"
+        ? <CreateAccount handleRedirect={handleRedirect} setMode={setMode} />
+        : <Signin handleRedirect={handleRedirect} setMode={setMode} />
+}
+</file>
+
+<file path="app/src/app/signin/handlers.ts">
+import { createUser, signinUser } from "@/api/signin";
+
+export type CreateAccountResult =
+  | { ok: true; token: string }
+  | { ok: false; error: string }
+
+export async function createAccountHandler(data: {
+  username: string
+  email: string
+  password: string
+}): Promise<CreateAccountResult> {
+  const res = await createUser(data)
+
+  switch (res.code) {
+    case 100:
+      return {
+        ok: true,
+        token: res.token!,
+      }
+
+    case 10:
+      return { ok: false, error: "Invalid username" }
+
+    case 20:
+      return { ok: false, error: "Invalid email" }
+
+    case 30:
+      return { ok: false, error: "Invalid password" }
+
+    case 90:
+      return { ok: false, error: "Account already exists" }
+
+    default:
+      return { ok: false, error: "Unknown error" }
+  }
+}
+
+export type SigninResult = any;
+
+export async function signinHandler(data: {
+  username: string
+  password: string
+}): Promise<SigninResult> {
+  const res = await signinUser(data);
+
+  if (res?.token) {
+    return {
+      ok: true,
+      token: res.token
+    }
+  }
+
+  return {
+    ok: false
+  }
+}
+</file>
+
+<file path="app/src/app/signin/page.tsx">
+import { Suspense } from "react"
+import SigninPage from "./SigninPage"
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div />}>
+      <SigninPage />
+    </Suspense>
+  )
+}
+</file>
+
+<file path="app/src/app/signin/SigninPage.tsx">
+"use client"
+
+import { useSearchParams, useRouter } from "next/navigation"
+import { AuthCard } from "./AuthCard"
+import { useAuth } from "@/hooks/useAuth"
+import { useEffect } from "react"
+
+export default function SignInPage() {
+  const params = useSearchParams()
+  const router = useRouter()
+
+  const redirectTo = params?.get("redirect") || "/docs"
+
+  const handleRedirect = () => {
+    router.push(redirectTo)
+  }
+
+  const { user, loading } = useAuth()
+  useEffect(() => {
+    if (!loading && user) {
+      handleRedirect();
+    }
+  }, [user, loading])
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
+      {<AuthCard handleRedirect={handleRedirect}/>}
+    </div>
+  )
+}
+</file>
+
+<file path="app/src/components/Editor.tsx">
+
+</file>
+
+<file path="app/src/components/LatexRenderer.tsx">
+"use client";
+
+import { useEffect, useRef } from "react";
+import katex from "katex";
+// @ts-ignore
+import renderMathInElement from "katex/dist/contrib/auto-render";
+
+interface Props {
+  content: string;
+}
+
+export default function LatexRenderer({ content }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    renderMathInElement(containerRef.current, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\[", right: "\\]", display: true },
+        { left: "$", right: "$", display: false },
+      ],
+      throwOnError: false,
+    });
+  }, [content]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="
+        w-full
+        text-base
+        font-serif
+        leading-relaxed
+        min-h-[1.5em]
+        whitespace-pre-wrap
+        break-words
+      "
+      dangerouslySetInnerHTML={{ __html: content }}
+    />
+  );
+}
+</file>
+
+<file path="app/src/components/Navbar.tsx">
+
+</file>
+
+<file path="app/src/components/PDFPreview.tsx">
+
+</file>
+
+<file path="app/src/components/ui/button.tsx">
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
+import { Slot } from "radix-ui"
+
+import { cn } from "@/lib/utils"
+
+const buttonVariants = cva(
+  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        outline:
+          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+        ghost:
+          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+        destructive:
+          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default:
+          "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+        lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        icon: "size-8",
+        "icon-xs":
+          "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
+        "icon-sm":
+          "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
+        "icon-lg": "size-9",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+
+function Button({
+  className,
+  variant = "default",
+  size = "default",
+  asChild = false,
+  ...props
+}: React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean
+  }) {
+  const Comp = asChild ? Slot.Root : "button"
+
+  return (
+    <Comp
+      data-slot="button"
+      data-variant={variant}
+      data-size={size}
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    />
+  )
+}
+
+export { Button, buttonVariants }
+</file>
+
+<file path="app/src/components/ui/card.tsx">
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
+
+function Card({
+  className,
+  size = "default",
+  ...props
+}: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
+  return (
+    <div
+      data-slot="card"
+      data-size={size}
+      className={cn(
+        "group/card flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-foreground/10 has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-header"
+      className={cn(
+        "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-xl px-4 group-data-[size=sm]/card:px-3 has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-4 group-data-[size=sm]/card:[.border-b]:pb-3",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-title"
+      className={cn(
+        "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-description"
+      className={cn("text-sm text-muted-foreground", className)}
+      {...props}
+    />
+  )
+}
+
+function CardAction({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-action"
+      className={cn(
+        "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardContent({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-content"
+      className={cn("px-4 group-data-[size=sm]/card:px-3", className)}
+      {...props}
+    />
+  )
+}
+
+function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-footer"
+      className={cn(
+        "flex items-center rounded-b-xl border-t bg-muted/50 p-4 group-data-[size=sm]/card:p-3",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardAction,
+  CardDescription,
+  CardContent,
+}
+</file>
+
+<file path="app/src/components/ui/input.tsx">
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
+
+function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+  return (
+    <input
+      type={type}
+      data-slot="input"
+      className={cn(
+        "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+export { Input }
+</file>
+
+<file path="app/src/components/ui/label.tsx">
+"use client"
+
+import * as React from "react"
+import { Label as LabelPrimitive } from "radix-ui"
+
+import { cn } from "@/lib/utils"
+
+function Label({
+  className,
+  ...props
+}: React.ComponentProps<typeof LabelPrimitive.Root>) {
+  return (
+    <LabelPrimitive.Root
+      data-slot="label"
+      className={cn(
+        "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+export { Label }
+</file>
+
+<file path="app/src/components/ui/popover.tsx">
+"use client"
+
+import * as React from "react"
+import { Popover as PopoverPrimitive } from "radix-ui"
+
+import { cn } from "@/lib/utils"
+
+function Popover({
+  ...props
+}: React.ComponentProps<typeof PopoverPrimitive.Root>) {
+  return <PopoverPrimitive.Root data-slot="popover" {...props} />
+}
+
+function PopoverTrigger({
+  ...props
+}: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
+  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />
+}
+
+function PopoverContent({
+  className,
+  align = "center",
+  sideOffset = 4,
+  ...props
+}: React.ComponentProps<typeof PopoverPrimitive.Content>) {
+  return (
+    <PopoverPrimitive.Portal>
+      <PopoverPrimitive.Content
+        data-slot="popover-content"
+        align={align}
+        sideOffset={sideOffset}
+        className={cn(
+          "z-50 flex w-72 origin-(--radix-popover-content-transform-origin) flex-col gap-2.5 rounded-lg bg-popover p-2.5 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          className
+        )}
+        {...props}
+      />
+    </PopoverPrimitive.Portal>
+  )
+}
+
+function PopoverAnchor({
+  ...props
+}: React.ComponentProps<typeof PopoverPrimitive.Anchor>) {
+  return <PopoverPrimitive.Anchor data-slot="popover-anchor" {...props} />
+}
+
+function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="popover-header"
+      className={cn("flex flex-col gap-0.5 text-sm", className)}
+      {...props}
+    />
+  )
+}
+
+function PopoverTitle({ className, ...props }: React.ComponentProps<"h2">) {
+  return (
+    <div
+      data-slot="popover-title"
+      className={cn("font-medium", className)}
+      {...props}
+    />
+  )
+}
+
+function PopoverDescription({
+  className,
+  ...props
+}: React.ComponentProps<"p">) {
+  return (
+    <p
+      data-slot="popover-description"
+      className={cn("text-muted-foreground", className)}
+      {...props}
+    />
+  )
+}
+
+export {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+}
+</file>
+
+<file path="app/src/components/ui/select.tsx">
+"use client"
+
+import * as React from "react"
+import { Select as SelectPrimitive } from "radix-ui"
+
+import { cn } from "@/lib/utils"
+import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
+
+function Select({
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Root>) {
+  return <SelectPrimitive.Root data-slot="select" {...props} />
+}
+
+function SelectGroup({
+  className,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Group>) {
+  return (
+    <SelectPrimitive.Group
+      data-slot="select-group"
+      className={cn("scroll-my-1 p-1", className)}
+      {...props}
+    />
+  )
+}
+
+function SelectValue({
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Value>) {
+  return <SelectPrimitive.Value data-slot="select-value" {...props} />
+}
+
+function SelectTrigger({
+  className,
+  size = "default",
+  children,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
+  size?: "sm" | "default"
+}) {
+  return (
+    <SelectPrimitive.Trigger
+      data-slot="select-trigger"
+      data-size={size}
+      className={cn(
+        "flex w-fit items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pr-2 pl-2.5 text-sm whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        className
+      )}
+      {...props}
+    >
+      {children}
+      <SelectPrimitive.Icon asChild>
+        <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
+      </SelectPrimitive.Icon>
+    </SelectPrimitive.Trigger>
+  )
+}
+
+function SelectContent({
+  className,
+  children,
+  position = "item-aligned",
+  align = "center",
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Content>) {
+  return (
+    <SelectPrimitive.Portal>
+      <SelectPrimitive.Content
+        data-slot="select-content"
+        data-align-trigger={position === "item-aligned"}
+        className={cn("relative z-50 max-h-(--radix-select-content-available-height) min-w-36 origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", position ==="popper"&&"data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1", className )}
+        position={position}
+        align={align}
+        {...props}
+      >
+        <SelectScrollUpButton />
+        <SelectPrimitive.Viewport
+          data-position={position}
+          className={cn(
+            "data-[position=popper]:h-(--radix-select-trigger-height) data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)",
+            position === "popper" && ""
+          )}
+        >
+          {children}
+        </SelectPrimitive.Viewport>
+        <SelectScrollDownButton />
+      </SelectPrimitive.Content>
+    </SelectPrimitive.Portal>
+  )
+}
+
+function SelectLabel({
+  className,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Label>) {
+  return (
+    <SelectPrimitive.Label
+      data-slot="select-label"
+      className={cn("px-1.5 py-1 text-xs text-muted-foreground", className)}
+      {...props}
+    />
+  )
+}
+
+function SelectItem({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Item>) {
+  return (
+    <SelectPrimitive.Item
+      data-slot="select-item"
+      className={cn(
+        "relative flex w-full cursor-default items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        className
+      )}
+      {...props}
+    >
+      <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
+        <SelectPrimitive.ItemIndicator>
+          <CheckIcon className="pointer-events-none" />
+        </SelectPrimitive.ItemIndicator>
+      </span>
+      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    </SelectPrimitive.Item>
+  )
+}
+
+function SelectSeparator({
+  className,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Separator>) {
+  return (
+    <SelectPrimitive.Separator
+      data-slot="select-separator"
+      className={cn("pointer-events-none -mx-1 my-1 h-px bg-border", className)}
+      {...props}
+    />
+  )
+}
+
+function SelectScrollUpButton({
+  className,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.ScrollUpButton>) {
+  return (
+    <SelectPrimitive.ScrollUpButton
+      data-slot="select-scroll-up-button"
+      className={cn(
+        "z-10 flex cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
+        className
+      )}
+      {...props}
+    >
+      <ChevronUpIcon
+      />
+    </SelectPrimitive.ScrollUpButton>
+  )
+}
+
+function SelectScrollDownButton({
+  className,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.ScrollDownButton>) {
+  return (
+    <SelectPrimitive.ScrollDownButton
+      data-slot="select-scroll-down-button"
+      className={cn(
+        "z-10 flex cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
+        className
+      )}
+      {...props}
+    >
+      <ChevronDownIcon
+      />
+    </SelectPrimitive.ScrollDownButton>
+  )
+}
+
+export {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectScrollDownButton,
+  SelectScrollUpButton,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+}
+</file>
+
+<file path="app/src/hooks/autoSaveDoc.ts">
+"use client"
+
+import { useEffect, useRef, useState } from "react"
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+const updateTitleTimers: Record<string, ReturnType<typeof setTimeout>> = {}
+
+export function updateTitle(doc_id: string, newTitle: string) {
+    const token = localStorage.getItem("token")
+    if (!token) return
+
+    // clear previous timer for this doc
+    if (updateTitleTimers[doc_id]) {
+        clearTimeout(updateTitleTimers[doc_id])
+    }
+
+    // set new timer
+    updateTitleTimers[doc_id] = setTimeout(async () => {
+        try {
+            const res = await fetch(`${API_URL}/update-doc`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    doc_id: Number(doc_id),
+                    title: newTitle,
+                }),
+            })
+
+            if (!res.ok) {
+                const err = await res.json()
+                console.log("FULL ERROR:", JSON.stringify(err, null, 2))
+                return
+            }
+
+            const data = await res.json()
+        } catch (err) {
+            console.error(err)
+        }
+    }, 500) // 0.5 sec debounce
+}
+
+
+export function useAutoSaveDocument(docId: string|number, initialValue: string) {
+  const [value, setValue] = useState(initialValue)
+  const [status, setStatus] = useState<"saved" | "saving">("saved")
+
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+  function updateValue(newValue: string) {
+    setValue(newValue)
+    setStatus("saving")
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+
+    timerRef.current = setTimeout(async () => {
+      await saveToServer(newValue)
+    }, 10000) // 10 seconds
+  }
+
+  async function saveToServer(text: string) {
+    const token = localStorage.getItem("token")
+
+    try {
+      await fetch(`${API_URL}/documents/${docId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ text }),
+      })
+
+      setStatus("saved")
+    } catch (err) {
+      console.error("Autosave failed:", err)
+    }
+  }
+
+  // cleanup
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
+    }
+  }, [])
+
+  return {
+    value,
+    setValue: updateValue,
+    status,
+  }
+}
+</file>
+
+<file path="app/src/hooks/useAuth.ts">
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+export type User = {
+  id: number
+  username: string
+  email: string
+}
+
+export function useAuth() {
+  const router = useRouter()
+
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadUser() {
+      const token = localStorage.getItem("token")
+
+      if (!token) {
+        router.replace("/signin")
+        return
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (!res.ok) {
+          throw new Error("Unauthorized")
+        }
+
+        const data: User = await res.json()
+        setUser(data)
+      } catch (err) {
+        localStorage.removeItem("token")
+        router.replace("/signin")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadUser()
+  }, [router])
+
+  return { user, loading }
+}
+</file>
+
+<file path="app/src/hooks/useDocs.ts">
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+export type Document = {
+  id: number
+  owner_id: number
+  owner: any
+  owner_username: string
+
+  title: string
+
+  created_at: string
+  updated_at: string
+
+  permission?: string
+}
+
+export function useDocuments() {
+  const router = useRouter()
+
+  const [docs, setDocs] = useState<Document[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadDocs() {
+      const token = localStorage.getItem("token")
+
+      if (!token) {
+        router.replace("/signin")
+        return
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/my-docs`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch documents")
+        }
+
+        const data = await res.json()
+        setDocs(data["docs"] as Document[])
+      } catch (err) {
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadDocs()
+  }, [router])
+
+  return { docs, loading }
+}
+
+
+export function useSharedDocuments() {
+  const router = useRouter()
+
+  const [docs, setDocs] = useState<Document[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadDocs() {
+      const token = localStorage.getItem("token")
+
+      if (!token) {
+        router.replace("/signin")
+        return
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/shared-docs`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch documents")
+        }
+
+        const data = await res.json()
+        setDocs(data["docs"] as Document[])
+      } catch (err) {
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadDocs()
+  }, [router])
+
+  return { docs, loading }
+}
+</file>
+
+<file path="app/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts"
+  ],
+  "exclude": ["node_modules"]
+}
+</file>
+
+<file path="README.md">
+# mathboard
+Google Docs for LaTeX
+LIVE: https://mathboard-nine.vercel.app/
+
+## Preview
+[images]
+
+## Features
+
+
+## In Progress
+- Export as PDF
+- Markdown support
+- Google Sign-In
+
+## Technical
+### Frontend
+/
+/signin, /signin?redirect={}
+/docs
+/docs/d/{id}
+
+### Backend
+Lock symbol emoji = Protected requiring Authorization Bearer token
+/ping
+/signin
+/me
+GET docs/ (add lock emoji to indicate protected)
+
+CREATE /doc/
+GET /doc/?id={}
+UPDATE /doc/?id={}
+DELETE /doc/?id={}
+
+Websockets
+...
+
+
+### Low-Priority Enhancements
+- Add decorators to add another layer for function arguments to early return and for organization
+</file>
+
+<file path="SETUP.md">
+# Setup
+
+## Environment
+
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -r src/requirements.txt
+```
+
+### .env
+PROD=false/true
+SECRET_KEY=
+DATABASE_URL=
+
+```cd app && npm i```
+
+## Test
+`cd app && PORT=12000 npm run dev`
+`cd src && python main.py`
+
+App: localhost:12000
+API: localhost:12001
+</file>
+
+<file path="src/db/base.py">
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
+
+# 👇 Import all models here so metadata is aware of them
+# from db.modules.users import models  # noqa
+</file>
+
+<file path="src/db/core/auth/crud.py">
+from sqlalchemy.orm import Session
+from .schemas import AuthUserCreate__PasswordHash, AuthUserUpdate__Username, AuthUserUpdate__Email, AuthUserUpdate__PasswordHash
+from .models import AuthUser
+
+def create_user__password(data: AuthUserCreate__PasswordHash, db: Session) -> AuthUser:
+    obj = AuthUser(**data.model_dump())
+    db.add(obj)
+    db.commit()
+    db.refresh(obj)
+    return obj
+
+def get_authuser_by_id(id: int, db: Session) -> AuthUser | None:
+    return db.query(AuthUser).filter(AuthUser.id == id).first()
+
+def get_authuser_by_username(username: str, db: Session) -> AuthUser | None:
+    return db.query(AuthUser).filter(AuthUser.username == username).first()
+
+def get_authuser_by_email(email: str, db: Session) -> AuthUser | None:
+    return db.query(AuthUser).filter(AuthUser.email == email).first()
+
+def update_user__username(data: AuthUserUpdate__Username, db: Session) -> bool:
+    user = get_authuser_by_id(data.id, db)
+    if user is None:
+        return False
+    
+    user.username = data.username
+    db.commit()
+    db.refresh(user)
+    return True
+    
+def update_user__email(data: AuthUserUpdate__Email, db: Session) -> bool:
+    user = get_authuser_by_id(data.id, db)
+    if user is None:
+        return False
+    
+    user.email = data.email
+    db.commit()
+    db.refresh(user)
+    return True
+
+def update_user__password_hash(data: AuthUserUpdate__PasswordHash, db: Session) -> bool:
+    user = get_authuser_by_id(data.id, db)
+    if user is None:
+        return False
+    
+    user.password_hash = data.password_hash
+    db.commit()
+    db.refresh(user)
+    return True
+
+def delete_user(id: int, db: Session) -> bool:
+    assert False
+    # TODO - no point rn tbh
+</file>
+
+<file path="src/db/core/auth/models.py">
+from sqlalchemy import Column, Integer, String, DateTime, UniqueConstraint
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from db.base import Base
+from datetime import datetime
+
+class AuthUser(Base):
+    __tablename__ = "auth_users"
+    __table_args__ = (
+        UniqueConstraint("email", name="uq_users_email"),
+        UniqueConstraint("google_id", name="uq_users_google_id"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
+    google_id: Mapped[str] = mapped_column(String(50), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+</file>
+
+<file path="src/db/core/auth/schemas.py">
+from datetime import datetime
+
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+
+# ---------- Create ----------
+
+class AuthUserCreate(BaseModel):
+    username: Optional[str] = None          # may be auto-generated for OAuth
+    email: str
+    password: Optional[str] = None          # only for password-based accounts
+    google_id: Optional[str] = None         # only for Google OAuth
+
+class AuthUserCreate__Password(BaseModel):
+    username: str
+    email: str
+    password: str
+
+class AuthUserCreate__PasswordHash(BaseModel):
+    username: str
+    email: str
+    password_hash: str
+
+class AuthUserResponse(BaseModel):
+    id: int
+    username: str
+    email: str
+    google_id: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# ---------- Update ----------
+
+class AuthUserUpdate(BaseModel):
+    username: Optional[str] = None
+    email: Optional[str] = None
+
+class AuthUserUpdate__Username(BaseModel):
+    id: int
+    username: str
+
+class AuthUserUpdate__Email(BaseModel):
+    id: int
+    email: EmailStr
+
+class AuthUserUpdate__Password(BaseModel):
+    id: int
+    password: str
+
+class AuthUserUpdate__PasswordHash(BaseModel):
+    id: int
+    password_hash: str
+
+
+
+# ---------- Login ----------
+
+class AuthUserLogin__UsernamePassword(BaseModel):
+    username: str
+    password: str
+</file>
+
+<file path="src/db/core/auth/services.py">
+from typing import Any
+
+from sqlalchemy.orm import Session
+from passlib.context import CryptContext
+from passlib.hash import bcrypt
+from db.core.auth.crud import create_user__password, get_authuser_by_username, get_authuser_by_email, update_user__password_hash
+from db.core.auth.utils.password import hash_password, verify_password
+from db.core.auth.utils.token import create_access_token
+from db.database import get_db
+from db.core.auth.models import AuthUser
+from db.core.auth.schemas import AuthUserCreate, AuthUserCreate__Password, AuthUserCreate__PasswordHash, AuthUserLogin__UsernamePassword, AuthUserUpdate, AuthUserUpdate__Email, AuthUserUpdate__Password, AuthUserUpdate__PasswordHash
+from fastapi import Depends, HTTPException, Header, status
+
+from db.core.auth.utils.token import verify_access_token
+from db.modules.users.utils.validate import validate_email
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+#
+def create_authuser(
+        data: AuthUserCreate__Password,
+        db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    """
+    Creates a new user. Does NOT parse to check if data is valid.
+
+    Supports:
+      - Password-based login
+      - TODO: OAuth login (Google)
+    Returns:
+      dict:
+        - code (int): Indicates if the user was created successfully
+        - user (AuthUser, optional): AuthUser db object if successful
+        - token (str, optional): Authorization bearer token if successful
+
+    Code:
+      - 100 = success
+      - 0 = error
+      - 10 = invalid username
+      - 20 = invalid email
+      - 30 = invalid password
+      - 90 = account already exists (email duplicate from google_id?)
+    """
+    # validate email to EmailStr
+    try:
+        validate_email(data.email)
+    except HTTPException:
+        return {
+            "code": 20
+        }
+    
+    # Check if a user already exists by username/email
+    if get_authuser_by_username(data.username, db):
+        return {
+            "code": 10
+        }
+    if get_authuser_by_email(data.email, db):
+        return {
+            "code": 20
+        }
+    
+    # Check password validity (TODO: just non-empty str rn)
+    if data.password == "":
+        return {
+            "code": 30
+        }
+
+    # Create user
+    user = create_user__password(AuthUserCreate__PasswordHash.model_validate({
+        "username": data.username,
+        "email": data.email,
+        "password_hash": hash_password(data.password)
+    }), db)
+
+    access_token = create_access_token(user.id)
+    return {
+        "code": 100,
+        "user": user,
+        "token": access_token,
+        
+    }
+
+def login_authuser__username_password(
+        data: AuthUserLogin__UsernamePassword,
+        db: Session = Depends(get_db),
+) -> str | None:
+    """
+    Logs in a new user using username/password.
+    
+    Returns:
+        access token (str) if successful else None
+    """
+    user = get_authuser_by_username(data.username, db)
+    if user is None:
+        return None
+    
+    if verify_password(data.password, user.password_hash):
+        return create_access_token(user.id)
+    return
+
+def update_authuser__password(
+        data: AuthUserUpdate__Password,
+        db: Session = Depends(get_db),
+):
+    """
+    Updates user's password if user's id exists.
+
+    Returns:
+        boolean, whether update succeeded or not
+    """
+    return update_user__password_hash(AuthUserUpdate__PasswordHash.model_validate({
+        "id": data.id,
+        "password_hash": hash_password(data.password)
+    }), db)
+</file>
+
+<file path="src/db/core/auth/utils/password.py">
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+</file>
+
+<file path="src/db/core/auth/utils/token.py">
+from datetime import datetime, timedelta
+from typing import Optional
+from jose import JWTError, jwt
+
+import os
+from dotenv import load_dotenv
+
+# Load .env file
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY", "")
+assert SECRET_KEY
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 300
+
+def create_access_token(user_id: int) -> str:
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    payload = {"sub": str(user_id), "exp": expire}
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return token
+
+def verify_access_token(token: str) -> Optional[int]:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: int = int(payload.get("sub")) # type: ignore
+        return user_id
+    except JWTError:
+        return None
+</file>
+
+<file path="src/db/database.py">
+import os
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+
+# Load .env file
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+assert DATABASE_URL
+
+engine = create_engine(
+    DATABASE_URL,
+    # connect_args={"check_same_thread": False},  # required for SQLite
+    pool_pre_ping=True  # good practice for Postgres
+)
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
+# Dependency for FastAPI routes
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+</file>
+
+<file path="src/db/modules/docs/crud.py">
+from typing import Literal
+import uuid
+
+from db.core.auth.schemas import AuthUserCreate__Password
+from db.modules.docs.models import Document, DocumentBlock, DocumentShare
+from db.modules.users.models import User
+from db.modules.users.schemas import UserCreate__AuthUser
+from fastapi import Depends
+from sqlalchemy import text
+from sqlalchemy.orm import Session, joinedload
+
+def create_document_block(
+        id: str,
+        doc_id: int,
+        position: int,
+        type: str,
+        db: Session
+):
+    db.execute(text("""
+        UPDATE document_blocks
+        SET position = position + 1
+        WHERE doc_id = :doc_id AND position > :position
+    """), {"doc_id": doc_id, "position": position}) # type: ignore
+
+    block = DocumentBlock(
+        id=id,
+        doc_id=doc_id,
+        position=position,
+        type=type
+    )
+    db.add(block)
+    db.commit()
+    db.refresh(block)
+    return block
+
+def delete_document_block(
+        doc_id: int,
+        position: int,
+        db: Session
+):
+    block = get_document_block_by_ids(doc_id, position, db)
+
+    # 1. delete block
+    db.delete(block)
+
+    # 2. shift positions
+    db.execute("""
+        UPDATE document_blocks
+        SET position = position - 1
+        WHERE doc_id = :doc_id AND position > :position
+    """, {"doc_id": doc_id, "position": position}) # type: ignore
+
+    db.commit()
+    return
+
+def get_document_block_by_id(
+        id: int,
+        db: Session
+):
+    return db.query(DocumentBlock).filter(
+        DocumentBlock.id == id
+    ).first()
+
+def get_document_block_by_ids(
+        doc_id: int,
+        position: int,
+        db: Session
+):
+    return db.query(DocumentBlock).filter(
+        DocumentBlock.doc_id == doc_id,
+        DocumentBlock.position == position
+    ).first()
+
+def create_document(
+        owner_id: int,
+        db: Session,
+):
+    obj = Document(owner_id=owner_id)
+    db.add(obj)
+    db.flush()
+    create_document_block(
+        id=str(uuid.uuid4()),
+        doc_id=obj.id,
+        position=0,
+        type="paragraph",
+        db=db
+    )
+    db.commit()
+    db.refresh(obj)
+    return obj
+
+def get_docs_by_owner_id(
+        owner_id: int,
+        db: Session,
+        n: int=50,
+):
+    return db.query(Document).filter(Document.owner_id == owner_id).all()
+
+def get_document_by_id(
+        id: int,
+        db: Session,
+):
+    return db.query(Document).filter(Document.id == id).first()
+
+def update_document__title_text(
+        doc: Document,
+        db: Session,
+        title: str|None=None,
+        text: str|None=None,
+):
+    if title:
+        doc.title = title
+    if text:
+        doc.text = text
+
+    db.commit()
+    db.refresh(doc)
+    return True
+
+
+def delete_document(
+        doc: Document,
+        db: Session,
+):
+    pass
+    # TODO
+
+
+
+# ---- DocumentShare ----
+def create_documentshare(
+        doc_id: int,
+        user_id: int,
+        share_type: str,
+        db: Session
+):
+    """
+    share_type: read/write
+    """
+    share = DocumentShare(
+        doc_id=doc_id,
+        user_id=user_id,
+        permission=share_type
+    )
+    db.add(share)
+    db.commit()
+
+def get_documentshare_by_ids(
+        doc_id: int,
+        user_id: int,
+        db: Session
+):
+    return (
+        db.query(DocumentShare)
+        .filter(
+            DocumentShare.doc_id == doc_id,
+            DocumentShare.user_id == user_id
+        )
+        .first()
+    )
+
+def get_documentshares_by_id(
+        doc_id: int,
+        db: Session
+):
+    return (
+        db.query(DocumentShare)
+        .filter(
+            DocumentShare.doc_id == doc_id
+        )
+        .all()
+    )
+
+def get_documentshares_by_user_id(
+        user_id: int,
+        db: Session
+):
+    return (
+        db.query(DocumentShare)
+        .filter(
+            DocumentShare.user_id == user_id
+        )
+        .all()
+    )
+    
+
+def update_documentshare(
+        doc_id: int,
+        user_id: int,
+        share_type: str,
+        db: Session
+) -> bool:
+    share = get_documentshare_by_ids(
+        doc_id=doc_id,
+        user_id=user_id,
+        db=db
+    )
+    if share is None:
+        return False
+    
+    return update_documentshare_with_share(share, share_type, db)
+
+def update_documentshare_with_share(
+        share: DocumentShare,
+        share_type: str,
+        db: Session
+):
+    share.permission = share_type
+    db.commit()
+    db.refresh(share)
+    return True
+    
+def delete_documentshare(
+        doc_id: int,
+        user_id: int,
+        db: Session
+):
+    docshare = get_documentshare_by_ids(doc_id, user_id, db)
+    db.delete(docshare)
+    db.commit()
+</file>
+
+<file path="src/db/modules/docs/models.py">
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, UniqueConstraint
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from db.base import Base
+from datetime import datetime
+
+from db.modules.users.models import User
+
+class DocumentShare(Base):
+    __tablename__ = "document_shares"
+
+    doc_id = mapped_column(ForeignKey("documents.id"), primary_key=True)
+    user_id = mapped_column(ForeignKey("users.id"), primary_key=True)
+
+    permission = mapped_column(String, default="read")
+
+    # relationships
+    document: Mapped["Document"] = relationship(
+        "Document", back_populates="shares"
+    )
+    user: Mapped["User"] = relationship(
+        "User", back_populates="shares"
+    )
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class DocumentBlock(Base):
+    __tablename__ = "document_blocks"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+
+    doc_id: Mapped[int] = mapped_column(ForeignKey("documents.id"))
+    document: Mapped["Document"] = relationship(
+        back_populates="blocks"
+    )
+
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    type: Mapped[str] = mapped_column(String, nullable=False)
+    content: Mapped[str] = mapped_column(String, nullable=False, default="")
+
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class Document(Base):
+    __tablename__ = "documents"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    owner: Mapped["User"] = relationship("User")
+
+    title: Mapped[str] = mapped_column(String, nullable=False, default="Untitled")
+
+    blocks: Mapped[list["DocumentBlock"]] = relationship(
+        "DocumentBlock",
+        back_populates="document",
+        order_by="DocumentBlock.position",
+        cascade="all, delete-orphan"
+    )
+    
+    shares: Mapped[list["DocumentShare"]] = relationship(
+        "DocumentShare",
+        back_populates="document",
+        cascade="all, delete-orphan"
+    )
+
+    # convenience (optional)
+    shared_users: Mapped[list["User"]] = relationship(
+        "User",
+        secondary="document_shares",
+        viewonly=True
+    )
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+</file>
+
+<file path="src/db/modules/docs/routes.py">
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+from db.core.auth.schemas import AuthUserUpdate__Password
+from db.core.auth.services import update_authuser__password
+from db.modules.docs.crud import delete_documentshare, get_docs_by_owner_id, get_documentshares_by_id
+from db.modules.docs.schemas import DocShareListingResponse, DocumentResponsePermission, DocumentShareResponseExpanded, DocumentResponse, DocumentUpdate
+from db.modules.docs.services import create_empty_untitled_doc, get_viewable_documents, try_create_or_update_documentshare, try_get_documentshares, update_doc_text__check_permissions, delete_doc__check_permissions, try_get_documentshare, user_can_write_document, view_document
+from db.modules.users.crud import get_user_by_id
+from db.modules.users.models import User
+from db.modules.users.schemas import UserPublicResponse, UserPrivateResponse
+from db.modules.users.services import get_current_user
+from db.database import get_db
+
+router = APIRouter()
+
+class CreateDocData(BaseModel):
+    template: Optional[str] = "Blank Document"
+    title: Optional[str] = "New document"
+
+class CreateDocResponse(BaseModel):
+    doc_id: int
+
+@router.post("/docs/new", response_model=CreateDocResponse)
+def create_doc(
+    data: CreateDocData,
+    current_user: UserPrivateResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    doc = create_empty_untitled_doc(current_user.id, db)
+    return {
+        "doc_id": doc.id
+    }
+
+class DocsResponse(BaseModel):
+    docs: list[DocumentResponse]
+
+@router.get("/my-docs", response_model=DocsResponse)
+def get_docs(
+    own: bool = True,
+    current_user: UserPrivateResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if own:
+        return {
+            "docs": get_docs_by_owner_id(current_user.id, db)
+        }
+    
+class DocsSharedResponse(BaseModel):
+    docs: list[DocShareListingResponse]
+    
+@router.get("/shared-docs", response_model=DocsSharedResponse)
+def get_shared_docs(
+    current_user: UserPrivateResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return {
+        "docs": get_viewable_documents(current_user.id, db)
+    }
+    
+@router.get("/docs/{doc_id}", response_model=DocumentResponsePermission|None)
+def get_document(
+    doc_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    doc = view_document(doc_id, current_user.id, db)
+    if doc is None:
+        return None
+    
+    if doc.owner_id == current_user.id:
+        permission = "write" # owner
+    elif user_can_write_document(doc_id, current_user.id, db):
+        permission = "write"
+    else:
+        permission = "read"
+    
+    return {
+        **DocumentResponse.model_validate(doc).model_dump(),
+        "permission": permission,
+        "owner_username": doc.owner.authuser.username
+    }
+
+class SuccessResponse(BaseModel):
+    success: bool
+
+class UpdateDocData(BaseModel):
+    doc_id: int
+    title: Optional[str|None]=None
+    text: Optional[str|None]=None
+
+@router.post("/update-doc", response_model=SuccessResponse)
+def update_doc_text(
+    data: UpdateDocData,
+    current_user: UserPrivateResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    update_data = DocumentUpdate.model_validate({
+        "text": data.text,
+        "title": data.title,
+    })
+    success = update_doc_text__check_permissions(
+        doc_id=data.doc_id,
+        user_id=current_user.id,
+        update_data=update_data,
+        db=db
+    )
+    return {
+        "success": success
+    }
+
+@router.delete("/doc", response_model=SuccessResponse)
+def delete_doc(
+    doc_id: int,
+    current_user: UserPrivateResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    success = delete_doc__check_permissions(
+        doc_id=doc_id,
+        user_id=current_user.id,
+        db=db
+    )
+    return {
+        "success": success
+    }
+
+
+# ---- DocumentShare ----
+class DocShareData(BaseModel):
+    doc_id: int
+    user_id: int
+    share_type: str
+
+    model_config = {
+        "from_attributes": True
+    }
+
+@router.post("/doc-share", response_model=SuccessResponse)
+def share_doc(
+    data: DocShareData,
+    current_user: UserPrivateResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    success = try_create_or_update_documentshare(
+        doc_id=data.doc_id,
+        user_id=data.user_id,
+        inviter_id=current_user.id,
+        share_type=data.share_type,
+        db=db
+    )
+    return {
+        "success": success
+    }
+
+@router.get("/doc-shares", response_model=list[DocumentShareResponseExpanded])
+def get_docshare(
+    doc_id: int,
+    current_user: UserPrivateResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return try_get_documentshares(
+        doc_id=doc_id,
+        user_id=current_user.id,
+        db=db
+    )
+
+class DocShareDeleteData(BaseModel):
+    doc_id: int
+    user_id: int
+
+@router.delete("/doc-share", response_model=SuccessResponse)
+def delete_docshare(
+    data: DocShareDeleteData,
+    current_user: UserPrivateResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    delete_documentshare(data.doc_id, data.user_id, db)
+</file>
+
+<file path="src/db/modules/docs/schemas.py">
+from datetime import datetime
+from typing import Any, Optional
+
+from pydantic import BaseModel
+
+from db.modules.users.schemas import UserPublicResponse
+
+
+class DocumentUpdate(BaseModel):
+    text: Optional[str]=None
+    title: Optional[str]=None
+
+class DocumentBlockResponse(BaseModel):
+    id: str
+    doc_id: int
+    position: int
+    type: str
+    content: str
+    updated_at: datetime
+
+    model_config = {
+        "from_attributes": True
+    }
+
+class DocumentResponse(BaseModel):
+    id: int
+
+    owner_id: int
+    owner: UserPublicResponse
+
+    title: str
+    blocks: list[DocumentBlockResponse]
+
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {
+        "from_attributes": True
+    }
+    
+class DocumentResponsePermission(DocumentResponse):
+    permission: str
+    owner_username: str
+
+
+
+class DocumentShareResponse(BaseModel):
+    doc_id: int
+    user_id: int
+    permission: str
+    
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {
+        "from_attributes": True
+    }
+
+class DocumentShareResponseExpanded(DocumentShareResponse):
+    username: str
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
+class DocShareListingResponse(BaseModel):
+    id: int
+    owner_id: int
+    owner_username: str
+    title: str
+    created_at: datetime
+    updated_at: datetime
+    permission: str
+</file>
+
+<file path="src/db/modules/docs/services.py">
+from sqlalchemy.orm import Session
+
+from db.core.auth.crud import get_authuser_by_id
+from db.modules.docs.crud import create_document, create_documentshare, get_document_by_id, get_documentshare_by_ids, get_documentshares_by_id, get_documentshares_by_user_id, update_document__title_text, delete_document, update_documentshare_with_share
+from db.modules.docs.schemas import DocShareListingResponse, DocumentResponse, DocumentUpdate, DocumentShareResponse, DocumentShareResponseExpanded
+from db.modules.docs.models import DocumentShare
+from db.modules.users.crud import get_user_by_id
+
+def create_empty_untitled_doc(
+        owner_id: int,
+        db: Session
+):
+    return create_document(owner_id, db)
+    
+def update_doc_text__check_permissions(
+        doc_id: int,
+        user_id: int,
+        update_data: DocumentUpdate,
+        db: Session,
+):
+    """
+    Ensures user has edit rights
+
+    Return:
+    - success (bool), indicating update was successful
+    """
+    doc = get_document_by_id(doc_id, db)
+    if doc is None:
+        return False
+    
+    # Check edit permissions
+    if not user_can_write_document(doc_id, user_id, db):
+        return False
+    
+    update_document__title_text(doc, db, **update_data.model_dump())
+    return True
+    
+
+def delete_doc__check_permissions(
+        doc_id: int,
+        user_id: int,
+        db: Session,
+):
+    """
+    Ensures user is owner
+
+    Return:
+    - success (bool), indicating update was successful
+    """
+    doc = get_document_by_id(doc_id, db)
+    if doc is None:
+        return False
+    
+    # Check edit permissions
+    if doc.owner_id != user_id:
+        return False
+    
+    delete_document(doc, db)
+    return True
+    
+
+# ---- DocumentShare ----
+def user_can_write_document(
+        doc_id: int,
+        user_id: int,
+        db: Session
+):
+    doc = get_document_by_id(doc_id, db)
+    if doc is None:
+        return False
+    
+    if doc.owner_id == user_id:
+        return True
+    
+    share = get_documentshare_by_ids(doc_id, user_id, db)
+    if not share:
+        return False
+    
+    return share.permission == "write"
+
+def user_can_read_document(
+        doc_id: int,
+        user_id: int,
+        db: Session
+):
+    doc = get_document_by_id(doc_id, db)
+    if doc is None:
+        return False
+    
+    if doc.owner_id == user_id:
+        return True
+    
+    share = get_documentshare_by_ids(doc_id, user_id, db)
+    if not share:
+        return False
+    
+    return True
+
+def try_create_or_update_documentshare(
+        doc_id: int,
+        user_id: int,
+        inviter_id: int,
+        share_type: str,
+        db: Session
+) -> bool:
+    """
+    share_type (str): force check it's in read/write
+
+    Return:
+    - success (bool), indicating share was created
+    """
+    if share_type not in ["read", "write"]:
+        return False
+    
+    # Verify and enforce owner/edit rights
+    doc = get_document_by_id(doc_id, db)
+    if doc is None:
+        return False
+    
+    if doc.owner_id != inviter_id:
+        inviter_share = get_documentshare_by_ids(doc_id, inviter_id, db)
+        if inviter_share is None:
+            return False
+        if inviter_share.permission != "write":
+            return False
+    
+    share = get_documentshare_by_ids(
+        doc_id=doc_id,
+        user_id=user_id,
+        db=db
+    )
+    if share is None:
+        # Create new share
+        create_documentshare(
+            doc_id=doc_id,
+            user_id=user_id,
+            share_type=share_type,
+            db=db
+        )
+    else:
+        # Update existing
+        update_documentshare_with_share(
+            share=share,
+            share_type=share_type,
+            db=db
+        )
+    return True
+
+def try_get_documentshare(
+        doc_id: int,
+        user_id: int,
+        db: Session
+) -> DocumentShareResponse|None:
+    if not user_can_read_document(doc_id, user_id, db):
+        return None
+    
+    share = get_documentshare_by_ids(
+        doc_id=doc_id,
+        user_id=user_id,
+        db=db
+    )
+    assert share is not None # from user_can_read_document()
+
+    return DocumentShareResponse.model_validate(**share.model_dump())
+
+
+def try_get_documentshares(
+        doc_id: int,
+        user_id: int,
+        db: Session
+) -> list[DocumentShareResponseExpanded]:
+    if not user_can_read_document(doc_id, user_id, db):
+        return []
+    
+    shares = get_documentshares_by_id(
+        doc_id=doc_id,
+        db=db
+    )
+
+    return [
+        DocumentShareResponseExpanded(
+            **DocumentShareResponse.model_validate(share).model_dump(),
+            username=share.user.authuser.username
+        )
+        for share in shares
+    ]
+
+# ---- DocShare listing ----
+def get_viewable_documents(
+        user_id: int,
+        db: Session
+):
+    shares = get_documentshares_by_user_id(user_id, db)
+    res = []
+    for share in shares:
+        doc = get_document_by_id(share.doc_id, db)
+        if doc is None:
+            continue
+        user = get_user_by_id(doc.owner_id, db)
+        if user is None:
+            username = ""
+        else:
+            username = user.authuser.username
+        res.append(DocShareListingResponse(
+            id=share.doc_id,
+            owner_id=doc.owner_id,
+            owner_username=username,
+            title=doc.title,
+            created_at=doc.created_at,
+            updated_at=doc.updated_at,
+            permission=share.permission
+        ))
+
+    return res
+
+# ---- Document interaction ----
+def view_document(
+        doc_id: int,
+        user_id: int,
+        db: Session
+):
+    if not user_can_read_document(doc_id, user_id, db):
+        return None
+    
+    return get_document_by_id(doc_id, db)
+</file>
+
+<file path="src/db/modules/liveshare/connection_manager.py">
+import asyncio
+import time
+
+from fastapi import WebSocket, WebSocketDisconnect
+from sqlalchemy.orm import Session
+
+from db.database import SessionLocal
+from db.modules.docs.crud import get_document_by_id
+from db.modules.liveshare.op import BlockCache, apply_op_old
+
+class ConnectionManager:
+    MAX_INTERVAL_SAVE = 5
+    INITIAL_LOAD_BLOCKS = 20
+
+    def __init__(self):
+        self.active_connections: dict[int, list[WebSocket]] = {}
+        self.doc_contents: dict[int, BlockCache] = {}
+
+        # save
+        self.save_tasks: dict[int, asyncio.Task] = {} # debounce tasks
+        self.last_save_time: dict[int, float] = {} # max interval -> force save
+
+    async def connect(self, websocket: WebSocket, doc_id: int, db: Session):
+        await websocket.accept()
+        self.active_connections.setdefault(doc_id, []).append(websocket)
+
+        if doc_id not in self.doc_contents:
+            doc = get_document_by_id(doc_id, db)
+            if doc is None:
+                return
+            self.doc_contents[doc_id] = BlockCache(doc_id, db)
+
+        # debounce
+        if doc_id in self.save_tasks:
+            self.save_tasks[doc_id].cancel()
+        self.save_tasks[doc_id] = asyncio.create_task(
+            self.debounce_save(doc_id)
+        )
+
+        # send cached initial state
+        try:
+            await websocket.send_json({
+                "type": "init",
+                "content": [
+                    {
+                        "id": id,
+                        **self.doc_contents[doc_id].load_block(i) # type: ignore
+                    }
+                    for i, id in enumerate(self.doc_contents[doc_id].doc_index[:self.INITIAL_LOAD_BLOCKS])
+                ]
+            })
+        except WebSocketDisconnect:
+            # remove dead connection
+            self.active_connections[doc_id].remove(websocket)
+            return
+
+    def disconnect(self, websocket: WebSocket, doc_id: int):
+        self.active_connections[doc_id].remove(websocket)
+        if len(self.active_connections[doc_id]) == 0:
+            self.save_tasks[doc_id].cancel()
+
+    async def broadcast(self, doc_id: int, message: dict, sender: WebSocket):
+        print(message)
+        # await asyncio.sleep(1)
+        for conn in self.active_connections.get(doc_id, []):
+            if conn != sender:
+                await conn.send_json(message)
+        self.doc_contents[doc_id].apply_op(message)
+
+        # max-interval save
+        last = self.last_save_time.get(doc_id, 0)
+        if time.time() - last > self.MAX_INTERVAL_SAVE:
+            self.force_save(doc_id)
+
+    # - save
+    async def debounce_save(self, doc_id: int, sec: int=2):
+        await asyncio.sleep(sec)
+        self.force_save(doc_id)
+
+    def force_save(self, doc_id: int):
+        db = SessionLocal()
+        try:
+            self.doc_contents[doc_id].flush()
+        finally:
+            db.close()
+</file>
+
+<file path="src/db/modules/liveshare/op.py">
+from datetime import datetime
+
+from sqlalchemy import text
+
+from db.modules.docs.crud import create_document_block, delete_document_block, get_document_block_by_id, get_document_block_by_ids
+
+from db.database import SessionLocal
+from sqlalchemy.orm import Session
+import uuid
+
+def apply_op_old(content: str, op: dict) -> str:
+    if op["type"] == "insert":
+        return content[:op["pos"]] + op["text"] + content[op["pos"]:]
+    
+    if op["type"] == "delete":
+        return content[:op["pos"]] + content[op["pos"] + op["length"]:]
+    
+    return content
+
+class BlockCache:
+
+    def __init__(self, doc_id: int, db: Session):
+        self.db = db
+        self.doc_id = doc_id
+        self.load_index() # lazy load block.id
+        self.blocks: dict[str,dict] = {}
+
+        self.new = set()
+        self.dirty_content = set()
+        self.dirty_position = set()
+        self.deleted = set()
+
+    # - db
+    def load_index(self):
+        rows = self.db.execute(text("""
+            SELECT id FROM document_blocks
+            WHERE doc_id = :doc_id
+            ORDER BY position
+        """), {"doc_id": self.doc_id}) # type: ignore
+
+        self.doc_index = [row[0] for row in rows]
+
+    # - system cache
+    def load_block(self, block_position: int) -> dict|None:
+        if block_position > len(self.doc_index):
+            return None
+        block_id = self.doc_index[block_position]
+        if not self.blocks.get(block_id):
+            block = get_document_block_by_id(block_id, self.db)
+            if block is None:
+                return None
+            self.blocks[block_id] = {
+                "type": block.type,
+                "content": block.content
+            }
+        return self.blocks[block_id]
+
+    def create_block(self, block_id: str, block_position: int, type: str, content: str) -> bool:
+        if block_position > len(self.doc_index):
+            return False
+        self.blocks[block_id] = {
+            "type": type,
+            "content": content
+        }
+        self.doc_index.insert(block_position, block_id)
+        self.new.add(self.doc_index[block_position])
+        self.dirty_position.update(self.doc_index[block_position:])
+        return True
+
+    def update_block(self, block_position: int, type: str, diff: dict) -> bool:
+        if block_position > len(self.doc_index):
+            return False
+        block_id = self.doc_index[block_position]
+        block = self.load_block(block_position)
+        if block is None:
+            return False
+        block.update({
+            "type": type,
+            "content": self.apply_charop(block["content"], diff)
+        })
+        self.dirty_content.add(block_id)
+        return True
+
+    def delete_block(self, block_position: int) -> bool:
+        if block_position > len(self.doc_index):
+            return False
+        block_id = self.doc_index[block_position]
+        self.doc_index.pop(block_position)
+        self.dirty_position.update(self.doc_index[block_position:])
+        self.deleted.add(block_id)
+        return True
+
+    # OP
+    def apply_op(self, op: dict) -> bool:
+        if op["type"] == "create_block":
+            return self.create_block(
+                op["id"],
+                op["position"],
+                "paragraph",
+                ""
+            )
+        if op["type"] == "update_block":
+            return self.update_block(
+                op["position"],
+                op["block_type"],
+                op["diff"]
+            )
+        if op["type"] == "delete_block":
+            return self.delete_block(
+                op["position"]
+            )
+        
+        return False
+    
+    @staticmethod
+    def apply_charop(content: str, op: dict) -> str:
+        if op["type"] == "insert":
+            return content[:op["index"]] + op["text"] + content[op["index"]:]
+
+        if op["type"] == "delete":
+            return content[:op["index"]] + content[op["index"] + op["length"]:]
+
+        if op["type"] == "replace":
+            return content[:op["index"]] + op["text"] + content[op["index"] + op["length"]:]
+
+        return content
+    
+    # Flush
+    def flush(self):
+        # 1. DELETE
+        for block_id in self.deleted:
+            print("DELETE", block_id)
+            self.db.execute(
+                text("DELETE FROM document_blocks WHERE id = :id"), # type: ignore
+                {"id": block_id}
+            ) # type: ignore
+
+        # 2. INSERT (new blocks)
+        for block_id in self.new:
+            block = self.blocks[block_id]
+
+            position = self.doc_index.index(block_id)
+
+            self.db.execute(text("""
+                INSERT INTO document_blocks (id, doc_id, type, content, position, updated_at)
+                VALUES (:id, :doc_id, :type, :content, :position, :updated_at)
+            """), { # type: ignore
+                "id": block_id,
+                "doc_id": self.doc_id,
+                "type": block["type"],
+                "content": block["content"],
+                "position": position,
+                "updated_at": datetime.utcnow()
+            }) # type: ignore
+
+        # 3. UPDATE content
+        for block_id in self.dirty_content:
+            if block_id in self.new or block_id in self.deleted:
+                continue
+
+            block = self.blocks[block_id]
+
+            self.db.execute(text("""
+                UPDATE document_blocks
+                SET type = :type, content = :content, updated_at = NOW()
+                WHERE id = :id
+            """), { # type: ignore
+                "id": block_id,
+                "type": block["type"],
+                "content": block["content"]
+            }) # type: ignore
+
+        # 4. UPDATE positions
+        for position, block_id in enumerate(self.doc_index):
+            if block_id in self.deleted:
+                continue
+
+            if block_id in self.new or block_id in self.dirty_position:
+                self.db.execute(text("""
+                    UPDATE document_blocks
+                    SET position = :position
+                    WHERE id = :id
+                """), { # type: ignore
+                    "id": block_id,
+                    "position": position
+                }) # type: ignore
+
+        self.db.commit()
+
+        # 5. clear state
+        self.new.clear()
+        self.dirty_content.clear()
+        self.dirty_position.clear()
+        self.deleted.clear()
+</file>
+
+<file path="src/db/modules/liveshare/routes.py">
+from dotenv import load_dotenv
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
+
+from sqlalchemy.orm import Session
+
+from db.database import get_db
+from db.modules.docs.crud import get_document_by_id
+from db.modules.docs.schemas import DocumentUpdate
+from db.modules.docs.services import update_doc_text__check_permissions, user_can_write_document
+from db.modules.liveshare.connection_manager import ConnectionManager
+from db.modules.liveshare.op import apply_op_old
+from db.modules.users.schemas import UserPrivateResponse
+from db.modules.users.services import get_current_user_ws
+
+manager = ConnectionManager()
+
+router = APIRouter()
+
+@router.websocket("/ws/docs/{doc_id}")
+async def websocket_endpoint(
+    websocket: WebSocket,
+    doc_id: int,
+
+    db: Session = Depends(get_db),
+    current_user_id: int|None = Depends(get_current_user_ws),
+):
+    await manager.connect(websocket, doc_id, db)
+
+    try:
+        while True:
+            data = await websocket.receive_json()
+            print("received:", data)
+
+            # broadcast to ALL other users
+            if current_user_id and user_can_write_document(doc_id, current_user_id, db):
+                await manager.broadcast(doc_id, data, websocket)
+
+                # update_doc_text__check_permissions(
+                #     doc_id,
+                #     current_user_id,
+                #     DocumentUpdate.model_validate({"text": data["content"]}),
+                #     db
+                # )
+
+    except (WebSocketDisconnect, RuntimeError):
+        try:
+            manager.disconnect(websocket, doc_id)
+        except:
+            pass
+
+    finally:
+        pass
+</file>
+
+<file path="src/db/modules/users/crud.py">
+from db.core.auth.models import AuthUser
+from db.core.auth.schemas import AuthUserCreate__Password
+from db.database import get_db
+from db.modules.users.models import User
+from db.modules.users.schemas import UserCreate__AuthUser
+from fastapi import Depends
+from sqlalchemy.orm import Session
+
+
+def create_user__authuser(
+        data: UserCreate__AuthUser,
+        db: Session = Depends(get_db),
+):
+    obj = User(authuser_id=data.authuser_id)
+    db.add(obj)
+    db.commit()
+    db.refresh(obj)
+    return obj
+
+
+def get_user_by_id(id: int, db: Session) -> User | None:
+    return db.query(User).filter(User.id == id).first()
+
+def get_user_by_username(username: str, db: Session) -> User | None:
+    return db.query(User).join(User.authuser).filter(AuthUser.username == username).first()
+
+def get_user_by_email(email: str, db: Session) -> User | None:
+    return db.query(User).join(User.authuser).filter(AuthUser.email == email).first()
+</file>
+
+<file path="src/db/modules/users/models.py">
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, UniqueConstraint
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from db.base import Base
+from datetime import datetime
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from db.modules.docs.models import Document
+    from db.modules.docs.models import DocumentShare
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+
+    authuser_id: Mapped[int] = mapped_column(ForeignKey("auth_users.id"))
+    authuser = relationship("AuthUser")
+
+    # username: Mapped[str] = mapped_column(ForeignKey("auth_users.username"))
+    # email: Mapped[str] = mapped_column(ForeignKey("auth_users.email"))
+
+    # documents: Mapped[list["Document"]] = relationship(
+    #     "Document", back_populates="owner"
+    # )
+
+    owned_documents: Mapped[list["Document"]] = relationship(
+        "Document",
+        back_populates="owner"
+    )
+
+    shares: Mapped[list["DocumentShare"]] = relationship(
+        "DocumentShare",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    shared_documents: Mapped[list["Document"]] = relationship(
+        "Document",
+        secondary="document_shares",
+        viewonly=True
+    )
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+</file>
+
+<file path="src/db/modules/users/routes.py">
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+from db.core.auth.schemas import AuthUserCreate__Password, AuthUserUpdate__Password
+from db.core.auth.services import update_authuser__password
+from db.core.auth.utils.token import create_access_token
+from db.modules.users.crud import get_user_by_id, get_user_by_username
+from db.modules.users.schemas import UserPublicResponse, UserPrivateResponse, UserSignin, UserSigninResponse
+from db.modules.users.services import create_user__password, get_current_user, login_user__password
+from db.database import get_db
+
+router = APIRouter()
+
+@router.get("/ping")
+def ping():
+    return {"message": "pong"}
+
+@router.post("/create-user")
+def create_user__password_route(
+        data: AuthUserCreate__Password,
+        db: Session = Depends(get_db),
+):
+    return create_user__password(data, db)
+
+class GetUserResponse(BaseModel):
+    success: bool
+    user: Optional[UserPublicResponse]
+
+@router.get("/user", response_model=GetUserResponse)
+def get_user(
+        id: int|None=None,
+        username: str|None=None,
+        current_user: UserPrivateResponse = Depends(get_current_user),
+        db: Session = Depends(get_db),
+):
+    if id is not None:
+        user = get_user_by_id(id, db)
+    elif username is not None:
+        user = get_user_by_username(username, db)
+    else:
+        return {
+            "success": False
+        }
+    
+    if user is None:
+        return {
+            "success": False
+        }
+    else:
+        return {
+            "success": True,
+            "user": user
+        }
+
+@router.get("/me", response_model=UserPrivateResponse)
+def get_me(
+        current_user: UserPrivateResponse = Depends(get_current_user)
+):
+    return current_user
+    
+
+class UpdatePasswordData(BaseModel):
+    password: str
+class UpdatePasswordResponse(BaseModel):
+    success: bool
+
+@router.post("/user-update-password", response_model=UpdatePasswordResponse)
+def update_password(
+        data: UpdatePasswordData,
+        current_user: UserPrivateResponse = Depends(get_current_user),
+        db: Session = Depends(get_db),
+):
+    auth_services_data = AuthUserUpdate__Password.model_validate({
+        "id": current_user.authuser_id,
+        "password": data.password
+    })
+    success = update_authuser__password(auth_services_data, db)
+    return {
+        "success": success
+    }
+
+
+@router.post("/signin", response_model=UserSigninResponse)
+def login_user(
+    user_data: UserSignin,
+    db: Session = Depends(get_db),
+):
+    """
+    Logins a new user.
+
+    Supports:
+      - Either username or email in username slot
+    Returns:
+      - user (UserPrivateResponse or None)
+      - token (str, optional) - Authorization Bearer token
+    """
+    user = login_user__password(user_data, db)
+    if user is None:
+        return {
+            "user": None
+        }
+
+    access_token = create_access_token(user.id)
+    return {
+        "user": user,
+        "token": access_token
+    }
+</file>
+
+<file path="src/db/modules/users/schemas.py">
+from typing import Literal, Optional
+
+from pydantic import BaseModel
+
+from db.core.auth.schemas import AuthUserResponse
+
+# ---------- Create ----------
+class UserCreate__AuthUser(BaseModel):
+    authuser_id: int
+    username: str
+    email: str
+
+# ---------- Get ----------
+class UserPublicResponse(BaseModel):
+    id: int
+    username: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+class UserPrivateResponse(UserPublicResponse):
+    authuser_id: int
+    authuser: "AuthUserResponse"
+
+    # email: str
+
+    # ....
+
+    class Config:
+        from_attributes = True
+
+# ---------- Update ----------
+class UserUpdate__Username(BaseModel):
+    id: int
+    username: str
+
+class UserUpdate__Email(BaseModel):
+    id: int
+    username: str
+
+class UserUpdate__Password(BaseModel):
+    id: int
+    username: str
+
+# ---------- Signin -----------
+class UserSignin(BaseModel):
+    username: str # can be email
+    password: str
+
+class UserSigninResponse(BaseModel):
+    user: UserPrivateResponse | None
+    token: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+</file>
+
+<file path="src/db/modules/users/services.py">
+from db.core.auth.schemas import AuthUserCreate__Password
+from db.core.auth.services import create_authuser
+from db.core.auth.utils.password import hash_password, verify_password
+from db.core.auth.utils.token import verify_access_token
+from db.database import get_db
+from fastapi import Depends, HTTPException, Header, WebSocket
+from sqlalchemy.orm import Session
+
+from db.modules.users.crud import create_user__authuser, get_user_by_email, get_user_by_username
+from db.modules.users.models import User
+from db.modules.users.schemas import UserCreate__AuthUser, UserPrivateResponse, UserPublicResponse, UserSignin
+
+def create_user__password(
+        data: AuthUserCreate__Password,
+        db: Session = Depends(get_db),
+):
+    """
+    Creates a new user. Does NOT parse to check if data is valid.
+
+    Supports:
+      - Password-based login
+      - TODO: OAuth login (Google)
+    Returns:
+      dict:
+        - code (int): Indicates if the user was created successfully
+        - user (User, optional): AuthUser db object if successful
+        - token (str, optional): Authorization bearer token if successful
+
+    Code:
+      - 100 = success
+      - 0 = error
+      - 10 = invalid username
+      - 20 = invalid email
+      - 30 = invalid password
+      - 90 = account already exists (email duplicate from google_id?)
+    """
+    print({**data.model_dump()})
+    authuser_create_dict = create_authuser(data, db)
+    if authuser_create_dict["code"] == 100:
+        authuser_arg = UserCreate__AuthUser.model_validate({
+            "authuser_id": authuser_create_dict["user"].id,
+            "username": authuser_create_dict["user"].username,
+            "email": authuser_create_dict["user"].email,
+        })
+        return {
+            "code": 100,
+            "user": create_user__authuser(authuser_arg, db),
+            "token": authuser_create_dict["token"]
+        }
+    else:
+        return {
+            "code": authuser_create_dict["code"]
+        }
+    
+def login_user__password(
+        data: UserSignin,
+        db: Session
+) -> User | None:
+    user = get_user_by_username(data.username, db)
+    if user is None:
+        user = get_user_by_email(data.username, db)
+        
+    if user is None:
+        return
+    elif verify_password(data.password, user.authuser.password_hash):
+        return user
+    else:
+        return
+    
+def get_user_public(db: Session, user_id: int) -> UserPublicResponse:
+    user = db.query(User).get(user_id)
+    if not user:
+        raise HTTPException(404, "User not found")
+    return UserPublicResponse.model_validate(user)
+
+def get_user_private(db: Session, user_id: int) -> UserPrivateResponse:
+    user = db.query(User).get(user_id)
+    if not user:
+        raise HTTPException(404, "User not found")
+    return UserPrivateResponse.model_validate(user)
+
+def get_current_user(
+        authorization: str = Header(...),
+    db: Session = Depends(get_db)
+) -> UserPrivateResponse:
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Invalid auth scheme")
+    token = authorization[7:]
+    user_id = verify_access_token(token)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    user = db.query(User).get(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+async def get_current_user_ws(
+    websocket: WebSocket,
+    db: Session = Depends(get_db),
+) -> int|None:
+    token = websocket.query_params.get("token")
+
+    if not token:
+        return
+        # raise HTTPException(status_code=401, detail="Missing token")
+
+    user_id = verify_access_token(token)  # your logic
+
+    if not user_id:
+        return
+        # raise HTTPException(status_code=401, detail="Invalid token")
+
+    return user_id
+</file>
+
+<file path="src/db/modules/users/utils/validate.py">
+from pydantic import TypeAdapter, EmailStr
+from fastapi import HTTPException
+
+email_adapter = TypeAdapter(EmailStr)
+
+def validate_email(email: str) -> EmailStr:
+    try:
+        return email_adapter.validate_python(email)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid email")
+</file>
+
+<file path="src/main.py">
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+
+app = FastAPI()
+
+origins = [
+    "http://localhost:12000",  # Next.js dev server
+    "http://127.0.0.1:12000",
+    "https://mathboard-git-hosting-apolloiheos-projects.vercel.app",
+    "https://mathboard-nine.vercel.app",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # or ["*"] for dev only
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# -- Routers
+from modules.test.routes import router as test_router
+from db.modules.docs.routes import router as doc_router
+from db.modules.users.routes import router as user_router
+from db.modules.liveshare.routes import router as liveshare_router
+
+for router in [
+    test_router,
+    doc_router,
+    user_router,
+    liveshare_router
+]:
+    app.include_router(router)
+
+## -- Database
+# TODO: switch to migrations
+from db.base import Base
+from db.database import engine
+Base.metadata.create_all(bind=engine)
+
+## -- Uvicorn
+
+def main():
+    pass
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=12001, reload=False)
+</file>
+
+<file path="src/modules/test/routes.py">
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from db.database import get_db
+
+router = APIRouter()
+
+@router.get("/ping")
+def ping():
+    return {"message": "pong"}
+</file>
+
+<file path="src/requirements.txt">
+fastapi
+uvicorn
+sqlalchemy
+python-dotenv
+python-jose
+cryptography
+passlib
+python-multipart
+psycopg2-binary
+pydantic[email]
+passlib[bcrypt]
+uvicorn[standard]
+argon2-cffi
+</file>
+
+<file path="TODO.md">
+NO LONGER USED: Was for initial full-stack setup which no longer applies
+
+Backend:
+- [x] auth (db)
+  - [x] db schema/model
+  - [x] crud.py + its services
+  - [x] access_token
+- [x] user (db)
+  - [x] db schema/model
+  - [x] crud.py + its services for user
+  - [x] crud endpoints in routes.py
+  - [x] /me - token
+
+- [x] docs
+  - [x] db schema/model
+  - [x] CRUD API for /doc
+  - [x] ability to share docs
+  - [x] GET /docs
+
+- [x] liveshare
+  - [x] share edits via websockets naively (full doc)
+  - [x] Operation Transform
+  - [x] turn into blocks of text
+  - [x] support latex
+
+- [x] doc
+  - [ ] supports regular markdown
+    - [ ] bold/italicize/underline
+    - [ ] headers
+    - [ ] ` code blocks
+    - [ ] ``` code blocks
+
+- [x] latex
+  - [x] simple inline render
+  - [x] simple multiline render
+  - [x] caching for doc?
+
+Frontend:
+- [ ] /
+  - [ ] simple with call to action -> /signin redirects to /docs
+  - [ ] Reformat to mimic modern polished look w/ empty image slots for previews
+  - [ ] Take preview images (gifs?)
+- [x] /signin
+  - [x] create account card
+  - [x] signin card
+  - [x] uses url params to handle redirects after successful signin
+- [ ] /docs
+  - [x] placeholder simple list of id
+  - [ ] various templates to encourage diverse user experience
+  - [x] tables to show documents I own/shared with me
+- [x] /docs/d/{id}
+  - [x] Basic text editor w/o LaTeX
+  - [x] Optimisitic UI synchronization w WS
+
+Hosting:
+- [x] Host on free public domain (Next.js on Vercel, FastAPI + PostgreSQL on Railway)
+
+Safeguards:
+- [ ] Ensure document max-size exists and enforced to prevent abuse
+
+Test:
+- [ ] Go through decision-tree style all possible frontend/backend interactions to ensure every case has been accounted for
+Make a /test (maybe python unittest?) for frontend/backend to mimic real working env
+</file>
+
+</files>

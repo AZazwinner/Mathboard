@@ -1,0 +1,89 @@
+from sqlalchemy import Column, ForeignKey, Integer, LargeBinary, String, DateTime, UniqueConstraint
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from db.base import Base
+from datetime import datetime
+
+from db.modules.users.models import User
+
+class DocumentShare(Base):
+    __tablename__ = "document_shares"
+
+    doc_id = mapped_column(ForeignKey("documents.id"), primary_key=True)
+    user_id = mapped_column(ForeignKey("users.id"), primary_key=True)
+
+    permission = mapped_column(String, default="read")
+
+    # relationships
+    document: Mapped["Document"] = relationship(
+        "Document", back_populates="shares"
+    )
+    user: Mapped["User"] = relationship(
+        "User", back_populates="shares"
+    )
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class DocumentBlock(Base):
+    __tablename__ = "document_blocks"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+
+    doc_id: Mapped[int] = mapped_column(ForeignKey("documents.id"))
+    document: Mapped["Document"] = relationship(
+        back_populates="blocks"
+    )
+
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    type: Mapped[str] = mapped_column(String, nullable=False)
+    content: Mapped[str] = mapped_column(String, nullable=False, default="")
+
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class DocumentYDoc(Base):
+    """Canonical Yjs CRDT state for a document (see liveshare/ydoc_room.py).
+
+    `document_blocks` is kept as a read-model mirror derived from this for
+    the REST layer (doc list/preview) - this table is the source of truth
+    once a document has been converted to Yjs.
+    """
+    __tablename__ = "document_ydocs"
+
+    doc_id: Mapped[int] = mapped_column(ForeignKey("documents.id"), primary_key=True)
+    state: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class Document(Base):
+    __tablename__ = "documents"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    owner: Mapped["User"] = relationship("User")
+
+    title: Mapped[str] = mapped_column(String, nullable=False, default="Untitled")
+
+    blocks: Mapped[list["DocumentBlock"]] = relationship(
+        "DocumentBlock",
+        back_populates="document",
+        order_by="DocumentBlock.position",
+        cascade="all, delete-orphan"
+    )
+    
+    shares: Mapped[list["DocumentShare"]] = relationship(
+        "DocumentShare",
+        back_populates="document",
+        cascade="all, delete-orphan"
+    )
+
+    # convenience (optional)
+    shared_users: Mapped[list["User"]] = relationship(
+        "User",
+        secondary="document_shares",
+        viewonly=True
+    )
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
