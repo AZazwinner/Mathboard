@@ -44,16 +44,7 @@ const components: Components = {
 
 export default function LatexRenderer({ content }: Props) {
   return (
-    <div
-      className="
-        w-full
-        text-base
-        font-serif
-        leading-relaxed
-        min-h-[1.5em]
-        break-words
-      "
-    >
+    <div className="w-full text-base font-serif leading-relaxed min-h-[1.5em] break-words">
       {/*
         react-markdown renders straight to React elements (never dangerouslySetInnerHTML),
         so raw HTML in a block's text is never parsed as markup - it comes out as
