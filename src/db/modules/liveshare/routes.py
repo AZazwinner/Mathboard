@@ -12,9 +12,7 @@ from db.modules.users.services import get_current_user_ws
 
 router = APIRouter()
 
-# How often an already-connected socket's read access is re-verified, so a
-# revoked share kicks the socket instead of only being enforced at connect
-# time (write access is re-verified on every message instead - see below).
+# How often an already-connected socket's read access is re-verified.
 READ_PERMISSION_RECHECK_SECONDS = 15
 
 
@@ -27,9 +25,6 @@ async def websocket_endpoint(
     current_user_id: int|None = Depends(get_current_user_ws),
 ) -> None:
     if not current_user_id or not user_can_read_document(doc_id, current_user_id, db):
-        # hard rejection - the old path silently returned None/skipped broadcast
-        # instead of ever closing the handshake, leaving the sender's optimistic
-        # local edits diverged from the server with no signal
         await websocket.close(code=4401)
         return
 
@@ -45,18 +40,14 @@ async def websocket_endpoint(
         while True:
             message = await websocket.receive_bytes()
             try:
-                # re-checked per message (not cached at connect) so a
-                # collaborator's write access being revoked mid-session takes
-                # effect on their very next edit instead of only at reconnect
+                # Re-checked per message so revoked write access takes effect on the next edit.
                 can_write = user_can_write_document(doc_id, current_user_id, db)
                 await _handle_message(room, message, websocket, can_write)
             except PermissionError:
                 await websocket.close(code=4403)
                 return
             except Exception as e:
-                # a malformed/corrupt frame must not kill the connection - the
-                # old JSON path let an uncaught exception here escape the loop
-                # entirely, leaving a zombie socket that broke future broadcasts
+                # A malformed frame must not kill the connection.
                 print(f"liveshare: dropping bad message for doc {doc_id}: {e}")
 
     except (WebSocketDisconnect, RuntimeError):
@@ -68,14 +59,7 @@ async def websocket_endpoint(
 
 
 async def _watch_read_permission(websocket: WebSocket, doc_id: int, user_id: int) -> None:
-    """Periodically re-verifies read access on an already-open socket, so a
-    revoked/deleted share closes the connection instead of leaving it able
-    to keep receiving updates until the client happens to reconnect.
-
-    Uses its own DB session rather than the request-scoped one, since it
-    runs concurrently with the main receive loop and SQLAlchemy sessions
-    aren't safe for concurrent use from multiple coroutines.
-    """
+    """Periodically re-verifies read access, closing the socket if a share is revoked. Uses its own DB session since it runs concurrently with the main receive loop."""
     try:
         while True:
             await asyncio.sleep(READ_PERMISSION_RECHECK_SECONDS)
@@ -103,6 +87,7 @@ async def _handle_message(room: YRoom, message: bytes, sender: WebSocket, can_wr
             pycrdt.YSyncMessageType.SYNC_UPDATE,
         ):
             raise PermissionError("read-only user attempted to write")
+
         await room.handle_sync(message, sender)
 
     elif msg_type == pycrdt.YMessageType.AWARENESS:

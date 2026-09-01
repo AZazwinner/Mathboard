@@ -17,8 +17,14 @@ class User(Base):
     authuser_id: Mapped[int] = mapped_column(ForeignKey("auth_users.id"))
     authuser = relationship("AuthUser")
 
-    # username: Mapped[str] = mapped_column(ForeignKey("auth_users.username"))
-    # email: Mapped[str] = mapped_column(ForeignKey("auth_users.email"))
+    # Proxies AuthUser's username/email so Pydantic's from_attributes mapping can read them off a User instance.
+    @property
+    def username(self) -> str | None:
+        return self.authuser.username if self.authuser else None
+
+    @property
+    def email(self) -> str | None:
+        return self.authuser.email if self.authuser else None
 
     # documents: Mapped[list["Document"]] = relationship(
     #     "Document", back_populates="owner"

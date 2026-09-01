@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, UniqueConstraint
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, UniqueConstraint
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from db.base import Base
 from datetime import datetime
@@ -17,3 +17,14 @@ class AuthUser(Base):
     google_id: Mapped[str] = mapped_column(String(50), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    authuser_id: Mapped[int] = mapped_column(ForeignKey("auth_users.id"))
+    token: Mapped[str] = mapped_column(String(128), unique=True, nullable=False, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

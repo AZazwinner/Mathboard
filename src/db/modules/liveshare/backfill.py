@@ -1,10 +1,11 @@
+import json
 from datetime import datetime
 
 import pycrdt
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from db.modules.docs.models import DocumentBlock, DocumentYDoc
+from db.modules.docs.models import DocumentBlock, DocumentVersion, DocumentYDoc
 
 # Y.Doc shape: root "blocks" is a Y.Array of Y.Map({id, type, text: Y.Text}),
 # one entry per paragraph/block, in document order.
@@ -26,8 +27,7 @@ def new_ydoc_from_blocks(blocks: list[DocumentBlock]) -> pycrdt.Doc:
 
 
 def load_or_create_ydoc(doc_id: int, db: Session) -> pycrdt.Doc:
-    """Load the canonical Y.Doc for a document, lazily backfilling it from
-    `document_blocks` (and persisting once) the first time it's opened."""
+    """Load the canonical Y.Doc for a document, lazily backfilling from `document_blocks` on first open."""
     row = db.get(DocumentYDoc, doc_id)
     if row is not None:
         ydoc = pycrdt.Doc()
@@ -63,13 +63,7 @@ def ydoc_blocks(ydoc: pycrdt.Doc) -> list[dict]:
 
 
 def mirror_blocks_to_db(doc_id: int, ydoc: pycrdt.Doc, db: Session) -> None:
-    """Rewrite `document_blocks` to match the Y.Doc's current state, so
-    REST endpoints (doc list/preview) keep working unmodified.
-
-    Delete-all-and-reinsert-in-order: correct and simple since the CRDT
-    always hands us the complete, authoritative ordered block list - no
-    need for the old BlockCache's dirty/new/deleted incremental tracking.
-    """
+    """Rewrite `document_blocks` to match the Y.Doc's current state (delete-all-and-reinsert-in-order)."""
     blocks = ydoc_blocks(ydoc)
     now = datetime.utcnow()
 
@@ -96,3 +90,30 @@ def flush_ydoc(doc_id: int, ydoc: pycrdt.Doc, db: Session) -> None:
     """Persist both the canonical CRDT snapshot and the read-model mirror."""
     persist_ydoc_state(doc_id, ydoc, db)
     mirror_blocks_to_db(doc_id, ydoc, db)
+
+
+# History is capped per doc so it doesn't grow an unbounded table - oldest versions roll off.
+MAX_VERSIONS_PER_DOC = 50
+
+
+def create_version_snapshot(doc_id: int, ydoc: pycrdt.Doc, db: Session) -> None:
+    """Records the current state of `ydoc`'s blocks as a restorable version."""
+    blocks = ydoc_blocks(ydoc)
+    # Skip empty docs - not worth offering as a restore point.
+    if not any(block.get("text", "").strip() for block in blocks):
+        return
+    db.add(DocumentVersion(doc_id=doc_id, blocks_json=json.dumps(blocks)))
+    db.commit()
+
+    stale_ids = (
+        db.query(DocumentVersion.id)
+        .filter(DocumentVersion.doc_id == doc_id)
+        .order_by(DocumentVersion.created_at.desc())
+        .offset(MAX_VERSIONS_PER_DOC)
+        .all()
+    )
+    if stale_ids:
+        db.query(DocumentVersion).filter(
+            DocumentVersion.id.in_([row[0] for row in stale_ids])
+        ).delete(synchronize_session=False)
+        db.commit()

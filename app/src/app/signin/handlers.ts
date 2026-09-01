@@ -49,8 +49,8 @@ export async function signinHandler(data: {
   let res
   try {
     res = await signinUser(data);
-  } catch {
-    return { ok: false, error: "Network error - please try again" }
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Network error - please try again" }
   }
 
   if (res?.token) {

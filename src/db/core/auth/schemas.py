@@ -55,7 +55,6 @@ class AuthUserUpdate__PasswordHash(BaseModel):
     password_hash: str
 
 
-
 # ---------- Login ----------
 
 class AuthUserLogin__UsernamePassword(BaseModel):

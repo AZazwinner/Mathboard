@@ -12,14 +12,7 @@ const MAX_RECONNECT_DELAY_MS = 30000;
 
 export type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
-/**
- * A minimal Yjs WebSocket provider pointed at Mathboard's own FastAPI
- * `/ws/docs/{doc_id}` endpoint, speaking the standard y-protocols sync +
- * awareness wire format (see src/db/modules/liveshare/ydoc_room.py).
- *
- * Deliberately not y-websocket's own provider: we relay through the
- * existing FastAPI route rather than standing up a separate Node server.
- */
+// Minimal Yjs WebSocket provider for Mathboard's FastAPI `/ws/docs/{doc_id}` endpoint (standard y-protocols sync + awareness wire format), used instead of y-websocket's own provider since there's no separate Node server.
 export class YjsProvider {
   readonly doc: Y.Doc;
   readonly awareness: awarenessProtocol.Awareness;
@@ -66,8 +59,7 @@ export class YjsProvider {
       this.reconnectAttempt = 0;
       this.setStatus("connected");
 
-      // client-initiated half of the sync handshake - the server sends its
-      // own SYNC_STEP1 immediately on accept, so this covers both directions
+      // client-initiated half of the sync handshake; server sends its own SYNC_STEP1 on accept
       const encoder = encoding.createEncoder();
       encoding.writeVarUint(encoder, MESSAGE_SYNC);
       syncProtocol.writeSyncStep1(encoder, this.doc);
@@ -86,9 +78,7 @@ export class YjsProvider {
     ws.onclose = () => {
       this.ws = null;
       this.setStatus("disconnected");
-      // mark remote peers as offline locally until we resync - avoids stale
-      // cursors lingering after a drop with no signal (the old client had no
-      // onclose handling at all, so this never happened before)
+      // mark remote peers as offline locally until we resync, so cursors don't linger stale
       const remoteIds = Array.from(this.awareness.getStates().keys()).filter(
         (id) => id !== this.doc.clientID
       );
@@ -123,8 +113,7 @@ export class YjsProvider {
       case MESSAGE_SYNC: {
         encoding.writeVarUint(encoder, MESSAGE_SYNC);
         syncProtocol.readSyncMessage(decoder, encoder, this.doc, this);
-        // readSyncMessage only wrote a reply if there's actually something to
-        // send back (e.g. a SYNC_STEP1 needs a STEP2 reply; an UPDATE doesn't)
+        // only send a reply if readSyncMessage actually wrote one
         if (encoding.length(encoder) > 1) {
           this.ws?.send(encoding.toUint8Array(encoder));
         }
@@ -142,8 +131,7 @@ export class YjsProvider {
   }
 
   private handleLocalUpdate = (update: Uint8Array, origin: unknown) => {
-    // updates applied by handleMessage (origin === this) came from the server -
-    // don't echo them straight back, or reconnect/re-sync would loop forever
+    // origin === this means the update came from the server via handleMessage; don't echo it back
     if (origin === this) return;
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
 
@@ -157,9 +145,7 @@ export class YjsProvider {
     { added, updated, removed }: { added: number[]; updated: number[]; removed: number[] },
     origin: unknown
   ) => {
-    // same rule as handleLocalUpdate: changes applied by handleMessage
-    // (origin === this) came from the server, so echoing them back would
-    // have every peer re-broadcast every other peer's awareness update
+    // same rule as handleLocalUpdate: don't echo server-originated changes back
     if (origin === this) return;
     this.sendAwarenessUpdate(added.concat(updated, removed));
   };

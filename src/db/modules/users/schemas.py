@@ -21,10 +21,7 @@ class UserPublicResponse(BaseModel):
 class UserPrivateResponse(UserPublicResponse):
     authuser_id: int
     authuser: "AuthUserResponse"
-
-    # email: str
-
-    # ....
+    email: Optional[str] = None
 
     class Config:
         from_attributes = True

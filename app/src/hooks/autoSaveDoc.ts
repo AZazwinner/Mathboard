@@ -8,12 +8,10 @@ export function updateTitle(doc_id: string, newTitle: string) {
     const token = localStorage.getItem("token")
     if (!token) return
 
-    // clear previous timer for this doc
     if (updateTitleTimers[doc_id]) {
         clearTimeout(updateTitleTimers[doc_id])
     }
 
-    // set new timer
     updateTitleTimers[doc_id] = setTimeout(async () => {
         try {
             const res = await fetch(`${API_URL}/update-doc`, {
@@ -30,7 +28,7 @@ export function updateTitle(doc_id: string, newTitle: string) {
 
             if (!res.ok) {
                 const err = await res.json()
-                console.log("FULL ERROR:", JSON.stringify(err, null, 2))
+                console.error("Failed to update title:", err)
                 return
             }
 

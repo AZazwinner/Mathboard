@@ -1,8 +1,10 @@
 
+import secrets
+from datetime import datetime, timedelta
 from typing import Any
 
 from sqlalchemy.orm import Session
-from db.core.auth.crud import create_user__password, get_authuser_by_username, get_authuser_by_email, update_user__password_hash
+from db.core.auth.crud import create_password_reset_token, create_user__password, get_authuser_by_username, get_authuser_by_email, get_password_reset_token, mark_password_reset_token_used, update_user__password_hash
 from db.core.auth.utils.password import hash_password, verify_password
 from db.core.auth.utils.token import create_access_token
 from db.database import get_db
@@ -13,40 +15,18 @@ from fastapi import Depends, HTTPException, Header, status
 from db.core.auth.utils.token import verify_access_token
 from db.modules.users.utils.validate import validate_email
 
-#
 def create_authuser(
         data: AuthUserCreate__Password,
         db: Session = Depends(get_db),
 ) -> dict[str, Any]:
-    """
-    Creates a new user. Does NOT parse to check if data is valid.
-
-    Supports:
-      - Password-based login
-      - TODO: OAuth login (Google)
-    Returns:
-      dict:
-        - code (int): Indicates if the user was created successfully
-        - user (AuthUser, optional): AuthUser db object if successful
-        - token (str, optional): Authorization bearer token if successful
-
-    Code:
-      - 100 = success
-      - 0 = error
-      - 10 = invalid username
-      - 20 = invalid email
-      - 30 = invalid password
-      - 90 = account already exists (email duplicate from google_id?)
-    """
-    # validate email to EmailStr
+    """Creates a user; returns dict with `code` (100=success, 0=error, 10=bad username, 20=bad email, 30=bad password, 90=already exists) and `user` on success."""
     try:
         validate_email(data.email)
     except HTTPException:
         return {
             "code": 20
         }
-    
-    # Check if a user already exists by username/email
+
     if get_authuser_by_username(data.username, db):
         return {
             "code": 10
@@ -55,24 +35,20 @@ def create_authuser(
         return {
             "code": 20
         }
-    
-    # Check password validity (TODO: just non-empty str rn)
+
+    # TODO: password validation is currently just a non-empty check
     if data.password == "":
         return {
             "code": 30
         }
 
-    # Create user
     user = create_user__password(AuthUserCreate__PasswordHash.model_validate({
         "username": data.username,
         "email": data.email,
         "password_hash": hash_password(data.password)
     }), db)
 
-    # No access token is minted here: get_current_user() always resolves a
-    # token's `sub` against users.id, not auth_users.id, and the caller
-    # (create_user__password in users/services.py) is the one that knows the
-    # resulting users.id once the paired User row is created.
+    # No token minted here: tokens' `sub` maps to users.id, not auth_users.id, which the caller resolves once it creates the paired User row.
     return {
         "code": 100,
         "user": user,
@@ -82,12 +58,7 @@ def login_authuser__username_password(
         data: AuthUserLogin__UsernamePassword,
         db: Session = Depends(get_db),
 ) -> str | None:
-    """
-    Logs in a new user using username/password.
-    
-    Returns:
-        access token (str) if successful else None
-    """
+    """Logs in with username/password; returns an access token, or None on failure."""
     user = get_authuser_by_username(data.username, db)
     if user is None:
         return None
@@ -100,13 +71,42 @@ def update_authuser__password(
         data: AuthUserUpdate__Password,
         db: Session = Depends(get_db),
 ):
-    """
-    Updates user's password if user's id exists.
-
-    Returns:
-        boolean, whether update succeeded or not
-    """
+    """Updates the user's password hash; returns whether it succeeded."""
     return update_user__password_hash(AuthUserUpdate__PasswordHash.model_validate({
         "id": data.id,
         "password_hash": hash_password(data.password)
     }), db)
+
+
+RESET_TOKEN_TTL_MINUTES = 30
+
+def request_password_reset(
+        email: str,
+        db: Session,
+) -> str | None:
+    """Issues a one-time reset token for `email`, or None if no account matches; callers should report success either way to avoid email enumeration."""
+    user = get_authuser_by_email(email, db)
+    if user is None:
+        return None
+
+    token = secrets.token_urlsafe(32)
+    expires_at = datetime.utcnow() + timedelta(minutes=RESET_TOKEN_TTL_MINUTES)
+    create_password_reset_token(user.id, token, expires_at, db)
+    return token
+
+def reset_password_with_token(
+        token: str,
+        new_password: str,
+        db: Session,
+) -> bool:
+    """Consumes a single-use reset token and sets the new password; returns False if unknown, used, or expired."""
+    record = get_password_reset_token(token, db)
+    if record is None or record.used or record.expires_at < datetime.utcnow():
+        return False
+
+    update_user__password_hash(AuthUserUpdate__PasswordHash.model_validate({
+        "id": record.authuser_id,
+        "password_hash": hash_password(new_password),
+    }), db)
+    mark_password_reset_token_used(record, db)
+    return True

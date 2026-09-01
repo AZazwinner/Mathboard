@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation"
 import { AuthCard } from "./AuthCard"
+import { AuthLayout } from "./AuthLayout"
 import { useAuth } from "@/hooks/useAuth"
 import { useEffect } from "react"
 
@@ -10,6 +11,7 @@ export default function SignInPage() {
   const router = useRouter()
 
   const redirectTo = params?.get("redirect") || "/docs"
+  const initialMode = params?.get("mode") === "signin" ? "signin" : "signup"
 
   const handleRedirect = () => {
     router.push(redirectTo)
@@ -23,8 +25,8 @@ export default function SignInPage() {
   }, [user, loading])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
-      {<AuthCard handleRedirect={handleRedirect} paramMode="signin"/>}
-    </div>
+    <AuthLayout>
+      <AuthCard handleRedirect={handleRedirect} paramMode={initialMode}/>
+    </AuthLayout>
   )
 }

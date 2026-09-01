@@ -4,7 +4,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-# Load .env file
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -14,9 +13,7 @@ is_sqlite = DATABASE_URL.startswith("sqlite")
 
 engine = create_engine(
     DATABASE_URL,
-    # FastAPI runs sync path operations in a thread pool, and SQLAlchemy's
-    # connection pool is not thread-affine, so a pooled sqlite3 connection
-    # can be checked out on a different thread than the one that created it.
+    # Pooled sqlite3 connections can be checked out on a different thread than the one that created them.
     connect_args={"check_same_thread": False} if is_sqlite else {},
     pool_pre_ping=True  # good practice for Postgres
 )

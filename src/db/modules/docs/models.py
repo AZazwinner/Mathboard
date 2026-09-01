@@ -41,13 +41,17 @@ class DocumentBlock(Base):
 
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-class DocumentYDoc(Base):
-    """Canonical Yjs CRDT state for a document (see liveshare/ydoc_room.py).
+class DocumentVersion(Base):
+    """A point-in-time snapshot of a document's blocks, for version history / restore."""
+    __tablename__ = "document_versions"
 
-    `document_blocks` is kept as a read-model mirror derived from this for
-    the REST layer (doc list/preview) - this table is the source of truth
-    once a document has been converted to Yjs.
-    """
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    doc_id: Mapped[int] = mapped_column(ForeignKey("documents.id"))
+    blocks_json: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+class DocumentYDoc(Base):
+    """Canonical Yjs CRDT state for a document; document_blocks is a derived read-model mirror."""
     __tablename__ = "document_ydocs"
 
     doc_id: Mapped[int] = mapped_column(ForeignKey("documents.id"), primary_key=True)
@@ -65,6 +69,9 @@ class Document(Base):
 
     title: Mapped[str] = mapped_column(String, nullable=False, default="Untitled")
 
+    # Soft-delete marker; NULL means live.
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, default=None)
+
     blocks: Mapped[list["DocumentBlock"]] = relationship(
         "DocumentBlock",
         back_populates="document",
@@ -78,7 +85,6 @@ class Document(Base):
         cascade="all, delete-orphan"
     )
 
-    # convenience (optional)
     shared_users: Mapped[list["User"]] = relationship(
         "User",
         secondary="document_shares",

@@ -1,43 +1,50 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react"
 import {
   motion,
   AnimatePresence,
   MotionConfig,
-  useMotionValue,
-  useSpring,
   useReducedMotion,
   type Variants,
 } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Sigma, FileText, Users, Share2, RotateCcw } from "lucide-react"
+import { Sigma, RotateCcw, Link2, Check, Menu, X } from "lucide-react"
 import Link from "next/link"
 import LatexRenderer from "@/components/LatexRenderer"
 
-const DEMO_SOURCE = String.raw`## Cauchy–Schwarz
+const DEMO_LINE_A = String.raw`## Cauchy–Schwarz
 
 For vectors $u, v \in \mathbb{R}^n$:
 
-$$\left(\sum_i u_i v_i\right)^2 \;\leq\; \left(\sum_i u_i^2\right)\left(\sum_i v_i^2\right)$$
+`
+
+const DEMO_LINE_B = String.raw`$$\left(\sum_i u_i v_i\right)^2 \;\leq\; \left(\sum_i u_i^2\right)\left(\sum_i v_i^2\right)$$
 
 with equality iff $u$ and $v$ are linearly dependent.`
+
+const DEMO_SOURCE = DEMO_LINE_A + DEMO_LINE_B
+
+const AUTHOR_A = { name: "Ada", color: "#5B6EBA" }
+const AUTHOR_B = { name: "Gauss", color: "#BA7A4F" }
+
+const HEADLINE_WORDS = ["document", "proof", "paper", "problem set"]
 
 const FEATURES = [
   {
     title: "Renders as you type",
-    description: "Every block compiles live — no separate preview pane, no build step.",
-    icon: FileText,
+    description: "Every block compiles the moment you finish typing it, right in the document.",
+    Visual: RenderToggleIcon,
   },
   {
     title: "Real-time collaboration",
     description: "Edit the same proof together and see collaborators' cursors as they write.",
-    icon: Users,
+    Visual: CollabCursorsIcon,
   },
   {
     title: "Share with a link",
-    description: "Invite people to read or edit a document. No exports, no attachments.",
-    icon: Share2,
+    description: "Send a link and the other person can read or edit the document right away.",
+    Visual: ShareLinkIcon,
   },
 ]
 
@@ -48,9 +55,17 @@ const NAV_LINKS = [
 
 const ACCENT = "#F1F1EF"
 
-// Shared motion variants - a spring-based fade+rise for individual
-// elements (a slight organic overshoot instead of a flat ease-out), and a
-// stagger wrapper that cascades `fadeUp` children a beat apart.
+// Stable references: framer-motion's viewport tracking is keyed off object identity, so an inline literal would reset "once" tracking on every re-render.
+const VIEWPORT_ONCE = { once: true, margin: "-80px" } as const
+const VIEWPORT_ONCE_TIGHT = { once: true, margin: "-40px" } as const
+
+// Faint graph-paper texture behind the page.
+const GRID_BACKGROUND: React.CSSProperties = {
+  backgroundImage:
+    "linear-gradient(to right, rgba(0,0,0,0.035) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.035) 1px, transparent 1px)",
+  backgroundSize: "28px 28px",
+}
+
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
@@ -75,8 +90,6 @@ const cardReveal: Variants = {
   },
 }
 
-// Scroll-triggered reveal for below-the-fold content - fires once, a bit
-// before the element is fully in view, and never re-triggers on scroll-back.
 function Reveal({
   children,
   className,
@@ -91,7 +104,7 @@ function Reveal({
       className={className}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
+      viewport={VIEWPORT_ONCE}
       variants={variants}
     >
       {children}
@@ -99,58 +112,6 @@ function Reveal({
   )
 }
 
-// Nudges its contents a few px toward the cursor within its own bounds,
-// spring-back on leave - monochrome, position-only, no color/glow. A no-op
-// wrapper when the user has requested reduced motion.
-function Magnetic({
-  children,
-  strength = 0.3,
-  maxOffset = 8,
-  className,
-}: {
-  children: React.ReactNode
-  strength?: number
-  maxOffset?: number
-  className?: string
-}) {
-  // Branching the returned element type on reduceMotion would mismatch
-  // between server render (matchMedia unavailable -> always "false") and
-  // an actual reduced-motion client, so instead the JSX stays identical
-  // and only the mousemove handler's effect is gated.
-  const reduceMotion = useReducedMotion()
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
-  const springX = useSpring(x, { stiffness: 300, damping: 20, mass: 0.5 })
-  const springY = useSpring(y, { stiffness: 300, damping: 20, mass: 0.5 })
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (reduceMotion) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const relX = e.clientX - (rect.left + rect.width / 2)
-    const relY = e.clientY - (rect.top + rect.height / 2)
-    x.set(Math.max(-maxOffset, Math.min(maxOffset, relX * strength)))
-    y.set(Math.max(-maxOffset, Math.min(maxOffset, relY * strength)))
-  }
-
-  const handleMouseLeave = () => {
-    x.set(0)
-    y.set(0)
-  }
-
-  return (
-    <motion.div
-      className={className}
-      style={{ x: springX, y: springY }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-// Spring scale on hover/tap - wraps a CTA button without touching the
-// shared Button component itself.
 function AnimatedButton({ children }: { children: React.ReactNode }) {
   return (
     <motion.span
@@ -164,10 +125,258 @@ function AnimatedButton({ children }: { children: React.ReactNode }) {
   )
 }
 
-// Reveals `text` a few characters at a time via requestAnimationFrame,
-// restarting whenever `playToken` changes (scroll-into-view or replay
-// click both just increment the token). Reduced-motion users get the full
-// text immediately instead of a forced multi-second reveal.
+function WordRotator({ words, interval = 3000 }: { words: string[]; interval?: number }) {
+  const reduceMotion = useReducedMotion()
+  const [index, setIndex] = useState(0)
+  const [striking, setStriking] = useState(false)
+
+  useEffect(() => {
+    if (reduceMotion) return
+    const t = setTimeout(() => setStriking(true), interval)
+    return () => clearTimeout(t)
+  }, [index, interval, reduceMotion])
+
+  useEffect(() => {
+    if (!striking) return
+    const t = setTimeout(() => {
+      setIndex((i) => (i + 1) % words.length)
+      setStriking(false)
+    }, 380)
+    return () => clearTimeout(t)
+  }, [striking, words.length])
+
+  if (reduceMotion) {
+    return (
+      <span className="underline decoration-dotted decoration-neutral-300 underline-offset-4">
+        {words[0]}
+      </span>
+    )
+  }
+
+  return (
+    <span className="relative inline-block">
+      <motion.span
+        key={index}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
+        className="relative inline-block underline decoration-dotted decoration-neutral-300 underline-offset-4"
+      >
+        {words[index]}
+        {striking && (
+          <motion.span
+            className="absolute left-0 top-[0.72em] h-[2px] bg-red-400/70"
+            initial={{ width: 0 }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          />
+        )}
+      </motion.span>
+    </span>
+  )
+}
+
+function PresenceDot() {
+  const reduceMotion = useReducedMotion()
+  return (
+    <span className="relative mr-1.5 inline-flex h-1.5 w-1.5 shrink-0">
+      {!reduceMotion && (
+        <motion.span
+          className="absolute inline-flex h-full w-full rounded-full bg-neutral-500"
+          animate={{ opacity: [0.6, 0, 0.6], scale: [1, 1.8, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        />
+      )}
+      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-neutral-500" />
+    </span>
+  )
+}
+
+function DrawUnderline({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="relative inline-block">
+      {children}
+      <motion.svg
+        viewBox="0 0 100 8"
+        preserveAspectRatio="none"
+        className="pointer-events-none absolute -bottom-1 left-0 h-2 w-full text-neutral-300"
+        initial="hidden"
+        whileInView="visible"
+        viewport={VIEWPORT_ONCE_TIGHT}
+      >
+        <motion.path
+          d="M1,4 Q50,7 99,3"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          variants={{
+            hidden: { pathLength: 0, opacity: 0 },
+            visible: {
+              pathLength: 1,
+              opacity: 1,
+              transition: { duration: 0.6, ease: "easeInOut", delay: 0.3 },
+            },
+          }}
+        />
+      </motion.svg>
+    </span>
+  )
+}
+
+function RenderToggleIcon() {
+  const reduceMotion = useReducedMotion()
+  const [rendered, setRendered] = useState(false)
+
+  useEffect(() => {
+    if (reduceMotion) return
+    const id = setInterval(() => setRendered((r) => !r), 2000)
+    return () => clearInterval(id)
+  }, [reduceMotion])
+
+  return (
+    <div className="relative inline-flex h-8 w-8 items-center justify-center rounded-[6px] border border-neutral-200 bg-white">
+      <AnimatePresence mode="wait">
+        {rendered ? (
+          <motion.span
+            key="rendered"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={{ duration: 0.25 }}
+            className="font-serif text-[15px] italic text-neutral-900"
+          >
+            ∑x²
+          </motion.span>
+        ) : (
+          <motion.span
+            key="source"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={{ duration: 0.25 }}
+            className="font-mono text-[9px] text-neutral-500"
+          >
+            \sum x^2
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function CollabCursorsIcon() {
+  const reduceMotion = useReducedMotion()
+  return (
+    <div className="relative h-8 w-8 overflow-hidden rounded-[6px] border border-neutral-200 bg-white">
+      {!reduceMotion ? (
+        <>
+          <motion.span
+            className="absolute top-2 h-1.5 w-1.5 rounded-full"
+            style={{ backgroundColor: AUTHOR_A.color }}
+            animate={{ x: [4, 20, 4] }}
+            transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.span
+            className="absolute bottom-2 h-1.5 w-1.5 rounded-full"
+            style={{ backgroundColor: AUTHOR_B.color }}
+            animate={{ x: [20, 4, 20] }}
+            transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </>
+      ) : (
+        <>
+          <span
+            className="absolute top-2 left-2 h-1.5 w-1.5 rounded-full"
+            style={{ backgroundColor: AUTHOR_A.color }}
+          />
+          <span
+            className="absolute bottom-2 right-2 h-1.5 w-1.5 rounded-full"
+            style={{ backgroundColor: AUTHOR_B.color }}
+          />
+        </>
+      )}
+    </div>
+  )
+}
+
+function ShareLinkIcon() {
+  const reduceMotion = useReducedMotion()
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    if (reduceMotion) return
+    const id = setInterval(() => setCopied((c) => !c), 2400)
+    return () => clearInterval(id)
+  }, [reduceMotion])
+
+  return (
+    <div className="relative inline-flex h-8 w-8 items-center justify-center rounded-[6px] border border-neutral-200 bg-white">
+      <AnimatePresence mode="wait">
+        {copied ? (
+          <motion.span
+            key="check"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Check className="h-4 w-4 text-neutral-900" />
+          </motion.span>
+        ) : (
+          <motion.span
+            key="link"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Link2 className="h-4 w-4 text-neutral-900" />
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function AuthorLane({
+  author,
+  full,
+  typed,
+  done,
+}: {
+  author: { name: string; color: string }
+  full: string
+  typed: string
+  done: boolean
+}) {
+  return (
+    <div className="p-5">
+      <div
+        className="mb-3 inline-flex items-center gap-1.5 rounded-[4px] px-2 py-0.5 text-[10px] font-medium text-white"
+        style={{ backgroundColor: author.color }}
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
+        {author.name}
+      </div>
+      {/* Untyped remainder stays `invisible` (not absent) so the pane's height is fixed to the final text from the first frame. */}
+      <pre className="scrollbar-custom overflow-x-auto font-mono text-[12.5px] leading-relaxed whitespace-pre-wrap break-words text-neutral-500">
+        {typed}
+        {!done && (
+          <motion.span
+            className="ml-[1px] inline-block h-[1em] w-[2px] translate-y-[2px]"
+            style={{ backgroundColor: author.color }}
+            animate={{ opacity: [1, 1, 0, 0] }}
+            transition={{ duration: 1, repeat: Infinity, times: [0, 0.5, 0.5, 1] }}
+          />
+        )}
+        <span className="invisible">{full.slice(typed.length)}</span>
+      </pre>
+    </div>
+  )
+}
+
+// Reveals `text` a few characters at a time, restarting whenever `playToken` changes.
 function useTypewriter(text: string, playToken: number) {
   const reduceMotion = useReducedMotion()
   const [typedLength, setTypedLength] = useState(0)
@@ -185,7 +394,7 @@ function useTypewriter(text: string, playToken: number) {
     let last = performance.now()
     let acc = 0
     let count = 0
-    const CHARS_PER_SECOND = 220
+    const CHARS_PER_SECOND = 150
 
     const tick = (now: number) => {
       acc += ((now - last) / 1000) * CHARS_PER_SECOND
@@ -207,36 +416,46 @@ function useTypewriter(text: string, playToken: number) {
   return { typed: text.slice(0, typedLength), done: typedLength >= text.length }
 }
 
-// The hero's live demo: types the LaTeX source out, then morphs in the
-// actual rendered output a beat later - dramatizing "renders as you type"
-// through the motion itself instead of a flat scroll-reveal. Replayable
-// via the icon that appears on hover.
-function DemoCard() {
+type DemoHandle = { replay: () => void }
+
+// Exposes `replay` via ref so the hero's "View demo" button can trigger it from outside the component tree.
+const CollabDemoCard = forwardRef<DemoHandle>(function CollabDemoCard(_props, ref) {
   const [playToken, setPlayToken] = useState(0)
   const [showRender, setShowRender] = useState(false)
-  const { typed, done } = useTypewriter(DEMO_SOURCE, playToken)
+  const a = useTypewriter(DEMO_LINE_A, playToken)
+  const b = useTypewriter(DEMO_LINE_B, playToken)
+  const bothDone = a.done && b.done
 
   useEffect(() => {
-    if (!done) {
+    if (!bothDone) {
       setShowRender(false)
       return
     }
-    const t = setTimeout(() => setShowRender(true), 250)
+    const t = setTimeout(() => setShowRender(true), 300)
     return () => clearTimeout(t)
-  }, [done])
+  }, [bothDone])
 
   const replay = () => {
     setShowRender(false)
     setPlayToken((t) => t + 1)
   }
 
+  useImperativeHandle(ref, () => ({ replay }))
+
+  // Uses a ref instead of `viewport.once` since this component re-renders on every typed character.
+  const hasAutoPlayed = useRef(false)
+
   return (
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
+      viewport={VIEWPORT_ONCE}
       variants={cardReveal}
-      onViewportEnter={() => setPlayToken((t) => t + 1)}
+      onViewportEnter={() => {
+        if (hasAutoPlayed.current) return
+        hasAutoPlayed.current = true
+        setPlayToken((t) => t + 1)
+      }}
       className="group relative overflow-hidden rounded-[6px] border border-neutral-200 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
     >
       <div className="flex items-center gap-1.5 border-b border-neutral-200 bg-[#FAFAF9] px-4 py-2.5">
@@ -254,45 +473,45 @@ function DemoCard() {
         </button>
       </div>
 
-      <div className="grid sm:grid-cols-2">
-        <pre className="overflow-x-auto p-6 font-mono text-[13px] leading-relaxed whitespace-pre-wrap break-words text-neutral-500">
-          {typed}
-          {!done && (
-            <motion.span
-              className="ml-[1px] inline-block h-[1em] w-[2px] translate-y-[2px] bg-neutral-900"
-              animate={{ opacity: [1, 1, 0, 0] }}
-              transition={{ duration: 1, repeat: Infinity, times: [0, 0.5, 0.5, 1] }}
-            />
-          )}
-        </pre>
+      <div className="grid divide-y divide-neutral-200 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+        <AuthorLane author={AUTHOR_A} full={DEMO_LINE_A} typed={a.typed} done={a.done} />
+        <AuthorLane author={AUTHOR_B} full={DEMO_LINE_B} typed={b.typed} done={b.done} />
+      </div>
 
-        <div className="min-h-[168px] border-t border-neutral-200 sm:border-t-0 sm:border-l">
-          <AnimatePresence mode="wait">
-            {showRender && (
-              <motion.div
-                key={playToken}
-                initial={{ opacity: 0, scale: 0.94, x: -6 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ type: "spring", stiffness: 300, damping: 24 }}
-                className="p-6"
-              >
-                <LatexRenderer content={DEMO_SOURCE} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+      <div className="min-h-[168px] border-t border-neutral-200">
+        <AnimatePresence mode="wait">
+          {showRender && (
+            <motion.div
+              key={playToken}
+              initial={{ opacity: 0, scale: 0.94, x: -6 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 300, damping: 24 }}
+              className="p-6"
+            >
+              <LatexRenderer content={DEMO_SOURCE} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   )
-}
+})
 
 export default function HomePage() {
   const [hoveredLink, setHoveredLink] = useState<string | null>(null)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const demoRef = useRef<DemoHandle>(null)
+  const demoSectionRef = useRef<HTMLDivElement>(null)
+
+  const handleViewDemo = () => {
+    demoSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+    demoRef.current?.replay()
+  }
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="min-h-screen bg-white text-neutral-900">
+      <div className="min-h-screen bg-white text-neutral-900" style={GRID_BACKGROUND}>
         {/* NAV */}
         <header className="border-b border-neutral-200">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
@@ -326,105 +545,136 @@ export default function HomePage() {
             </nav>
 
             <div className="flex items-center gap-4">
-              <Link href="/signin" className="text-sm text-neutral-500 hover:text-neutral-900">
+              <Link href="/signin?mode=signin" className="text-sm text-neutral-500 hover:text-neutral-900">
                 Sign in
               </Link>
-              <Magnetic maxOffset={6} strength={0.3}>
-                <AnimatedButton>
-                  <Link href="/signin">
-                    <Button size="sm" className="rounded-[6px] bg-neutral-900 text-white hover:bg-neutral-900/90">
-                      Get started
-                    </Button>
-                  </Link>
-                </AnimatedButton>
-              </Magnetic>
+              <AnimatedButton>
+                <Link href="/signin">
+                  <Button size="sm" className="rounded-[6px] bg-neutral-900 text-white hover:bg-neutral-900/90">
+                    Get started
+                  </Button>
+                </Link>
+              </AnimatedButton>
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen((open) => !open)}
+                aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
+                aria-expanded={mobileNavOpen}
+                className="rounded-[6px] p-1.5 text-neutral-500 hover:bg-[#FAFAF9] hover:text-neutral-900 sm:hidden"
+              >
+                {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
             </div>
           </div>
+
+          <AnimatePresence initial={false}>
+            {mobileNavOpen && (
+              <motion.nav
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="overflow-hidden border-t border-neutral-200 sm:hidden"
+              >
+                <div className="flex flex-col px-6 py-2">
+                  {NAV_LINKS.map((link) => (
+                    <a
+                      key={link.key}
+                      href={link.href}
+                      onClick={() => setMobileNavOpen(false)}
+                      className="rounded-[6px] px-2 py-2.5 text-sm text-neutral-600 hover:bg-[#FAFAF9] hover:text-neutral-900"
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              </motion.nav>
+            )}
+          </AnimatePresence>
         </header>
 
-        {/* HERO - animates on load, it's already in view */}
+        {/* HERO */}
         <motion.section
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
-          className="mx-auto max-w-3xl px-6 pt-24 pb-14 text-center"
+          className="mx-auto max-w-4xl px-6 pt-24 pb-14 text-center"
         >
           <motion.p
             variants={fadeUp}
             className="inline-flex items-center rounded-[6px] px-3 py-1 text-sm text-neutral-600"
             style={{ backgroundColor: ACCENT }}
           >
+            <PresenceDot />
             Now in beta
           </motion.p>
 
-          <motion.h1
-            variants={fadeUp}
-            className="mt-5 text-[2.75rem] leading-[1.1] font-semibold tracking-tight text-neutral-900 sm:text-6xl"
-          >
-            Write math like it&apos;s a document.
-          </motion.h1>
+          {/* min-height reserves two lines below ~1024px, where the longest word wraps. */}
+          <div className="mt-5 flex min-h-[7.15rem] items-center justify-center sm:min-h-[9.9rem] lg:min-h-[4.95rem]">
+            <motion.h1
+              variants={fadeUp}
+              className="font-heading text-[3.25rem] leading-[1.1] font-normal tracking-tight text-neutral-900 sm:text-7xl"
+            >
+              Write math like it&apos;s a <WordRotator words={HEADLINE_WORDS} />.
+            </motion.h1>
+          </div>
 
           <motion.p variants={fadeUp} className="mx-auto mt-6 max-w-xl text-lg text-neutral-500">
-            A collaborative LaTeX editor that renders as you type — built for
-            proofs, papers, and problem sets.
+            Write LaTeX with someone else and watch it render as you type. Built
+            for proofs, papers, and problem sets.
           </motion.p>
 
           <motion.div variants={fadeUp} className="mt-8 flex items-center justify-center gap-2">
-            <Magnetic maxOffset={8} strength={0.35}>
-              <AnimatedButton>
-                <Link href="/signin">
-                  <Button size="lg" className="rounded-[6px] bg-neutral-900 px-5 text-white hover:bg-neutral-900/90">
-                    Get started
-                  </Button>
-                </Link>
-              </AnimatedButton>
-            </Magnetic>
-            <Magnetic maxOffset={8} strength={0.35}>
-              <AnimatedButton>
-                <Button size="lg" variant="ghost" className="rounded-[6px] text-neutral-600 hover:text-neutral-900">
-                  View demo
+            <AnimatedButton>
+              <Link href="/signin">
+                <Button size="lg" className="rounded-[6px] bg-neutral-900 px-5 text-white hover:bg-neutral-900/90">
+                  Get started
                 </Button>
-              </AnimatedButton>
-            </Magnetic>
+              </Link>
+            </AnimatedButton>
+            <AnimatedButton>
+              <Button
+                size="lg"
+                variant="ghost"
+                onClick={handleViewDemo}
+                className="rounded-[6px] text-neutral-600 hover:text-neutral-900"
+              >
+                View demo
+              </Button>
+            </AnimatedButton>
           </motion.div>
         </motion.section>
 
-        {/* HERO VISUAL - an actual rendered document, not a placeholder */}
-        <section className="mx-auto max-w-4xl px-6 pb-28">
-          <DemoCard />
+        {/* HERO VISUAL */}
+        <section ref={demoSectionRef} id="demo" className="mx-auto max-w-4xl px-6 pb-28">
+          <CollabDemoCard ref={demoRef} />
         </section>
 
         {/* FEATURES */}
         <section id="features" className="border-t border-neutral-200">
           <div className="mx-auto max-w-5xl px-6 py-24">
             <Reveal>
-              <h2 className="text-2xl font-semibold text-neutral-900">
-                Built for writing math, not fighting a compiler.
+              <h2 className="font-heading text-3xl font-normal text-neutral-900">
+                Focus on the math. Mathboard handles the rendering.
               </h2>
             </Reveal>
 
             <motion.div
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-80px" }}
+              viewport={VIEWPORT_ONCE}
               variants={staggerContainer}
               className="mt-12 grid gap-6 sm:grid-cols-3"
             >
               {FEATURES.map((feature) => (
                 <motion.div key={feature.title} variants={fadeUp} className="h-full">
-                  <Magnetic
-                    maxOffset={5}
-                    strength={0.2}
-                    className="group block h-full rounded-[6px] border border-neutral-200 p-6 transition-colors duration-300 hover:bg-[#F1F1EF]"
-                  >
-                    <div className="inline-flex h-8 w-8 items-center justify-center rounded-[6px] border border-neutral-200 bg-white transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
-                      <feature.icon className="h-4 w-4 text-neutral-900" />
-                    </div>
+                  <div className="h-full rounded-[6px] border border-neutral-200 p-6 transition-colors duration-300 hover:border-neutral-300 hover:bg-[#FAFAF9]">
+                    <feature.Visual />
                     <h3 className="mt-4 font-medium text-neutral-900">{feature.title}</h3>
                     <p className="mt-2 text-sm leading-relaxed text-neutral-500">
                       {feature.description}
                     </p>
-                  </Magnetic>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
@@ -449,35 +699,29 @@ export default function HomePage() {
               className="absolute inset-x-6 inset-y-6 -z-10 rounded-[6px] sm:inset-x-12"
             />
 
-            <motion.h2 variants={fadeUp} className="text-2xl font-semibold text-neutral-900">
-              Start writing mathematics like a document.
+            <motion.h2 variants={fadeUp} className="font-heading text-3xl font-normal text-neutral-900">
+              Start writing <DrawUnderline>mathematics</DrawUnderline> like a document.
             </motion.h2>
             <motion.p variants={fadeUp} className="mt-3 text-neutral-500">
-              No compile step. No friction. Just LaTeX that feels modern.
+              Type LaTeX and watch it render instantly, without a separate compile step.
             </motion.p>
 
             <motion.div variants={fadeUp} className="mt-8 inline-block">
-              <Magnetic maxOffset={8} strength={0.35}>
-                <AnimatedButton>
-                  <Link href="/docs">
-                    <Button size="lg" className="rounded-[6px] bg-neutral-900 px-6 text-white hover:bg-neutral-900/90">
-                      Launch Mathboard
-                    </Button>
-                  </Link>
-                </AnimatedButton>
-              </Magnetic>
+              <AnimatedButton>
+                <Link href="/docs">
+                  <Button size="lg" className="rounded-[6px] bg-neutral-900 px-6 text-white hover:bg-neutral-900/90">
+                    Launch Mathboard
+                  </Button>
+                </Link>
+              </AnimatedButton>
             </motion.div>
           </Reveal>
         </section>
 
         {/* FOOTER */}
         <footer className="border-t border-neutral-200">
-          <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-8 text-sm text-neutral-400">
-            <div>© {new Date().getFullYear()} mathboard</div>
-            <div className="flex gap-5">
-              <a href="#" className="hover:text-neutral-600">GitHub</a>
-              <a href="#" className="hover:text-neutral-600">Twitter</a>
-            </div>
+          <div className="mx-auto max-w-5xl px-6 py-8 text-center text-sm text-neutral-400">
+            © {new Date().getFullYear()} mathboard
           </div>
         </footer>
       </div>

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -7,7 +8,7 @@ from db.core.auth.schemas import AuthUserUpdate__Password
 from db.core.auth.services import update_authuser__password
 from db.modules.docs.crud import get_docs_by_owner_id, get_documentshares_by_id
 from db.modules.docs.schemas import DocShareListingResponse, DocumentResponsePermission, DocumentShareResponseExpanded, DocumentResponse, DocumentUpdate
-from db.modules.docs.services import create_empty_untitled_doc, delete_docshare__check_permissions, get_viewable_documents, try_create_or_update_documentshare, try_get_documentshares, update_doc_text__check_permissions, delete_doc__check_permissions, try_get_documentshare, user_can_write_document, view_document
+from db.modules.docs.services import create_document_from_template, delete_docshare__check_permissions, duplicate_doc__check_permissions, get_document_versions__check_permissions, get_trash__check_permissions, get_viewable_documents, permanently_delete_doc__check_permissions, restore_doc__check_permissions, restore_document_version__check_permissions, try_create_or_update_documentshare, try_get_documentshares, update_doc_text__check_permissions, delete_doc__check_permissions, try_get_documentshare, user_can_write_document, view_document
 from db.modules.users.crud import get_user_by_id
 from db.modules.users.models import User
 from db.modules.users.schemas import UserPublicResponse, UserPrivateResponse
@@ -29,9 +30,32 @@ def create_doc(
     current_user: UserPrivateResponse = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    doc = create_empty_untitled_doc(current_user.id, db)
+    doc = create_document_from_template(current_user.id, data.title, data.template, db)
     return {
         "doc_id": doc.id
+    }
+
+class DuplicateDocData(BaseModel):
+    doc_id: int
+
+class DuplicateDocResponse(BaseModel):
+    doc_id: int
+
+@router.post("/docs/duplicate", response_model=DuplicateDocResponse)
+def duplicate_doc(
+    data: DuplicateDocData,
+    current_user: UserPrivateResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    new_doc = duplicate_doc__check_permissions(
+        doc_id=data.doc_id,
+        user_id=current_user.id,
+        db=db,
+    )
+    if new_doc is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return {
+        "doc_id": new_doc.id
     }
 
 class DocsResponse(BaseModel):
@@ -127,6 +151,110 @@ def delete_doc(
     )
     return {
         "success": success
+    }
+
+class TrashedDocResponse(BaseModel):
+    id: int
+    title: str
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: datetime
+
+    model_config = {
+        "from_attributes": True
+    }
+
+class TrashResponse(BaseModel):
+    docs: list[TrashedDocResponse]
+
+@router.get("/trash", response_model=TrashResponse)
+def get_trash(
+    current_user: UserPrivateResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return {
+        "docs": get_trash__check_permissions(current_user.id, db)
+    }
+
+class DocIdData(BaseModel):
+    doc_id: int
+
+@router.post("/doc/restore", response_model=SuccessResponse)
+def restore_doc(
+    data: DocIdData,
+    current_user: UserPrivateResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    success = restore_doc__check_permissions(
+        doc_id=data.doc_id,
+        user_id=current_user.id,
+        db=db
+    )
+    return {
+        "success": success
+    }
+
+@router.delete("/doc/permanent", response_model=SuccessResponse)
+def permanently_delete_doc(
+    doc_id: int,
+    current_user: UserPrivateResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    success = permanently_delete_doc__check_permissions(
+        doc_id=doc_id,
+        user_id=current_user.id,
+        db=db
+    )
+    return {
+        "success": success
+    }
+
+
+# ---- Version history ----
+class DocumentVersionResponse(BaseModel):
+    id: int
+    created_at: datetime
+
+    model_config = {
+        "from_attributes": True
+    }
+
+class DocumentVersionsResponse(BaseModel):
+    versions: list[DocumentVersionResponse]
+
+@router.get("/doc/versions", response_model=DocumentVersionsResponse)
+def get_doc_versions(
+    doc_id: int,
+    current_user: UserPrivateResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    versions = get_document_versions__check_permissions(doc_id, current_user.id, db)
+    if versions is None:
+        raise HTTPException(status_code=403, detail="Not permitted")
+    return {
+        "versions": versions
+    }
+
+class RestoreVersionData(BaseModel):
+    doc_id: int
+    version_id: int
+
+@router.post("/doc/versions/restore", response_model=SuccessResponse)
+def restore_doc_version(
+    data: RestoreVersionData,
+    current_user: UserPrivateResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    success, error = restore_document_version__check_permissions(
+        doc_id=data.doc_id,
+        version_id=data.version_id,
+        user_id=current_user.id,
+        db=db,
+    )
+    if not success:
+        raise HTTPException(status_code=400, detail=error)
+    return {
+        "success": True
     }
 
 

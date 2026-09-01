@@ -16,25 +16,10 @@ def create_user__password(
         data: AuthUserCreate__Password,
         db: Session = Depends(get_db),
 ):
-    """
-    Creates a new user. Does NOT parse to check if data is valid.
+    """Creates a new user. Does NOT validate data itself.
 
-    Supports:
-      - Password-based login
-      - TODO: OAuth login (Google)
-    Returns:
-      dict:
-        - code (int): Indicates if the user was created successfully
-        - user (User, optional): AuthUser db object if successful
-        - token (str, optional): Authorization bearer token if successful
-
-    Code:
-      - 100 = success
-      - 0 = error
-      - 10 = invalid username
-      - 20 = invalid email
-      - 30 = invalid password
-      - 90 = account already exists (email duplicate from google_id?)
+    Codes: 100 = success, 0 = error, 10 = invalid username, 20 = invalid email,
+    30 = invalid password, 90 = account already exists.
     """
     authuser_create_dict = create_authuser(data, db)
     if authuser_create_dict["code"] == 100:
@@ -47,8 +32,7 @@ def create_user__password(
         return {
             "code": 100,
             "user": user,
-            # minted from users.id, matching what get_current_user() checks
-            # tokens against - NOT auth_users.id (see create_authuser)
+            # Minted from users.id, not auth_users.id - matches what get_current_user() checks against.
             "token": create_access_token(user.id)
         }
     else:
@@ -66,9 +50,7 @@ def login_user__password(
         
     if user is None:
         return
-    # password_hash is nullable (reserved for OAuth-only accounts), so a
-    # password-login attempt against one must fail cleanly rather than
-    # raising inside passlib
+    # password_hash is nullable (OAuth-only accounts), so this must fail cleanly instead of raising.
     if user.authuser.password_hash is None:
         return
     elif verify_password(data.password, user.authuser.password_hash):

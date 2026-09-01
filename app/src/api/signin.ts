@@ -47,10 +47,48 @@ export async function signinUser(data: SigninUserInput): Promise<SigninUserRespo
     body: JSON.stringify(data),
   })
 
-  console.log({res})
+  if (!res.ok) {
+    // Surfaces the backend's HTTPException detail (e.g. rate-limit lockout message) instead of a generic error.
+    const body = await res.json().catch(() => null)
+    throw new Error(body?.detail || "Network error")
+  }
+
+  return res.json()
+}
+
+export type ForgotPasswordResponse = {
+  success: boolean
+  // Dev-only stand-in until a real email provider is wired up.
+  dev_reset_link?: string
+}
+
+export async function forgotPassword(email: string): Promise<ForgotPasswordResponse> {
+  const res = await fetch(`${API_URL}/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  })
 
   if (!res.ok) {
-    throw new Error("Network error")
+    const body = await res.json().catch(() => null)
+    throw new Error(body?.detail || "Network error")
+  }
+
+  return res.json()
+}
+
+export type ResetPasswordResponse = { success: boolean }
+
+export async function resetPassword(token: string, password: string): Promise<ResetPasswordResponse> {
+  const res = await fetch(`${API_URL}/reset-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, password }),
+  })
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null)
+    throw new Error(body?.detail || "Network error")
   }
 
   return res.json()

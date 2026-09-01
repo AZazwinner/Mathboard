@@ -45,7 +45,6 @@ class DocumentResponsePermission(DocumentResponse):
     owner_username: str
 
 
-
 class DocumentShareResponse(BaseModel):
     doc_id: int
     user_id: int
@@ -71,6 +70,7 @@ class DocShareListingResponse(BaseModel):
     owner_id: int
     owner_username: str
     title: str
+    blocks: list[DocumentBlockResponse]
     created_at: datetime
     updated_at: datetime
     permission: str

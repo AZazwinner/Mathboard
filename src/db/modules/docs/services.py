@@ -1,35 +1,105 @@
 
+import json
+from datetime import datetime, timedelta
+
 from sqlalchemy.orm import Session
 
 from db.core.auth.crud import get_authuser_by_id
-from db.modules.docs.crud import create_document, create_documentshare, delete_documentshare, get_document_by_id, get_documentshare_by_ids, get_documentshares_by_id, get_documentshares_by_user_id, update_document__title_text, delete_document, update_documentshare_with_share
+from db.modules.docs.crud import create_document, create_document_copy, create_documentshare, delete_documentshare, get_document_by_id, get_document_version_by_id, get_document_versions, get_documentshare_by_ids, get_documentshares_by_id, get_documentshares_by_user_id, get_trashed_docs_by_owner_id, restore_document, restore_document_from_snapshot, soft_delete_document, update_document__title_text, delete_document, update_documentshare_with_share
 from db.modules.docs.schemas import DocShareListingResponse, DocumentResponse, DocumentUpdate, DocumentShareResponse, DocumentShareResponseExpanded
 from db.modules.docs.models import DocumentShare
 from db.modules.users.crud import get_user_by_id
 
-def create_empty_untitled_doc(
+# Starter content per dashboard template; unrecognized/blank template names fall back to a single empty block.
+TEMPLATE_BLOCKS: dict[str, list[str]] = {
+    "Math Notes": [
+        "# Math Notes",
+        "## Definitions",
+        "",
+        "## Key Formulas",
+        "$$\n\n$$",
+        "## Worked Examples",
+        "",
+    ],
+    "Homework Template": [
+        "# Homework",
+        "**Name:**  \n**Course:**  \n**Due date:**",
+        "## Problem 1",
+        "",
+        "## Problem 2",
+        "",
+        "## Problem 3",
+        "",
+    ],
+    "Lecture Summary": [
+        "# Lecture Summary",
+        "**Course:**  \n**Date:**  \n**Topic:**",
+        "## Key Takeaways",
+        "",
+        "## Definitions & Formulas",
+        "$$\n\n$$",
+        "## Questions to Follow Up On",
+        "",
+    ],
+    "Research Paper": [
+        "# Title",
+        "**Author:**  \n**Date:**",
+        "## Abstract",
+        "",
+        "## Introduction",
+        "",
+        "## Methods",
+        "",
+        "## Results",
+        "",
+        "## Discussion",
+        "",
+        "## References",
+        "",
+    ],
+    "Proof Writing": [
+        "# Proof",
+        "**Theorem.**",
+        "",
+        "**Proof.**",
+        "",
+        "$\\blacksquare$",
+    ],
+    "Exam Prep Sheet": [
+        "# Exam Prep Sheet",
+        "## Formulas",
+        "$$\n\n$$",
+        "## Key Concepts",
+        "",
+        "## Common Mistakes to Avoid",
+        "",
+        "## Practice Problems",
+        "",
+    ],
+}
+
+def create_document_from_template(
         owner_id: int,
-        db: Session
+        title: str | None,
+        template: str | None,
+        db: Session,
 ):
-    return create_document(owner_id, db)
-    
+    """`title` is used as given except for a blank/unrecognized template, which falls back to the model's "Untitled" default."""
+    block_contents = TEMPLATE_BLOCKS.get(template) if template else None
+    doc_title = title if block_contents else None
+    return create_document(owner_id, db, title=doc_title, block_contents=block_contents)
+
+
 def update_doc_text__check_permissions(
         doc_id: int,
         user_id: int,
         update_data: DocumentUpdate,
         db: Session,
 ):
-    """
-    Ensures user has edit rights
-
-    Return:
-    - success (bool), indicating update was successful
-    """
     doc = get_document_by_id(doc_id, db)
     if doc is None:
         return False
-    
-    # Check edit permissions
+
     if not user_can_write_document(doc_id, user_id, db):
         return False
     
@@ -37,25 +107,122 @@ def update_doc_text__check_permissions(
     return True
     
 
+def duplicate_doc__check_permissions(
+        doc_id: int,
+        user_id: int,
+        db: Session,
+):
+    """Copies `document_blocks` only; the new doc's Y.Doc lazily backfills from those on first open."""
+    if not user_can_read_document(doc_id, user_id, db):
+        return None
+
+    doc = get_document_by_id(doc_id, db)
+    if doc is None:
+        return None
+
+    return create_document_copy(
+        owner_id=user_id,
+        title=f"Copy of {doc.title}",
+        blocks=doc.blocks,
+        db=db,
+    )
+
+
 def delete_doc__check_permissions(
         doc_id: int,
         user_id: int,
         db: Session,
 ):
-    """
-    Ensures user is owner
-
-    Return:
-    - success (bool), indicating update was successful
-    """
+    """Soft-deletes (moves to trash) rather than removing the row."""
     doc = get_document_by_id(doc_id, db)
     if doc is None:
         return False
-    
-    # Check edit permissions
+
     if doc.owner_id != user_id:
         return False
-    
+
+    soft_delete_document(doc, db)
+    return True
+
+
+TRASH_RETENTION_DAYS = 30
+
+def get_trash__check_permissions(
+        owner_id: int,
+        db: Session,
+):
+    """Lists the owner's trashed docs, purging anything past TRASH_RETENTION_DAYS first."""
+    cutoff = datetime.utcnow() - timedelta(days=TRASH_RETENTION_DAYS)
+    trashed = get_trashed_docs_by_owner_id(owner_id, db)
+
+    kept = []
+    for doc in trashed:
+        if doc.deleted_at is not None and doc.deleted_at < cutoff:
+            delete_document(doc, db)
+        else:
+            kept.append(doc)
+    return kept
+
+def restore_doc__check_permissions(
+        doc_id: int,
+        user_id: int,
+        db: Session,
+):
+    doc = get_document_by_id(doc_id, db, include_deleted=True)
+    if doc is None or doc.deleted_at is None:
+        return False
+
+    if doc.owner_id != user_id:
+        return False
+
+    restore_document(doc, db)
+    return True
+
+def get_document_versions__check_permissions(
+        doc_id: int,
+        user_id: int,
+        db: Session,
+):
+    if not user_can_read_document(doc_id, user_id, db):
+        return None
+    return get_document_versions(doc_id, db)
+
+def restore_document_version__check_permissions(
+        doc_id: int,
+        version_id: int,
+        user_id: int,
+        db: Session,
+) -> tuple[bool, str | None]:
+    """Restoring is blocked while anyone currently has the doc open, since a live session's periodic flush would overwrite it."""
+    from db.modules.liveshare.ydoc_room import registry as yroom_registry
+
+    if not user_can_write_document(doc_id, user_id, db):
+        return False, "You don't have permission to edit this document."
+
+    version = get_document_version_by_id(version_id, db)
+    if version is None or version.doc_id != doc_id:
+        return False, "Version not found."
+
+    if doc_id in yroom_registry.rooms:
+        return False, "Close this document everywhere it's currently open, then try restoring again."
+
+    blocks = json.loads(version.blocks_json)
+    restore_document_from_snapshot(doc_id, blocks, db)
+    return True, None
+
+def permanently_delete_doc__check_permissions(
+        doc_id: int,
+        user_id: int,
+        db: Session,
+):
+    """Only reachable from the trash view; a live doc must be soft-deleted first."""
+    doc = get_document_by_id(doc_id, db, include_deleted=True)
+    if doc is None or doc.deleted_at is None:
+        return False
+
+    if doc.owner_id != user_id:
+        return False
+
     delete_document(doc, db)
     return True
     
@@ -104,16 +271,9 @@ def try_create_or_update_documentshare(
         share_type: str,
         db: Session
 ) -> bool:
-    """
-    share_type (str): force check it's in read/write
-
-    Return:
-    - success (bool), indicating share was created
-    """
     if share_type not in ["read", "write"]:
         return False
-    
-    # Verify and enforce owner/edit rights
+
     doc = get_document_by_id(doc_id, db)
     if doc is None:
         return False
@@ -131,7 +291,6 @@ def try_create_or_update_documentshare(
         db=db
     )
     if share is None:
-        # Create new share
         create_documentshare(
             doc_id=doc_id,
             user_id=user_id,
@@ -139,7 +298,6 @@ def try_create_or_update_documentshare(
             db=db
         )
     else:
-        # Update existing
         update_documentshare_with_share(
             share=share,
             share_type=share_type,
@@ -160,7 +318,7 @@ def try_get_documentshare(
         user_id=user_id,
         db=db
     )
-    assert share is not None # from user_can_read_document()
+    assert share is not None
 
     return DocumentShareResponse.model_validate(share)
 
@@ -171,13 +329,7 @@ def delete_docshare__check_permissions(
         requester_id: int,
         db: Session,
 ) -> bool:
-    """
-    Ensures requester is the doc owner, a write-collaborator, or removing
-    their own share (leaving a shared doc).
-
-    Return:
-    - success (bool), indicating the share was found and removed
-    """
+    """Requester must be the doc owner, a write-collaborator, or removing their own share."""
     doc = get_document_by_id(doc_id, db)
     if doc is None:
         return False
@@ -237,6 +389,7 @@ def get_viewable_documents(
             owner_id=doc.owner_id,
             owner_username=username,
             title=doc.title,
+            blocks=doc.blocks,
             created_at=doc.created_at,
             updated_at=doc.updated_at,
             permission=share.permission

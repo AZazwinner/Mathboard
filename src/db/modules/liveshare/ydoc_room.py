@@ -6,19 +6,20 @@ from fastapi import WebSocket
 from sqlalchemy.orm import Session
 
 from db.database import SessionLocal
-from db.modules.liveshare.backfill import flush_ydoc, load_or_create_ydoc
+from db.modules.liveshare.backfill import create_version_snapshot, flush_ydoc, load_or_create_ydoc
 
 DEBOUNCE_SECONDS = 2
 MAX_INTERVAL_SECONDS = 5
+# How often a still-open, actively-edited doc gets an extra version snapshot beyond the "everyone left" one.
+SNAPSHOT_INTERVAL_SECONDS = 10 * 60
+# Shared floor under every snapshot request, regardless of trigger.
+MIN_SNAPSHOT_GAP_SECONDS = 30
 
 
 class YRoom:
-    """Owns the canonical Y.Doc + Awareness for one document, and the set of
-    connected sockets.
+    """Owns the canonical Y.Doc + Awareness for one document, and the set of connected sockets.
 
-    Incoming sync messages are applied to `self.ydoc` (via `handle_sync_message`)
-    *before* being relayed to other sockets - unlike the old ConnectionManager,
-    which broadcast the raw op to peers before applying it to its own cache.
+    Incoming sync messages are applied to `self.ydoc` before being relayed to other sockets.
     """
 
     def __init__(self, doc_id: int, ydoc: pycrdt.Doc):
@@ -30,19 +31,18 @@ class YRoom:
 
         self._save_task: asyncio.Task | None = None
         self._last_save_time: float = 0.0
+        self._last_snapshot_time: float = 0.0
 
         self.awareness.observe(self._on_awareness_change)
 
     # -- connection lifecycle
     async def add_socket(self, websocket: WebSocket) -> None:
         self.sockets.add(websocket)
-        # sync handshake step 1: tell the new client our state, so it can
-        # tell us what we're missing (and we can tell it what it's missing)
+        # Sync handshake step 1: send our state so the client can tell us what it's missing.
         await websocket.send_bytes(pycrdt.create_sync_message(self.ydoc))
 
-        # exclude the room's own phantom client id - pycrdt.Awareness self-registers
-        # its owning Doc's client_id with an empty state as soon as it's constructed,
-        # which isn't a real user and shouldn't be sent to clients as presence
+        # pycrdt.Awareness self-registers its owning Doc's client_id with an empty
+        # state, which isn't a real user and shouldn't be sent as presence.
         existing_ids = [
             cid for cid in self.awareness.states.keys() if cid != self.ydoc.client_id
         ]
@@ -64,12 +64,11 @@ class YRoom:
         inner = raw_message[1:]  # strip the outer YMessageType.SYNC byte
         reply = pycrdt.handle_sync_message(inner, self.ydoc)
         if reply is not None:
-            # a SYNC_STEP1 request - reply only to the requester, wire-ready as-is
+            # SYNC_STEP1 request - reply only to the requester.
             await sender.send_bytes(reply)
             return
 
-        # a SYNC_STEP2/SYNC_UPDATE - already applied to self.ydoc above;
-        # relay verbatim (every recipient treats it identically via handle_sync_message)
+        # SYNC_STEP2/SYNC_UPDATE - already applied to self.ydoc above; relay verbatim.
         await self.broadcast(raw_message, sender)
         self.touch_save_timer()
         self.maybe_flush_on_interval()
@@ -130,17 +129,24 @@ class YRoom:
             self._save_task.cancel()
             self._save_task = None
 
-    def flush(self) -> None:
+    def flush(self, snapshot: bool = False) -> None:
         db = SessionLocal()
         try:
             flush_ydoc(self.doc_id, self.ydoc, db)
-            self._last_save_time = time.time()
+            now = time.time()
+            self._last_save_time = now
+            # Gated here so a burst of rapid connect/disconnects doesn't pile up near-duplicate versions.
+            if snapshot and now - self._last_snapshot_time > MIN_SNAPSHOT_GAP_SECONDS:
+                create_version_snapshot(self.doc_id, self.ydoc, db)
+                self._last_snapshot_time = now
         finally:
             db.close()
 
     def maybe_flush_on_interval(self) -> None:
-        if time.time() - self._last_save_time > MAX_INTERVAL_SECONDS:
-            self.flush()
+        now = time.time()
+        if now - self._last_save_time > MAX_INTERVAL_SECONDS:
+            due_for_snapshot = now - self._last_snapshot_time > SNAPSHOT_INTERVAL_SECONDS
+            self.flush(snapshot=due_for_snapshot)
 
 
 class RoomRegistry:
@@ -161,11 +167,7 @@ class RoomRegistry:
             return room
 
     async def drop_socket(self, doc_id: int, websocket: WebSocket) -> None:
-        # Guarded by the same per-doc lock as get_or_create, so a room can't
-        # be evicted here while a concurrent connect is still resolving it -
-        # previously the two ran unlocked against each other and could leave
-        # one client attached to an orphaned room while a second Y.Doc got
-        # created for the same doc_id (split-brain CRDT state).
+        # Same per-doc lock as get_or_create, to avoid split-brain CRDT state for concurrent connect/disconnect.
         async with self._lock_for(doc_id):
             room = self.rooms.get(doc_id)
             if room is None:
@@ -175,14 +177,15 @@ class RoomRegistry:
 
             if not room.sockets:
                 room.cancel_pending_save()
-                room.flush()  # final flush - fixes the old disconnect-without-flush data loss bug
+                # Final flush, and the version-history checkpoint for "everyone left" sessions.
+                room.flush(snapshot=True)
                 del self.rooms[doc_id]
 
     def flush_all(self) -> None:
         """Called from the FastAPI lifespan shutdown hook."""
         for room in self.rooms.values():
             room.cancel_pending_save()
-            room.flush()
+            room.flush(snapshot=True)
 
 
 registry = RoomRegistry()

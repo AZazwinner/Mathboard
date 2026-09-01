@@ -5,7 +5,6 @@ from jose import JWTError, jwt
 import os
 from dotenv import load_dotenv
 
-# Load .env file
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY", "")

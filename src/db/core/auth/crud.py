@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from sqlalchemy.orm import Session
 from .schemas import AuthUserCreate__PasswordHash, AuthUserUpdate__Username, AuthUserUpdate__Email, AuthUserUpdate__PasswordHash
-from .models import AuthUser
+from .models import AuthUser, PasswordResetToken
 
 def create_user__password(data: AuthUserCreate__PasswordHash, db: Session) -> AuthUser:
     obj = AuthUser(**data.model_dump())
@@ -51,3 +53,23 @@ def update_user__password_hash(data: AuthUserUpdate__PasswordHash, db: Session) 
 def delete_user(id: int, db: Session) -> bool:
     assert False
     # TODO - no point rn tbh
+
+
+def create_password_reset_token(
+        authuser_id: int,
+        token: str,
+        expires_at: datetime,
+        db: Session,
+) -> PasswordResetToken:
+    obj = PasswordResetToken(authuser_id=authuser_id, token=token, expires_at=expires_at)
+    db.add(obj)
+    db.commit()
+    db.refresh(obj)
+    return obj
+
+def get_password_reset_token(token: str, db: Session) -> PasswordResetToken | None:
+    return db.query(PasswordResetToken).filter(PasswordResetToken.token == token).first()
+
+def mark_password_reset_token_used(token_row: PasswordResetToken, db: Session) -> None:
+    token_row.used = True
+    db.commit()

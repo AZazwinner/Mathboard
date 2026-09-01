@@ -1,37 +1,14 @@
+from datetime import datetime
 from typing import Literal
 import uuid
 
 from db.core.auth.schemas import AuthUserCreate__Password
-from db.modules.docs.models import Document, DocumentBlock, DocumentShare, DocumentYDoc
+from db.modules.docs.models import Document, DocumentBlock, DocumentShare, DocumentVersion, DocumentYDoc
 from db.modules.users.models import User
 from db.modules.users.schemas import UserCreate__AuthUser
 from fastapi import Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session, joinedload
-
-def create_document_block(
-        id: str,
-        doc_id: int,
-        position: int,
-        type: str,
-        db: Session
-):
-    db.execute(text("""
-        UPDATE document_blocks
-        SET position = position + 1
-        WHERE doc_id = :doc_id AND position > :position
-    """), {"doc_id": doc_id, "position": position}) # type: ignore
-
-    block = DocumentBlock(
-        id=id,
-        doc_id=doc_id,
-        position=position,
-        type=type
-    )
-    db.add(block)
-    db.commit()
-    db.refresh(block)
-    return block
 
 def delete_document_block(
         doc_id: int,
@@ -40,10 +17,8 @@ def delete_document_block(
 ):
     block = get_document_block_by_ids(doc_id, position, db)
 
-    # 1. delete block
     db.delete(block)
 
-    # 2. shift positions
     db.execute(text("""
         UPDATE document_blocks
         SET position = position - 1
@@ -74,17 +49,46 @@ def get_document_block_by_ids(
 def create_document(
         owner_id: int,
         db: Session,
+        title: str | None = None,
+        block_contents: list[str] | None = None,
 ):
+    """One DocumentBlock per string in block_contents, or a single empty block if omitted."""
     obj = Document(owner_id=owner_id)
+    if title:
+        obj.title = title
     db.add(obj)
     db.flush()
-    create_document_block(
-        id=str(uuid.uuid4()),
-        doc_id=obj.id,
-        position=0,
-        type="paragraph",
-        db=db
-    )
+
+    for position, content in enumerate(block_contents or [""]):
+        db.add(DocumentBlock(
+            id=str(uuid.uuid4()),
+            doc_id=obj.id,
+            position=position,
+            type="paragraph",
+            content=content,
+        ))
+
+    db.commit()
+    db.refresh(obj)
+    return obj
+
+def create_document_copy(
+        owner_id: int,
+        title: str,
+        blocks: list[DocumentBlock],
+        db: Session,
+):
+    obj = Document(owner_id=owner_id, title=title)
+    db.add(obj)
+    db.flush()
+    for block in blocks:
+        db.add(DocumentBlock(
+            id=str(uuid.uuid4()),
+            doc_id=obj.id,
+            position=block.position,
+            type=block.type,
+            content=block.content,
+        ))
     db.commit()
     db.refresh(obj)
     return obj
@@ -94,13 +98,85 @@ def get_docs_by_owner_id(
         db: Session,
         n: int=50,
 ):
-    return db.query(Document).filter(Document.owner_id == owner_id).all()
+    return db.query(Document).filter(
+        Document.owner_id == owner_id,
+        Document.deleted_at.is_(None),
+    ).all()
+
+def get_trashed_docs_by_owner_id(
+        owner_id: int,
+        db: Session,
+):
+    return (
+        db.query(Document)
+        .filter(Document.owner_id == owner_id, Document.deleted_at.isnot(None))
+        .order_by(Document.deleted_at.desc())
+        .all()
+    )
 
 def get_document_by_id(
         id: int,
         db: Session,
+        include_deleted: bool = False,
 ):
-    return db.query(Document).filter(Document.id == id).first()
+    """Excludes soft-deleted documents unless include_deleted=True."""
+    q = db.query(Document).filter(Document.id == id)
+    if not include_deleted:
+        q = q.filter(Document.deleted_at.is_(None))
+    return q.first()
+
+def soft_delete_document(
+        doc: Document,
+        db: Session,
+):
+    doc.deleted_at = datetime.utcnow()
+    db.commit()
+    db.refresh(doc)
+    return doc
+
+def restore_document(
+        doc: Document,
+        db: Session,
+):
+    doc.deleted_at = None
+    db.commit()
+    db.refresh(doc)
+    return doc
+
+def get_document_versions(doc_id: int, db: Session):
+    return (
+        db.query(DocumentVersion)
+        .filter(DocumentVersion.doc_id == doc_id)
+        .order_by(DocumentVersion.created_at.desc())
+        .all()
+    )
+
+def get_document_version_by_id(version_id: int, db: Session) -> DocumentVersion | None:
+    return db.query(DocumentVersion).filter(DocumentVersion.id == version_id).first()
+
+def restore_document_from_snapshot(doc_id: int, blocks: list[dict], db: Session) -> None:
+    """Rewrites document_blocks to match a version snapshot, then rebuilds the canonical Y.Doc state from those rows. Callers must ensure no YRoom is currently live for this doc."""
+    from db.modules.liveshare.backfill import new_ydoc_from_blocks, persist_ydoc_state
+
+    db.execute(text("DELETE FROM document_blocks WHERE doc_id = :doc_id"), {"doc_id": doc_id})
+    for position, block in enumerate(blocks):
+        db.add(DocumentBlock(
+            id=block["id"],
+            doc_id=doc_id,
+            position=position,
+            type=block["type"],
+            content=block["text"],
+        ))
+    db.commit()
+
+    restored_blocks = (
+        db.query(DocumentBlock)
+        .filter(DocumentBlock.doc_id == doc_id)
+        .order_by(DocumentBlock.position)
+        .all()
+    )
+    ydoc = new_ydoc_from_blocks(restored_blocks)
+    persist_ydoc_state(doc_id, ydoc, db)
 
 def update_document__title_text(
         doc: Document,
@@ -122,13 +198,10 @@ def delete_document(
         doc: Document,
         db: Session,
 ):
-    # blocks/shares cascade via the Document relationships (cascade="all,
-    # delete-orphan"); the Yjs snapshot has no ORM relationship, so it's
-    # removed explicitly
+    # DocumentYDoc has no ORM relationship to Document, so it's removed explicitly
     db.query(DocumentYDoc).filter(DocumentYDoc.doc_id == doc.id).delete()
     db.delete(doc)
     db.commit()
-
 
 
 # ---- DocumentShare ----
