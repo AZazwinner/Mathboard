@@ -141,6 +141,7 @@ celerybeat.pid
 # Local databases
 *.db
 *.sqlite3
+/backups/
 .venv
 env/
 venv/

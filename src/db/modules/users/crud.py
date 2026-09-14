@@ -26,3 +26,14 @@ def get_user_by_username(username: str, db: Session) -> User | None:
 
 def get_user_by_email(email: str, db: Session) -> User | None:
     return db.query(User).join(User.authuser).filter(AuthUser.email == email).first()
+
+def get_user_by_authuser_id(authuser_id: int, db: Session) -> User | None:
+    return db.query(User).filter(User.authuser_id == authuser_id).first()
+
+def bump_token_version(user_id: int, db: Session) -> None:
+    """Invalidates every access token issued before this call for the given user."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        return
+    user.token_version += 1
+    db.commit()

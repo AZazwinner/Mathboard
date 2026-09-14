@@ -33,7 +33,7 @@ def create_user__password(
             "code": 100,
             "user": user,
             # Minted from users.id, not auth_users.id - matches what get_current_user() checks against.
-            "token": create_access_token(user.id)
+            "token": create_access_token(user.id, user.token_version)
         }
     else:
         return {
@@ -77,13 +77,17 @@ def get_current_user(
     if not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Invalid auth scheme")
     token = authorization[7:]
-    user_id = verify_access_token(token)
-    if not user_id:
+    result = verify_access_token(token)
+    if not result:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
+    user_id, token_version = result
 
     user = db.query(User).get(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    # A password change bumps token_version, invalidating tokens minted before it.
+    if user.token_version != token_version:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
     return user
 
 async def get_current_user_ws(
@@ -93,13 +97,15 @@ async def get_current_user_ws(
     token = websocket.query_params.get("token")
 
     if not token:
-        return
-        # raise HTTPException(status_code=401, detail="Missing token")
+        return None
 
-    user_id = verify_access_token(token)  # your logic
+    result = verify_access_token(token)
+    if not result:
+        return None
+    user_id, token_version = result
 
-    if not user_id:
-        return
-        # raise HTTPException(status_code=401, detail="Invalid token")
+    user = db.query(User).get(user_id)
+    if not user or user.token_version != token_version:
+        return None
 
     return user_id

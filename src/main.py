@@ -52,20 +52,8 @@ for router in [
     app.include_router(router)
 
 ## -- Database
-# TODO: switch to migrations
-from db.base import Base
-from db.database import engine
-Base.metadata.create_all(bind=engine)
-
-# create_all doesn't add columns to existing tables, so new columns need a one-off ADD COLUMN.
-from sqlalchemy import inspect, text as sql_text
-
-_inspector = inspect(engine)
-if "documents" in _inspector.get_table_names():
-    _doc_columns = {col["name"] for col in _inspector.get_columns("documents")}
-    if "deleted_at" not in _doc_columns:
-        with engine.begin() as _conn:
-            _conn.execute(sql_text("ALTER TABLE documents ADD COLUMN deleted_at DATETIME"))
+# Schema is managed by Alembic now (see alembic/versions/) - run `alembic upgrade
+# head` before starting the app, rather than relying on create_all() here.
 
 ## -- Uvicorn
 

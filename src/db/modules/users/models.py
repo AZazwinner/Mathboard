@@ -17,6 +17,10 @@ class User(Base):
     authuser_id: Mapped[int] = mapped_column(ForeignKey("auth_users.id"))
     authuser = relationship("AuthUser")
 
+    # Bumped whenever the account's password changes, invalidating every
+    # previously-issued access token (their embedded "ver" claim no longer matches).
+    token_version: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+
     # Proxies AuthUser's username/email so Pydantic's from_attributes mapping can read them off a User instance.
     @property
     def username(self) -> str | None:

@@ -13,7 +13,8 @@ from db.core.auth.schemas import AuthUserCreate, AuthUserCreate__Password, AuthU
 from fastapi import Depends, HTTPException, Header, status
 
 from db.core.auth.utils.token import verify_access_token
-from db.modules.users.utils.validate import validate_email
+from db.modules.users.crud import bump_token_version, get_user_by_authuser_id
+from db.modules.users.utils.validate import is_valid_password, validate_email, validate_password
 
 def create_authuser(
         data: AuthUserCreate__Password,
@@ -36,8 +37,7 @@ def create_authuser(
             "code": 20
         }
 
-    # TODO: password validation is currently just a non-empty check
-    if data.password == "":
+    if not is_valid_password(data.password):
         return {
             "code": 30
         }
@@ -72,10 +72,17 @@ def update_authuser__password(
         db: Session = Depends(get_db),
 ):
     """Updates the user's password hash; returns whether it succeeded."""
-    return update_user__password_hash(AuthUserUpdate__PasswordHash.model_validate({
+    validate_password(data.password)
+    success = update_user__password_hash(AuthUserUpdate__PasswordHash.model_validate({
         "id": data.id,
         "password_hash": hash_password(data.password)
     }), db)
+    if success:
+        # data.id is auth_users.id here; find the paired users.id to invalidate its tokens.
+        user_row = get_user_by_authuser_id(data.id, db)
+        if user_row is not None:
+            bump_token_version(user_row.id, db)
+    return success
 
 
 RESET_TOKEN_TTL_MINUTES = 30
@@ -104,9 +111,15 @@ def reset_password_with_token(
     if record is None or record.used or record.expires_at < datetime.utcnow():
         return False
 
+    validate_password(new_password)
+
     update_user__password_hash(AuthUserUpdate__PasswordHash.model_validate({
         "id": record.authuser_id,
         "password_hash": hash_password(new_password),
     }), db)
     mark_password_reset_token_used(record, db)
+
+    user_row = get_user_by_authuser_id(record.authuser_id, db)
+    if user_row is not None:
+        bump_token_version(user_row.id, db)
     return True

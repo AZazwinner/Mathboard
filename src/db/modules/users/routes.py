@@ -24,8 +24,21 @@ def ping():
 @router.post("/create-user", response_model=CreateUserResponse)
 def create_user__password_route(
         data: AuthUserCreate__Password,
+        request: Request,
         db: Session = Depends(get_db),
 ):
+    """Throttled per client IP to prevent mass account creation / enumeration farming."""
+    client_ip = request.client.host if request.client else "unknown"
+    throttle_key = f"signup:{client_ip}"
+
+    locked, retry_after = is_locked_out(throttle_key)
+    if locked:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Too many signup attempts. Try again in {int(retry_after) // 60 + 1} minute(s).",
+        )
+    record_failure(throttle_key)
+
     return create_user__password(data, db)
 
 class GetUserResponse(BaseModel):
@@ -80,6 +93,7 @@ def update_password(
         "id": current_user.authuser_id,
         "password": data.password
     })
+    # update_authuser__password already bumps token_version on success, invalidating old tokens.
     success = update_authuser__password(auth_services_data, db)
     return {
         "success": success
@@ -111,7 +125,7 @@ def login_user(
         }
 
     record_success(throttle_key)
-    access_token = create_access_token(user.id)
+    access_token = create_access_token(user.id, user.token_version)
     return {
         "user": user,
         "token": access_token
