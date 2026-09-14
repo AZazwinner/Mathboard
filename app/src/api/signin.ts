@@ -1,3 +1,5 @@
+import { apiFetch } from "@/lib/api-fetch"
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export type CreateUserInput = {
@@ -13,7 +15,7 @@ export type CreateUserResponse = {
 }
 
 export async function createUser(data: CreateUserInput): Promise<CreateUserResponse> {
-  const res = await fetch(`${API_URL}/create-user`, {
+  const res = await apiFetch(`${API_URL}/create-user`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -39,7 +41,7 @@ export type SigninUserResponse = {
 }
 
 export async function signinUser(data: SigninUserInput): Promise<SigninUserResponse> {
-  const res = await fetch(`${API_URL}/signin`, {
+  const res = await apiFetch(`${API_URL}/signin`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -63,7 +65,7 @@ export type ForgotPasswordResponse = {
 }
 
 export async function forgotPassword(email: string): Promise<ForgotPasswordResponse> {
-  const res = await fetch(`${API_URL}/forgot-password`, {
+  const res = await apiFetch(`${API_URL}/forgot-password`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
@@ -80,7 +82,7 @@ export async function forgotPassword(email: string): Promise<ForgotPasswordRespo
 export type ResetPasswordResponse = { success: boolean }
 
 export async function resetPassword(token: string, password: string): Promise<ResetPasswordResponse> {
-  const res = await fetch(`${API_URL}/reset-password`, {
+  const res = await apiFetch(`${API_URL}/reset-password`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token, password }),

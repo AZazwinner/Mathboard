@@ -1,5 +1,7 @@
 "use client"
 
+import { apiFetch } from "@/lib/api-fetch"
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 const updateTitleTimers: Record<string, ReturnType<typeof setTimeout>> = {}
@@ -14,7 +16,7 @@ export function updateTitle(doc_id: string, newTitle: string) {
 
     updateTitleTimers[doc_id] = setTimeout(async () => {
         try {
-            const res = await fetch(`${API_URL}/update-doc`, {
+            const res = await apiFetch(`${API_URL}/update-doc`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

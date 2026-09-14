@@ -9,6 +9,7 @@ import { SharePopover } from "./SharePopover"
 import { ExportMenu } from "./ExportMenu"
 import { deleteDoc, DocumentResponsePermission, restoreDocVersion } from "@/api/docs"
 import { useAuth } from "@/hooks/useAuth"
+import { apiFetch } from "@/lib/api-fetch"
 import { ArrowLeft, Eye, Trash2 } from "lucide-react"
 import { SaveStatus } from "./SaveStatus"
 import { PresenceStack, type PresentUser } from "./PresenceStack"
@@ -57,7 +58,7 @@ export default function DocPage() {
     }
 
     try {
-      const res = await fetch(`${API_URL}/docs/${id}`, {
+      const res = await apiFetch(`${API_URL}/docs/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

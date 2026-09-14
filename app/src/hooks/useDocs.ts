@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { apiFetch } from "@/lib/api-fetch"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
@@ -35,7 +36,7 @@ export function useDocuments() {
     }
 
     try {
-      const res = await fetch(`${API_URL}/my-docs`, {
+      const res = await apiFetch(`${API_URL}/my-docs`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -85,7 +86,7 @@ export function useSharedDocuments() {
       }
 
       try {
-        const res = await fetch(`${API_URL}/shared-docs`, {
+        const res = await apiFetch(`${API_URL}/shared-docs`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -1,3 +1,5 @@
+import { apiFetch } from "@/lib/api-fetch"
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export type CreateShareDocInput = {
@@ -15,7 +17,7 @@ export async function createOrUpdateShareDoc(
 ): Promise<SuccessResponse> {
   const token = localStorage.getItem("token")
 
-  const res = await fetch(`${API_URL}/doc-share`, {
+  const res = await apiFetch(`${API_URL}/doc-share`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -44,7 +46,7 @@ export async function getShareDocs(
 ): Promise<ShareDocResponseExpanded[]> {
   const token = localStorage.getItem("token")
 
-  const res = await fetch(`${API_URL}/doc-shares?doc_id=${doc_id}`, {
+  const res = await apiFetch(`${API_URL}/doc-shares?doc_id=${doc_id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -69,7 +71,7 @@ export async function deleteShareDoc(
 ): Promise<SuccessResponse> {
   const token = localStorage.getItem("token")
 
-  const res = await fetch(`${API_URL}/doc-share`, {
+  const res = await apiFetch(`${API_URL}/doc-share`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",

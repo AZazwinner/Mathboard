@@ -1,3 +1,5 @@
+import { apiFetch } from "@/lib/api-fetch"
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export type UserPublicResponse = {
@@ -16,7 +18,7 @@ export async function getUserByUsername(
 ): Promise<GetUserResponse> {
   const token = localStorage.getItem("token")
 
-  const res = await fetch(`${API_URL}/user?username=${username}`, {
+  const res = await apiFetch(`${API_URL}/user?username=${username}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

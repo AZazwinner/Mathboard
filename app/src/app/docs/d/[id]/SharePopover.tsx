@@ -51,10 +51,15 @@ export function ShareContent({
   const [usernameInput, setUsernameInput] = useState("")
 
   const [sharedUsers, setSharedUsers] = useState<SharedUser[]>([])
+  const [error, setError] = useState<string | null>(null)
   useEffect(() => {
     const fetchShares = async () => {
-      const shares = await getShareDocs(docId)
-      setSharedUsers(shares)
+      try {
+        const shares = await getShareDocs(docId)
+        setSharedUsers(shares)
+      } catch {
+        setError("Couldn't load who this is shared with.")
+      }
     }
 
     fetchShares()
@@ -70,29 +75,53 @@ export function ShareContent({
 
   const handleAddUser = async (username: string, shareType: string) => {
     if (!username.trim()) return
+    setError(null)
 
-    const userResponse: GetUserResponse = await getUserByUsername(username)
+    let userResponse: GetUserResponse
+    try {
+      userResponse = await getUserByUsername(username)
+    } catch {
+      setError("Couldn't reach the server. Try again.")
+      return
+    }
     const user = userResponse?.user
-    if (!user) return
+    if (!user) {
+      setError(`No user found with username "${username}".`)
+      return
+    }
 
     setSharedUsers((prev) => {
-      // must read off `prev`, not the outer closure, to avoid stale-state duplicates
-      const exists = prev.some(user => user.username === username)
-      if (exists) {
-        return prev.map(u =>
-          u.username === username
-            ? { ...u, permission: shareType as "read" | "write" }
-            : u
-        )
-      }
-
+      const exists = prev.some(u => u.username === username)
+      if (exists) return prev
       return [
         ...prev,
         { user_id: user.id, username: username.trim(), permission: "read" },
       ]
     })
 
-    createOrUpdateShareDoc({ doc_id: docId as unknown as number, user_id: user.id, share_type: shareType })
+    try {
+      await createOrUpdateShareDoc({ doc_id: docId as unknown as number, user_id: user.id, share_type: shareType })
+    } catch {
+      setError("Couldn't share this document. Try again.")
+    }
+  }
+
+  // Changing an existing collaborator's permission - unlike handleAddUser,
+  // this already has the user_id (from sharedUsers) so it doesn't need a
+  // username lookup, and updates optimistically rather than waiting on one.
+  const handleChangePermission = async (userId: number, username: string, shareType: "read" | "write") => {
+    setError(null)
+    const previous = sharedUsers
+    setSharedUsers((prev) =>
+      prev.map(u => (u.user_id === userId ? { ...u, permission: shareType } : u))
+    )
+
+    try {
+      await createOrUpdateShareDoc({ doc_id: docId as unknown as number, user_id: userId, share_type: shareType })
+    } catch {
+      setSharedUsers(previous)
+      setError(`Couldn't update ${username}'s permission. Try again.`)
+    }
   }
 
   return (
@@ -107,6 +136,8 @@ export function ShareContent({
           }
         </PopoverDescription>
       </PopoverHeader>
+
+      {error && <div className="text-xs text-red-500">{error}</div>}
 
       {/* Add user by username */}
       {doc.permission !== "read" && <div className="flex items-center gap-2">
@@ -177,7 +208,7 @@ export function ShareContent({
                 <Select
                   value={user.permission}
                   disabled={doc.permission === "read"}
-                  onValueChange={(value: string) => handleAddUser(user.username, value)}
+                  onValueChange={(value: string) => handleChangePermission(user.user_id, user.username, value as "read" | "write")}
                 >
                   <SelectTrigger className="w-[90px] h-8">
                     <SelectValue>{PERMISSION_LABELS[user.permission]}</SelectValue>
@@ -197,11 +228,16 @@ export function ShareContent({
                   variant="ghost"
                   aria-label={`Remove ${user.username}'s access`}
                   className="text-red-500 hover:text-red-600"
-                  onClick={() => {
-                    setSharedUsers((prev) =>
-                      prev.filter((_, i) => i !== index)
-                    )
-                    deleteShareDoc({ doc_id: docId as unknown as number, user_id: user.user_id })
+                  onClick={async () => {
+                    setError(null)
+                    const previous = sharedUsers
+                    setSharedUsers((prev) => prev.filter((_, i) => i !== index))
+                    try {
+                      await deleteShareDoc({ doc_id: docId as unknown as number, user_id: user.user_id })
+                    } catch {
+                      setSharedUsers(previous)
+                      setError(`Couldn't remove ${user.username}'s access. Try again.`)
+                    }
                   }}
                 >
                   <Trash className="w-4 h-4" />
