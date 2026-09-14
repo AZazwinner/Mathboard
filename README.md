@@ -1,40 +1,21 @@
-# mathboard
-Google Docs for LaTeX
-LIVE: https://mathboard-nine.vercel.app/
+# Mathboard
 
-## Preview
-[images]
+A collaborative LaTeX editor that renders as you type. Write math like it's a document.
+
+**Live:** https://mathboardx.vercel.app
 
 ## Features
 
+- Real-time collaborative editing
+- LaTeX rendered live, inline and block
+- Document sharing with read/write permissions
+- Version history
 
-## In Progress
-- Export as PDF
-- Markdown support
-- Google Sign-In
+## Stack
 
-## Technical
-### Frontend
-/
-/signin, /signin?redirect={}
-/docs
-/docs/d/{id}
+- Frontend — Next.js ([app/](app))
+- Backend — FastAPI ([src/](src))
 
-### Backend
-Lock symbol emoji = Protected requiring Authorization Bearer token
-/ping
-/signin
-/me
-GET docs/ (add lock emoji to indicate protected)
+## Setup
 
-CREATE /doc/
-GET /doc/?id={}
-UPDATE /doc/?id={}
-DELETE /doc/?id={}
-
-Websockets
-...
-
-
-### Low-Priority Enhancements
-- Add decorators to add another layer for function arguments to early return and for organization
+See [SETUP.md](SETUP.md).

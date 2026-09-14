@@ -9,7 +9,8 @@ import {
   type Variants,
 } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Sigma, RotateCcw, Link2, Check, Menu, X } from "lucide-react"
+import { RotateCcw, Link2, Check, Menu, X } from "lucide-react"
+import { Logo } from "@/components/Logo"
 import Link from "next/link"
 import LatexRenderer from "@/components/LatexRenderer"
 
@@ -516,7 +517,7 @@ export default function HomePage() {
         <header className="border-b border-neutral-200">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
             <div className="flex items-center gap-2 text-[15px] font-medium">
-              <Sigma className="h-4 w-4" />
+              <Logo className="h-4 w-4" />
               mathboard
             </div>
 

@@ -1,5 +1,5 @@
 import LatexRenderer from "@/components/LatexRenderer"
-import { Sigma } from "lucide-react"
+import { Logo } from "@/components/Logo"
 import Link from "next/link"
 
 const SHOWCASE = String.raw`## Cauchy–Schwarz
@@ -19,7 +19,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
         />
 
         <Link href="/" className="relative flex items-center gap-2 text-sm font-medium">
-          <Sigma className="h-4 w-4" />
+          <Logo className="h-4 w-4" />
           mathboard
         </Link>
 

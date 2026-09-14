@@ -23,7 +23,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { FilePlus2, LogOut, Search, Sigma } from "lucide-react"
+import { FilePlus2, LogOut, Search } from "lucide-react"
+import { Logo } from "@/components/Logo"
 
 type Tab = "owned" | "shared" | "all" | "trash"
 type SortKey = "recent" | "alpha"
@@ -254,7 +255,7 @@ export default function DocsPage() {
       {/* HEADER */}
       <header className="flex items-center justify-between gap-4 border-b border-[var(--hairline-soft)] px-6 py-3">
         <div className="flex items-center gap-2 text-sm font-medium">
-          <Sigma className="h-4 w-4 text-[var(--pen)]" />
+          <Logo className="h-4 w-4 text-[var(--pen)]" />
           mathboard
         </div>
 
