@@ -10,7 +10,7 @@ def is_configured() -> bool:
     return bool(os.getenv("RESEND_API_KEY"))
 
 
-# Without RESEND_API_KEY, falls back to logging the reset link instead of emailing it.
+
 def send_password_reset_email(email: str, reset_link: str) -> None:
     api_key = os.getenv("RESEND_API_KEY")
     if not api_key:
@@ -18,7 +18,7 @@ def send_password_reset_email(email: str, reset_link: str) -> None:
         return
 
     resend.api_key = api_key
-    # onboarding@resend.dev (sandbox mode) only delivers to the Resend account's own verified email; override via RESEND_FROM_EMAIL for real sending.
+
     from_email = os.getenv("RESEND_FROM_EMAIL", "Mathboard <onboarding@resend.dev>")
     resend.Emails.send({
         "from": from_email,

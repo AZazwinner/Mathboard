@@ -12,7 +12,7 @@ const MAX_RECONNECT_DELAY_MS = 30000;
 
 export type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
-// Minimal Yjs WebSocket provider for Mathboard's FastAPI `/ws/docs/{doc_id}` endpoint (standard y-protocols sync + awareness wire format), used instead of y-websocket's own provider since there's no separate Node server.
+
 export class YjsProvider {
   readonly doc: Y.Doc;
   readonly awareness: awarenessProtocol.Awareness;
@@ -59,7 +59,7 @@ export class YjsProvider {
       this.reconnectAttempt = 0;
       this.setStatus("connected");
 
-      // client-initiated half of the sync handshake; server sends its own SYNC_STEP1 on accept
+
       const encoder = encoding.createEncoder();
       encoding.writeVarUint(encoder, MESSAGE_SYNC);
       syncProtocol.writeSyncStep1(encoder, this.doc);
@@ -78,7 +78,7 @@ export class YjsProvider {
     ws.onclose = () => {
       this.ws = null;
       this.setStatus("disconnected");
-      // mark remote peers as offline locally until we resync, so cursors don't linger stale
+
       const remoteIds = Array.from(this.awareness.getStates().keys()).filter(
         (id) => id !== this.doc.clientID
       );
@@ -113,7 +113,7 @@ export class YjsProvider {
       case MESSAGE_SYNC: {
         encoding.writeVarUint(encoder, MESSAGE_SYNC);
         syncProtocol.readSyncMessage(decoder, encoder, this.doc, this);
-        // only send a reply if readSyncMessage actually wrote one
+
         if (encoding.length(encoder) > 1) {
           this.ws?.send(encoding.toUint8Array(encoder));
         }
@@ -131,7 +131,7 @@ export class YjsProvider {
   }
 
   private handleLocalUpdate = (update: Uint8Array, origin: unknown) => {
-    // origin === this means the update came from the server via handleMessage; don't echo it back
+
     if (origin === this) return;
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
 
@@ -145,7 +145,7 @@ export class YjsProvider {
     { added, updated, removed }: { added: number[]; updated: number[]; removed: number[] },
     origin: unknown
   ) => {
-    // same rule as handleLocalUpdate: don't echo server-originated changes back
+
     if (origin === this) return;
     this.sendAwarenessUpdate(added.concat(updated, removed));
   };

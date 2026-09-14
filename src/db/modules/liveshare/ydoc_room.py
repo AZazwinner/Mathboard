@@ -10,9 +10,9 @@ from db.modules.liveshare.backfill import create_version_snapshot, flush_ydoc, l
 
 DEBOUNCE_SECONDS = 2
 MAX_INTERVAL_SECONDS = 5
-# How often a still-open, actively-edited doc gets an extra version snapshot beyond the "everyone left" one.
+
 SNAPSHOT_INTERVAL_SECONDS = 10 * 60
-# Shared floor under every snapshot request, regardless of trigger.
+
 MIN_SNAPSHOT_GAP_SECONDS = 30
 
 
@@ -35,14 +35,14 @@ class YRoom:
 
         self.awareness.observe(self._on_awareness_change)
 
-    # -- connection lifecycle
+
     async def add_socket(self, websocket: WebSocket) -> None:
         self.sockets.add(websocket)
-        # Sync handshake step 1: send our state so the client can tell us what it's missing.
+
         await websocket.send_bytes(pycrdt.create_sync_message(self.ydoc))
 
-        # pycrdt.Awareness self-registers its owning Doc's client_id with an empty
-        # state, which isn't a real user and shouldn't be sent as presence.
+
+
         existing_ids = [
             cid for cid in self.awareness.states.keys() if cid != self.ydoc.client_id
         ]
@@ -59,16 +59,16 @@ class YRoom:
         if client_ids:
             self.awareness.remove_awareness_states(list(client_ids), origin=origin)
 
-    # -- message handling
+
     async def handle_sync(self, raw_message: bytes, sender: WebSocket) -> None:
-        inner = raw_message[1:]  # strip the outer YMessageType.SYNC byte
+        inner = raw_message[1:]
         reply = pycrdt.handle_sync_message(inner, self.ydoc)
         if reply is not None:
-            # SYNC_STEP1 request - reply only to the requester.
+
             await sender.send_bytes(reply)
             return
 
-        # SYNC_STEP2/SYNC_UPDATE - already applied to self.ydoc above; relay verbatim.
+
         await self.broadcast(raw_message, sender)
         self.touch_save_timer()
         self.maybe_flush_on_interval()
@@ -76,7 +76,7 @@ class YRoom:
     async def handle_awareness(self, raw_message: bytes, sender: WebSocket) -> None:
         inner = pycrdt.read_message(raw_message[1:])
         self.awareness.apply_awareness_update(inner, origin=sender)
-        # broadcasting to peers happens in _on_awareness_change below
+
 
     def _on_awareness_change(self, topic: str, payload) -> None:
         if topic != "update":
@@ -111,7 +111,7 @@ class YRoom:
             self.sockets.discard(ws)
             self.socket_client_ids.pop(ws, None)
 
-    # -- persistence
+
     def touch_save_timer(self) -> None:
         if self._save_task is not None:
             self._save_task.cancel()
@@ -135,7 +135,7 @@ class YRoom:
             flush_ydoc(self.doc_id, self.ydoc, db)
             now = time.time()
             self._last_save_time = now
-            # Gated here so a burst of rapid connect/disconnects doesn't pile up near-duplicate versions.
+
             if snapshot and now - self._last_snapshot_time > MIN_SNAPSHOT_GAP_SECONDS:
                 create_version_snapshot(self.doc_id, self.ydoc, db)
                 self._last_snapshot_time = now
@@ -167,7 +167,7 @@ class RoomRegistry:
             return room
 
     async def drop_socket(self, doc_id: int, websocket: WebSocket) -> None:
-        # Same per-doc lock as get_or_create, to avoid split-brain CRDT state for concurrent connect/disconnect.
+
         async with self._lock_for(doc_id):
             room = self.rooms.get(doc_id)
             if room is None:
@@ -177,7 +177,7 @@ class RoomRegistry:
 
             if not room.sockets:
                 room.cancel_pending_save()
-                # Final flush, and the version-history checkpoint for "everyone left" sessions.
+
                 room.flush(snapshot=True)
                 del self.rooms[doc_id]
 

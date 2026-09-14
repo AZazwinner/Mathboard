@@ -84,14 +84,14 @@ export const TextEditor = forwardRef<TextEditorHandle, Props>(function TextEdito
 
     const containerRef = useRef<HTMLDivElement | null>(null)
 
-    // Multi-block selection, separate from any single block's own text selection (dragging inside a focused CodeMirror instance still only selects within that block).
+
     const [selection, setSelection] = useState<{ anchor: number; focus: number } | null>(null)
     const clearSelection = () => setSelection(null)
     const selectionRange = selection
         ? { start: Math.min(selection.anchor, selection.focus), end: Math.max(selection.anchor, selection.focus) }
         : null
 
-    // Stable refs for the window-level listeners below (registered once, empty deps), so they read current values instead of closing over stale ones from the first render.
+
     const blocksRef = useRef(blocks)
     blocksRef.current = blocks
     const selectionRangeRef = useRef(selectionRange)
@@ -101,13 +101,13 @@ export const TextEditor = forwardRef<TextEditorHandle, Props>(function TextEdito
     const actionsRef = useRef({ deleteBlockRange, insertBlocks })
     actionsRef.current = { deleteBlockRange, insertBlocks }
 
-    // A drag becomes a block-range selection once the pointer moves past this threshold; under it, mousedown/mouseup still counts as a plain click.
+
     const DRAG_THRESHOLD_PX = 4
     const dragRef = useRef<{ anchor: number; startX: number; startY: number; moved: boolean } | null>(null)
-    // A drag spanning different elements still fires a native click afterward on their common ancestor, which would otherwise immediately deselect what the drag just selected.
+
     const suppressNextClickRef = useRef(false)
 
-    // Consumed by whichever click handler fires after a real drag - a same-block drag's own onClick, or the container's deselect-on-click.
+
     const consumeClickSuppression = () => {
         if (!suppressNextClickRef.current) return false
         suppressNextClickRef.current = false
@@ -115,13 +115,13 @@ export const TextEditor = forwardRef<TextEditorHandle, Props>(function TextEdito
     }
 
     const handleBlockMouseDown = (index: number, e: React.MouseEvent) => {
-        // Suppresses the browser's native text drag-select, which would otherwise fight visually with the block-selection highlight.
+
         e.preventDefault()
         dragRef.current = { anchor: index, startX: e.clientX, startY: e.clientY, moved: false }
     }
 
-    // A drag starting on empty space (Notion-style marquee select). Selected blocks are recomputed from scratch each move rather than walked from a start index.
-    // Y is stored relative to the container's scrolled content, not the viewport, so the selection stays correct if the page scrolls mid-drag.
+
+
     const marqueeRef = useRef<{ startX: number; startContentY: number; lastX: number; lastClientY: number; moved: boolean } | null>(null)
     const [marqueeRect, setMarqueeRect] = useState<{ left: number; top: number; width: number; height: number } | null>(null)
 
@@ -148,7 +148,7 @@ export const TextEditor = forwardRef<TextEditorHandle, Props>(function TextEdito
             const height = bottomContent - topContent
             setMarqueeRect({ left, top, width, height })
 
-            // Blocks stack in a single column, so only vertical overlap matters.
+
             let minIdx: number | null = null
             let maxIdx: number | null = null
             for (const el of document.querySelectorAll<HTMLElement>("[data-block-index]")) {
@@ -174,7 +174,7 @@ export const TextEditor = forwardRef<TextEditorHandle, Props>(function TextEdito
                     const dist = Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY)
                     if (dist < DRAG_THRESHOLD_PX) return
                     drag.moved = true
-                    // Drop any active text edit so it doesn't coexist with block-selection mode.
+
                     if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
                     window.getSelection()?.removeAllRanges()
                 }
@@ -205,7 +205,7 @@ export const TextEditor = forwardRef<TextEditorHandle, Props>(function TextEdito
         }
         window.addEventListener("mousemove", handleMouseMove)
         window.addEventListener("mouseup", handleMouseUp)
-        // Attached to window (capture phase) rather than containerRef.current, since that ref is still null on this component's first render.
+
         window.addEventListener("scroll", handleScroll, true)
         return () => {
             window.removeEventListener("mousemove", handleMouseMove)
@@ -214,7 +214,7 @@ export const TextEditor = forwardRef<TextEditorHandle, Props>(function TextEdito
         }
     }, [])
 
-    // Delete/Backspace removes the selected blocks; Cmd/Ctrl+C/X copy (and optionally delete) their raw source; paste while a selection is active replaces it.
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             const range = selectionRangeRef.current
@@ -260,16 +260,16 @@ export const TextEditor = forwardRef<TextEditorHandle, Props>(function TextEdito
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    // The block whose CodeMirror instance is focused - the formatting toolbar dispatches commands to this view.
+
     const [activeView, setActiveView] = useState<EditorView | null>(null)
 
-    // Focusing a block to edit ends any active block-range selection.
+
     const handleFocusView = (view: EditorView) => {
         setActiveView(view)
         clearSelection()
     }
 
-    // Clicking empty space (margins, below the last block) focuses the nearest block instead of doing nothing - left edge lands the caret at its start, right edge (or below) at its end.
+
     const focusNearestBlock = (clientX: number, clientY: number) => {
         const blockEls = Array.from(
             containerRef.current?.querySelectorAll<HTMLElement>("[data-block-index]") ?? []
@@ -293,7 +293,7 @@ export const TextEditor = forwardRef<TextEditorHandle, Props>(function TextEdito
         }
     }
 
-    // Clicking anywhere that isn't a block deselects, like clicking empty space in a file manager.
+
     const handleContainerClick = (e: React.MouseEvent) => {
         if (consumeClickSuppression()) return
         if (!(e.target instanceof Element) || !e.target.closest("[data-block-index]")) {
@@ -302,12 +302,12 @@ export const TextEditor = forwardRef<TextEditorHandle, Props>(function TextEdito
         }
     }
 
-    // setActiveView(sameView) is a no-op re-render-wise, so this forces a re-read of activeView.state as the cursor moves.
+
     const [, bumpToolbar] = useReducer((n: number) => n + 1, 0)
 
     const emptyDoc = blocks.length === 1 && blocks[0].text.length === 0
 
-    // PDF/HTML export render into a hidden LatexRenderer pass and read the markup back out after paint; md/txt build the string synchronously instead.
+
     const [exportSnapshot, setExportSnapshot] = useState<{ title: string; blocks: ExportBlock[]; format: ExportFormat } | null>(null)
     const htmlExportRef = useRef<HTMLDivElement | null>(null)
 
@@ -413,7 +413,7 @@ export const TextEditor = forwardRef<TextEditorHandle, Props>(function TextEdito
             )}
 
             {exportSnapshot && (exportSnapshot.format === "pdf" || exportSnapshot.format === "html") && (
-                // Only the rendered markup is read out; mirrors the live block preview's classes so the export looks like the real document.
+
                 <div className="hidden">
                     <div ref={htmlExportRef}>
                         <div className="p-16">

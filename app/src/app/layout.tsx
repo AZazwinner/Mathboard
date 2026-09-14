@@ -23,7 +23,7 @@ const title = "Mathboard — write math like it's a document";
 const description =
   "A collaborative LaTeX editor that renders as you type — built for proofs, papers, and problem sets.";
 
-// Production should set NEXT_PUBLIC_APP_URL to the real deployed origin.
+
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:12000";
 
 export const metadata: Metadata = {
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   },
 };
 
-// WebSite structured data (JSON-LD).
+
 const STRUCTURED_DATA = {
   "@context": "https://schema.org",
   "@type": "WebSite",
@@ -56,7 +56,7 @@ const STRUCTURED_DATA = {
   url: siteUrl,
 };
 
-// Runs before hydration so the `dark` class is correct on first paint, avoiding a flash of the wrong theme.
+
 const THEME_INIT_SCRIPT = `
 (function() {
   try {

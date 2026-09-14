@@ -12,7 +12,7 @@ from db.modules.users.services import get_current_user_ws
 
 router = APIRouter()
 
-# How often an already-connected socket's read access is re-verified.
+
 READ_PERMISSION_RECHECK_SECONDS = 15
 
 
@@ -40,14 +40,14 @@ async def websocket_endpoint(
         while True:
             message = await websocket.receive_bytes()
             try:
-                # Re-checked per message so revoked write access takes effect on the next edit.
+
                 can_write = user_can_write_document(doc_id, current_user_id, db)
                 await _handle_message(room, message, websocket, can_write)
             except PermissionError:
                 await websocket.close(code=4403)
                 return
             except Exception as e:
-                # A malformed frame must not kill the connection.
+
                 print(f"liveshare: dropping bad message for doc {doc_id}: {e}")
 
     except (WebSocketDisconnect, RuntimeError):

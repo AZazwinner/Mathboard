@@ -8,7 +8,7 @@ export type PresentUser = {
   color: string
 }
 
-// Overlapping initials avatars for everyone currently connected to this document.
+
 export function PresenceStack({ users }: { users: PresentUser[] }) {
   if (users.length === 0) return null
 

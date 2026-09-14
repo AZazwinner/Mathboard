@@ -30,7 +30,7 @@ type Tab = "owned" | "shared" | "all" | "trash"
 type SortKey = "recent" | "alpha"
 
 const PAGE_SIZE = 20
-// Mirrors TRASH_RETENTION_DAYS in src/db/modules/docs/services.py; display copy only, the backend enforces the sweep.
+
 const TRASH_RETENTION_DAYS = 30
 
 type DateGroup = { label: string; docs: DocListItem[] }
@@ -55,14 +55,14 @@ function bucketFor(iso: string): (typeof DATE_BUCKETS)[number] {
   return "Older"
 }
 
-// Matches on title or any block's raw LaTeX text.
+
 function docMatchesQuery(doc: DocListItem, query: string): boolean {
   const q = query.toLowerCase()
   if ((doc.title || "Untitled").toLowerCase().includes(q)) return true
   return (doc.blocks ?? []).some((b) => b.content.toLowerCase().includes(q))
 }
 
-// Only meaningful when sorted by recency; under A-Z sort, date headers would land mid-bucket.
+
 function groupByDate(docs: DocListItem[]): DateGroup[] {
   const buckets = new Map<string, DocListItem[]>()
   for (const doc of docs) {
@@ -91,14 +91,14 @@ export default function DocsPage() {
   const [docPendingDelete, setDocPendingDelete] = useState<DocListItem | null>(null)
   const [trashDocPendingDelete, setTrashDocPendingDelete] = useState<TrashedDocument | null>(null)
 
-  // auth guard
+
   useEffect(() => {
     if (!authLoading && !user) {
       router.replace("/signin?redirect=/docs")
     }
   }, [user, authLoading, router])
 
-  // Reset pagination whenever the filter/sort changes.
+
   useEffect(() => {
     setVisibleCount(PAGE_SIZE)
   }, [tab, query, sort])
@@ -119,7 +119,7 @@ export default function DocsPage() {
     )
   }, [docs, sharedDocs, tab, query, sort])
 
-  // Trash is a separate list type (TrashedDocument has no _shared/owner fields to unify with DocListItem).
+
   const visibleTrash: TrashedDocument[] = useMemo(() => {
     if (!query) return trashDocs
     return trashDocs.filter((d) => (d.title || "Untitled").toLowerCase().includes(query.toLowerCase()))
@@ -150,7 +150,7 @@ export default function DocsPage() {
     try {
       await deleteDoc(doc.id)
       removeDoc(doc.id)
-      // Soft-delete lands it in trash; refresh that list too.
+
       refetchTrash()
     } catch (err) {
       console.error("Failed to delete doc:", err)
@@ -211,7 +211,7 @@ export default function DocsPage() {
     router.push("/")
   }
 
-  // loading state
+
   if (authLoading || docsLoading || sharedDocsLoading) {
     return (
       <div className="paper-surface flex h-screen items-center justify-center bg-[var(--paper)] text-sm text-[var(--ink-faint)]">
@@ -220,7 +220,7 @@ export default function DocsPage() {
     )
   }
 
-  // not authenticated (avoid flicker)
+
   if (!user) return null
 
   const TABS: { key: Tab; label: string; count: number }[] = [
@@ -252,7 +252,7 @@ export default function DocsPage() {
         onConfirm={confirmDeleteForeverDoc}
       />
 
-      {/* HEADER */}
+
       <header className="flex items-center justify-between gap-4 border-b border-[var(--hairline-soft)] px-6 py-3">
         <div className="flex items-center gap-2 text-sm font-medium">
           <Logo className="h-4 w-4 text-[var(--pen)]" />
@@ -302,7 +302,7 @@ export default function DocsPage() {
         </div>
       </header>
 
-      {/* CONTENT */}
+
       <div className="flex-1 overflow-y-auto px-8 py-10">
         <div className="mx-auto flex max-w-3xl flex-col gap-10">
           {tab !== "trash" && (

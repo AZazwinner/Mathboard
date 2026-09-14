@@ -87,11 +87,11 @@ def test_changing_password_invalidates_the_old_token(client):
     )
     assert resp.json()["success"] is True
 
-    # The token used to change the password must no longer work.
+
     stale = client.get("/me", headers={"Authorization": f"Bearer {old_token}"})
     assert stale.status_code == 401
 
-    # But signing in again with the new password issues a fresh, working token.
+
     signin_resp = client.post("/signin", json={"username": "alice", "password": "brand-new-password"})
     new_token = signin_resp.json()["token"]
     fresh = client.get("/me", headers={"Authorization": f"Bearer {new_token}"})

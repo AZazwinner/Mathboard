@@ -13,7 +13,7 @@ export function VersionHistoryPopover({
   onRestore,
 }: {
   docId: number
-  // The page owns the actual restore call: it unmounts the editor (closing the live Yjs session) first, since a connected Y.Doc room would otherwise overwrite the restore on its next flush.
+
   onRestore: (versionId: number) => Promise<void>
 }) {
   const [open, setOpen] = useState(false)

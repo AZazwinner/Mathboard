@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Logo } from "@/components/Logo"
 import { Button } from "@/components/ui/button"
 
-// Route-segment error boundary; catches anything not already handled by LatexRenderer's throwOnError:false.
+
 export default function DocError({
     error,
     reset,

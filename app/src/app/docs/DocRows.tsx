@@ -84,7 +84,7 @@ function DocRow({
 
   useEffect(() => {
     if (!isRenaming) return
-    // Deferred a tick so this wins the race against the dropdown's async focus restore.
+
     const id = setTimeout(() => {
       inputRef.current?.focus()
       inputRef.current?.select()
@@ -92,7 +92,7 @@ function DocRow({
     return () => clearTimeout(id)
   }, [isRenaming])
 
-  // Mirrors the server's permission rules so the menu doesn't offer actions that would just fail.
+
   const isOwner = !doc._shared
   const canWrite = isOwner || doc.permission === "write"
   const docUrl = `${process.env.NEXT_PUBLIC_APP_URL}/docs/d/${doc.id}`
@@ -167,7 +167,7 @@ function DocRow({
         </div>
 
         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-          {/* PopoverAnchor wraps the Trigger, not DropdownMenu's Root, since it needs a real DOM node to measure against. */}
+
           <PopoverAnchor asChild>
             <DropdownMenuTrigger asChild>
               <button
@@ -213,7 +213,7 @@ function DocRow({
               onSelect={(e) => {
                 e.preventDefault()
                 setMenuOpen(false)
-                // Deferred past the dropdown's exit animation, or its focus teardown closes the popover right after it opens.
+
                 setTimeout(() => setShareOpen(true), 200)
               }}
             >
@@ -239,7 +239,7 @@ function DocRow({
           doc={{
             id: doc.id,
             owner_id: doc.owner_id,
-            // Owned-docs listings don't send owner_username; the owner is always the current user in that case.
+
             owner_username: doc._shared ? doc.owner_username : currentUser.username,
             permission: doc._shared ? ((doc.permission as "read" | "write") ?? "read") : "owner",
           }}

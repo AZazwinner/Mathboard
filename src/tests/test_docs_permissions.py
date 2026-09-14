@@ -106,7 +106,7 @@ def test_only_the_owner_or_a_write_collaborator_can_share_the_doc(client, owner,
     _, owner_token = owner
     doc_id = create_doc(client, owner_token)
 
-    # `other` has no access at all yet, so they can't grant themselves a share either.
+
     resp = client.post(
         "/doc-share",
         json={"doc_id": doc_id, "user_id": other_id, "share_type": "write"},

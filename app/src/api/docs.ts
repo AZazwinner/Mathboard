@@ -196,7 +196,7 @@ export async function duplicateDoc(docId: number): Promise<DuplicateDocResponse>
   return res.json()
 }
 
-// Subset of a document SharePopover needs, shared by both DocumentResponsePermission and Document.
+
 export type ShareableDoc = {
   id: number
   owner_id: number

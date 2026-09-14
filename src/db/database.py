@@ -13,9 +13,9 @@ is_sqlite = DATABASE_URL.startswith("sqlite")
 
 engine = create_engine(
     DATABASE_URL,
-    # Pooled sqlite3 connections can be checked out on a different thread than the one that created them.
+
     connect_args={"check_same_thread": False} if is_sqlite else {},
-    pool_pre_ping=True  # good practice for Postgres
+    pool_pre_ping=True
 )
 
 if is_sqlite:
@@ -33,7 +33,7 @@ SessionLocal = sessionmaker(
     bind=engine
 )
 
-# Dependency for FastAPI routes
+
 def get_db():
     db = SessionLocal()
     try:

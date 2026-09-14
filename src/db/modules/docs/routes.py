@@ -98,7 +98,7 @@ def get_document(
         return None
     
     if doc.owner_id == current_user.id:
-        permission = "write" # owner
+        permission = "write"
     elif user_can_write_document(doc_id, current_user.id, db):
         permission = "write"
     else:
@@ -210,7 +210,7 @@ def permanently_delete_doc(
     }
 
 
-# ---- Version history ----
+
 class DocumentVersionResponse(BaseModel):
     id: int
     created_at: datetime
@@ -258,7 +258,7 @@ def restore_doc_version(
     }
 
 
-# ---- DocumentShare ----
+
 class DocShareData(BaseModel):
     doc_id: int
     user_id: int

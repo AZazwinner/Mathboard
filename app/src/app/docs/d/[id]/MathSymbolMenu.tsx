@@ -2,7 +2,7 @@
 
 import { MATH_SYMBOLS, type MathSymbol } from "./math-symbols"
 
-// Capped to avoid a wall of results for short queries; MATH_SYMBOLS is ordered by frequency of use.
+
 const MAX_RESULTS = 8
 
 export function filterMathSymbols(query: string): MathSymbol[] {
@@ -35,7 +35,7 @@ export function MathSymbolMenu({
         <div
             style={{ left, top }}
             className="fixed z-50 mt-1 w-56 overflow-hidden rounded-md border bg-popover py-1 text-popover-foreground shadow-md"
-            // preserve the CodeMirror selection on click
+
             onMouseDown={(e) => e.preventDefault()}
         >
             {items.length === 0 ? (

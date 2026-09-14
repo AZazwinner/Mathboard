@@ -1,7 +1,7 @@
 import time
 from collections import defaultdict
 
-# In-memory, per-process login throttle, keyed by IP+username combined (see routes.py's login_user) so it can't lock out unrelated users.
+
 MAX_ATTEMPTS = 5
 WINDOW_SECONDS = 15 * 60
 LOCKOUT_SECONDS = 15 * 60

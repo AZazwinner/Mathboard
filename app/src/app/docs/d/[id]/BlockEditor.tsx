@@ -61,7 +61,7 @@ export function BlockEditor({
     onActiveViewUpdate?: () => void
     isSelected: boolean
     onBlockMouseDown: (index: number, e: React.MouseEvent) => void
-    // Consumed so a click ending a block-drag doesn't refocus and clear the selection.
+
     consumeClickSuppression: () => boolean
 }) {
     const [isFocused, setIsFocused] = useState(false)
@@ -71,17 +71,17 @@ export function BlockEditor({
     const editorContainerRef = useRef<HTMLDivElement | null>(null)
     const viewRef = useRef<EditorView | null>(null)
 
-    // Blurring can shrink the block's height (e.g. after an image paste), stranding scroll position; useLayoutEffect keeps it in view before paint.
+
     useLayoutEffect(() => {
         if (isFocused) return
         editorContainerRef.current?.parentElement?.scrollIntoView({ block: "nearest" })
     }, [isFocused])
 
-    // The CodeMirror view is only constructed once per block, so commands read through this ref instead of closing over stale props.
+
     const latest = useRef({ position, insertBlock, deleteBlock, mergeBlockIntoPrevious, requestFocus, onFocusView, onActiveViewUpdate, isFocused, slashMenu, symbolMenu })
     latest.current = { position, insertBlock, deleteBlock, mergeBlockIntoPrevious, requestFocus, onFocusView, onActiveViewUpdate, isFocused, slashMenu, symbolMenu }
 
-    // Shared by both the keyboard (Enter) and mouse (click) selection paths.
+
     const applySlashCommand = (view: EditorView, cmd: SlashCommand) => {
         view.dispatch({
             changes: { from: 0, to: view.state.doc.length, insert: cmd.template },
@@ -91,7 +91,7 @@ export function BlockEditor({
         view.focus()
     }
 
-    // Uses CodeMirror's snippet system so template fields (e.g. \sum's bounds) are Tab-able. Only wraps in $...$ outside existing math, since nesting $ breaks KaTeX.
+
     const applyMathSymbol = (view: EditorView, sym: MathSymbol, from: number, to: number) => {
         const body = sym.template ?? sym.latex
         const context = mathContextAt(view.state.doc.toString(), from)
@@ -101,7 +101,7 @@ export function BlockEditor({
         view.focus()
     }
 
-    // Skipped while focused (re-parsing markdown on every keystroke is slow with embedded base64 images); synced once on blur below.
+
     useEffect(() => {
         const unobserve = () => text.unobserve(onTextChange)
         const onTextChange = () => {
@@ -112,14 +112,14 @@ export function BlockEditor({
         return unobserve
     }, [text])
 
-    // Declared before the focus-request effect below so viewRef.current is already populated when that effect runs.
+
     useEffect(() => {
         if (!editorContainerRef.current) return
 
         const splitBlock = (view: EditorView): boolean => {
             if (view.state.readOnly) return false
 
-            // Inside a code fence or open $$ block, Enter adds a line instead of splitting into a new block.
+
             const { state } = view
             const pos = state.selection.main.head
             const docText = state.doc.toString()
@@ -128,7 +128,7 @@ export function BlockEditor({
                 return true
             }
 
-            // Move text after the cursor into the new block rather than leaving it behind.
+
             const after = state.doc.toString().slice(pos)
             if (after.length > 0) {
                 text.delete(pos, after.length)
@@ -140,7 +140,7 @@ export function BlockEditor({
             return true
         }
 
-        // Backspace at position 0 with no selection merges into the previous block; otherwise falls through to CodeMirror's default Backspace.
+
         const mergeIntoPrevious = (view: EditorView): boolean => {
             if (view.state.readOnly) return false
             const { position, mergeBlockIntoPrevious, requestFocus } = latest.current
@@ -153,7 +153,7 @@ export function BlockEditor({
             return true
         }
 
-        // The two menus are mutually exclusive, so check the block-type menu first, then the symbol menu.
+
         const menuEnter = (view: EditorView): boolean => {
             const { slashMenu, symbolMenu } = latest.current
             if (slashMenu) {
@@ -192,7 +192,7 @@ export function BlockEditor({
             return false
         }
 
-        // With no menu open, Escape blurs to the rendered preview, which also re-enables drag-selection on this block.
+
         const menuEscape = (view: EditorView): boolean => {
             if (latest.current.slashMenu) {
                 setSlashMenu(null)
@@ -211,7 +211,7 @@ export function BlockEditor({
                 { key: "Enter", run: menuEnter },
                 { key: "Shift-Enter", run: () => false },
                 { key: "Backspace", run: mergeIntoPrevious },
-                // Symbol snippet fields take Tab priority; falls through to plain indent once exhausted.
+
                 { key: "Tab", run: (view) => nextSnippetField(view) || insertTab(view) },
                 { key: "Shift-Tab", run: prevSnippetField },
                 { key: "ArrowDown", run: menuMove(1) },
@@ -234,12 +234,12 @@ export function BlockEditor({
             }
         }
 
-        // "/" as the block's entire content opens the block-type menu; "/word" elsewhere opens the math-symbol menu (unless "/" is mid-word, as in "and/or").
+
         const syncMenus = (view: EditorView) => {
             const doc = view.state.doc
             const pos = view.state.selection.main.head
 
-            // doc.length/doc.lines are O(1), so this avoids materializing the whole doc as a string on every keystroke (costly with embedded base64 images).
+
             const isWholeBlockSlash = pos === doc.length && doc.lines === 1 && doc.sliceString(0, 1) === "/"
 
             if (isWholeBlockSlash) {
@@ -261,18 +261,18 @@ export function BlockEditor({
             }
             if (latest.current.slashMenu) setSlashMenu(null)
 
-            // Bounded to a window near the cursor so this stays fast regardless of block size (e.g. an embedded image's payload).
+
             const WINDOW = 2000
             const windowStart = Math.max(0, pos - WINDOW)
             const before = doc.sliceString(windowStart, pos)
 
-            // Symbol substitution doesn't belong inside literal code.
+
             if (isInsideCodeFence(before, before.length)) {
                 if (latest.current.symbolMenu) setSymbolMenu(null)
                 return
             }
 
-            // The "^" (start-of-block) branch only applies when the window reaches position 0.
+
             const triggerRe = windowStart === 0
                 ? /(?:^|[^a-zA-Z0-9])\/([a-zA-Z]+)$/
                 : /[^a-zA-Z0-9]\/([a-zA-Z]+)$/
@@ -296,11 +296,11 @@ export function BlockEditor({
             }))
         }
 
-        // Pasting our own multi-block copy (see blockClipboard.ts) splits across blocks instead of dumping everything into one.
+
         const handlePaste = (event: ClipboardEvent, view: EditorView): boolean => {
             if (view.state.readOnly) return false
 
-            // An image on the clipboard takes priority over text/html, and is embedded as a base64 data URI (no server-side storage exists).
+
             const imageFile = Array.from(event.clipboardData?.items ?? [])
                 .map((item) => item.getAsFile())
                 .find((file): file is File => !!file && file.type.startsWith("image/"))
@@ -346,8 +346,8 @@ export function BlockEditor({
                 return true
             }
 
-            // Bare LaTeX pasted into plain text renders as inert text unless wrapped in $...$; skipped inside existing math or a code fence.
-            // Normalize CRLF to "\n" so the position math below doesn't drift.
+
+
             const pastedText = (event.clipboardData?.getData("text/plain") ?? "").replace(/\r\n?/g, "\n")
             if (looksLikeLatex(pastedText)) {
                 const { state } = view
@@ -374,7 +374,7 @@ export function BlockEditor({
             doc: text.toString(),
             extensions: [
                 blockKeymap,
-                // Calls undo/redo directly rather than relying on the browser's native history - intercepting historyUndo breaks historyRedo.
+
                 Prec.highest(keymap.of(yUndoManagerKeymap)),
                 keymap.of(defaultKeymap),
                 EditorView.lineWrapping,
@@ -386,7 +386,7 @@ export function BlockEditor({
                     if (update.docChanged) ensureVisible()
                     if (update.docChanged || update.selectionSet) {
                         syncMenus(update.view)
-                        // Keep the toolbar's active-state indicators in sync as the cursor moves.
+
                         if (latest.current.isFocused) latest.current.onActiveViewUpdate?.()
                     }
                 }),
@@ -395,7 +395,7 @@ export function BlockEditor({
                     ".cm-content": { padding: "0.5rem 2.5rem", caretColor: "var(--foreground)" },
                     ".cm-line": { padding: 0, lineHeight: "1.625" },
                     "&.cm-focused": { outline: "none" },
-                    // CodeMirror's base theme hardcodes the caret black, which is invisible in dark mode.
+
                     ".cm-cursor, .cm-dropCursor": { borderLeftColor: "var(--foreground)" },
                 }),
             ],
@@ -410,7 +410,7 @@ export function BlockEditor({
         })
         view.contentDOM.addEventListener("blur", () => {
             setIsFocused(false)
-            // Catch up the preview, since the observer above skips updates while focused.
+
             setPreviewText(text.toString())
             setSlashMenu(null)
             setSymbolMenu(null)
@@ -423,7 +423,7 @@ export function BlockEditor({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [text])
 
-    // Handles both "focus a block created by Enter" and "focus a block after Backspace merges into it".
+
     useEffect(() => {
         if (!focusRequest || focusRequest.index !== position) return
         const view = viewRef.current
@@ -455,7 +455,7 @@ export function BlockEditor({
                         "rounded-md px-10 py-2",
                         "text-base font-serif leading-relaxed whitespace-pre-wrap break-words",
                         "cursor-text transition-opacity duration-150",
-                        // Only the visible element sits in normal flow; the hidden one is absolutely positioned so it can't stretch the container.
+
                         isFocused
                             ? "absolute inset-0 z-0 pointer-events-none opacity-0"
                             : "relative z-10 opacity-100",

@@ -13,7 +13,7 @@ class DocumentShare(Base):
 
     permission = mapped_column(String, default="read")
 
-    # relationships
+
     document: Mapped["Document"] = relationship(
         "Document", back_populates="shares"
     )
@@ -69,7 +69,7 @@ class Document(Base):
 
     title: Mapped[str] = mapped_column(String, nullable=False, default="Untitled")
 
-    # Soft-delete marker; NULL means live.
+
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, default=None)
 
     blocks: Mapped[list["DocumentBlock"]] = relationship(

@@ -130,9 +130,6 @@
   }
 }
 
-/* Paper/ink world shared with the marketing page (see app/page.tsx) -
-   scoped to a class rather than the global tokens above so it opts in
-   per-surface instead of re-theming the editor and auth screens. */
 .paper-surface {
   --paper: #fafaf9;
   --paper-dim: #f1f1ef;
@@ -157,9 +154,6 @@
   --pen: #efeeec;
 }
 
-/* Thin, themed scrollbar for horizontally-scrolling strips (template
-   picker, code blocks, tables) - swaps in for the native OS scrollbar
-   instead of hiding scroll entirely. */
 .scrollbar-custom {
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;

@@ -25,7 +25,7 @@ def verify_access_token(token: str) -> Optional[tuple[int, int]]:
         sub = payload.get("sub")
         if sub is None:
             return None
-        # Tokens minted before "ver" existed have no claim - treat as version 0.
+
         ver = payload.get("ver", 0)
         return int(sub), int(ver)
     except (JWTError, TypeError, ValueError):

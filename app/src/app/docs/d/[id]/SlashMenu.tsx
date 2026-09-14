@@ -27,7 +27,7 @@ export function SlashMenu({
         <div
             style={{ left, top }}
             className="fixed z-50 mt-1 w-64 overflow-hidden rounded-md border bg-popover py-1 text-popover-foreground shadow-md"
-            // preserve the CodeMirror selection on click
+
             onMouseDown={(e) => e.preventDefault()}
         >
             {items.length === 0 ? (

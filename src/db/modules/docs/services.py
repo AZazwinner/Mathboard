@@ -10,7 +10,7 @@ from db.modules.docs.schemas import DocShareListingResponse, DocumentResponse, D
 from db.modules.docs.models import DocumentShare
 from db.modules.users.crud import get_user_by_id
 
-# Starter content per dashboard template; unrecognized/blank template names fall back to a single empty block.
+
 TEMPLATE_BLOCKS: dict[str, list[str]] = {
     "Math Notes": [
         "# Math Notes",
@@ -227,7 +227,7 @@ def permanently_delete_doc__check_permissions(
     return True
     
 
-# ---- DocumentShare ----
+
 def user_can_write_document(
         doc_id: int,
         user_id: int,
@@ -368,7 +368,7 @@ def try_get_documentshares(
         for share in shares
     ]
 
-# ---- DocShare listing ----
+
 def get_viewable_documents(
         user_id: int,
         db: Session
@@ -397,7 +397,7 @@ def get_viewable_documents(
 
     return res
 
-# ---- Document interaction ----
+
 def view_document(
         doc_id: int,
         user_id: int,

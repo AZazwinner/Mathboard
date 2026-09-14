@@ -54,7 +54,7 @@ function ToolbarButton({
     activeView: EditorView | null
     disabled: boolean
 }) {
-    // activeView.state mutates in place on every keystroke (same object reference), which would fool React Compiler's memoization into never recomputing isActive.
+
     "use no memo"
 
     const isDisabled = disabled || !activeView
@@ -70,7 +70,7 @@ function ToolbarButton({
             aria-label={label}
             aria-pressed={isActive}
             disabled={isDisabled}
-            // Prevents the mousedown from blurring the editor before onClick fires, which would leave the command nothing to act on.
+
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => activeView && run(activeView)}
             className={cn(isActive && "bg-accent text-accent-foreground")}
@@ -80,7 +80,7 @@ function ToolbarButton({
     )
 }
 
-// Doesn't fit ToolbarAction's synchronous run(view) shape, since opening a file picker is async.
+
 function ImageButton({
     activeView,
     disabled,
@@ -95,7 +95,7 @@ function ImageButton({
 
     async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0]
-        e.target.value = "" // allow picking the same file again later
+        e.target.value = ""
         if (!file || !activeView) return
 
         if (file.size > MAX_IMAGE_BYTES) {
@@ -139,7 +139,7 @@ export function FormattingToolbar({
     activeView: EditorView | null
     disabled: boolean
 }) {
-    // Same reasoning as ToolbarButton - activeView's mutated-in-place state would otherwise be memoized stale.
+
     "use no memo"
 
     return (

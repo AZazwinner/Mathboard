@@ -16,8 +16,8 @@ def test_verify_rejects_a_wrong_password():
 
 
 def test_same_password_hashes_differently_each_time():
-    # argon2 salts each hash, so two hashes of the same password must differ,
-    # even though both still verify against the original password.
+
+
     first = hash_password("correct horse battery staple")
     second = hash_password("correct horse battery staple")
     assert first != second

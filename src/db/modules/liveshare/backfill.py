@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 
 from db.modules.docs.models import DocumentBlock, DocumentVersion, DocumentYDoc
 
-# Y.Doc shape: root "blocks" is a Y.Array of Y.Map({id, type, text: Y.Text}),
-# one entry per paragraph/block, in document order.
+
+
 BLOCKS_KEY = "blocks"
 
 
@@ -92,14 +92,14 @@ def flush_ydoc(doc_id: int, ydoc: pycrdt.Doc, db: Session) -> None:
     mirror_blocks_to_db(doc_id, ydoc, db)
 
 
-# History is capped per doc so it doesn't grow an unbounded table - oldest versions roll off.
+
 MAX_VERSIONS_PER_DOC = 50
 
 
 def create_version_snapshot(doc_id: int, ydoc: pycrdt.Doc, db: Session) -> None:
     """Records the current state of `ydoc`'s blocks as a restorable version."""
     blocks = ydoc_blocks(ydoc)
-    # Skip empty docs - not worth offering as a restore point.
+
     if not any(block.get("text", "").strip() for block in blocks):
         return
     db.add(DocumentVersion(doc_id=doc_id, blocks_json=json.dumps(blocks)))

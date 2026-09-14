@@ -56,11 +56,11 @@ const NAV_LINKS = [
 
 const ACCENT = "#F1F1EF"
 
-// Stable references: framer-motion's viewport tracking is keyed off object identity, so an inline literal would reset "once" tracking on every re-render.
+
 const VIEWPORT_ONCE = { once: true, margin: "-80px" } as const
 const VIEWPORT_ONCE_TIGHT = { once: true, margin: "-40px" } as const
 
-// Faint graph-paper texture behind the page.
+
 const GRID_BACKGROUND: React.CSSProperties = {
   backgroundImage:
     "linear-gradient(to right, rgba(0,0,0,0.035) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.035) 1px, transparent 1px)",
@@ -360,7 +360,7 @@ function AuthorLane({
         <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
         {author.name}
       </div>
-      {/* Untyped remainder stays `invisible` (not absent) so the pane's height is fixed to the final text from the first frame. */}
+
       <pre className="scrollbar-custom overflow-x-auto font-mono text-[12.5px] leading-relaxed whitespace-pre-wrap break-words text-neutral-500">
         {typed}
         {!done && (
@@ -377,7 +377,7 @@ function AuthorLane({
   )
 }
 
-// Reveals `text` a few characters at a time, restarting whenever `playToken` changes.
+
 function useTypewriter(text: string, playToken: number) {
   const reduceMotion = useReducedMotion()
   const [typedLength, setTypedLength] = useState(0)
@@ -419,7 +419,7 @@ function useTypewriter(text: string, playToken: number) {
 
 type DemoHandle = { replay: () => void }
 
-// Exposes `replay` via ref so the hero's "View demo" button can trigger it from outside the component tree.
+
 const CollabDemoCard = forwardRef<DemoHandle>(function CollabDemoCard(_props, ref) {
   const [playToken, setPlayToken] = useState(0)
   const [showRender, setShowRender] = useState(false)
@@ -443,7 +443,7 @@ const CollabDemoCard = forwardRef<DemoHandle>(function CollabDemoCard(_props, re
 
   useImperativeHandle(ref, () => ({ replay }))
 
-  // Uses a ref instead of `viewport.once` since this component re-renders on every typed character.
+
   const hasAutoPlayed = useRef(false)
 
   return (
@@ -513,7 +513,7 @@ export default function HomePage() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="min-h-screen bg-white text-neutral-900" style={GRID_BACKGROUND}>
-        {/* NAV */}
+
         <header className="border-b border-neutral-200">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
             <div className="flex items-center gap-2 text-[15px] font-medium">
@@ -594,7 +594,7 @@ export default function HomePage() {
           </AnimatePresence>
         </header>
 
-        {/* HERO */}
+
         <motion.section
           initial="hidden"
           animate="visible"
@@ -610,7 +610,7 @@ export default function HomePage() {
             Now in beta
           </motion.p>
 
-          {/* min-height reserves two lines below ~1024px, where the longest word wraps. */}
+
           <div className="mt-5 flex min-h-[7.15rem] items-center justify-center sm:min-h-[9.9rem] lg:min-h-[4.95rem]">
             <motion.h1
               variants={fadeUp}
@@ -646,12 +646,12 @@ export default function HomePage() {
           </motion.div>
         </motion.section>
 
-        {/* HERO VISUAL */}
+
         <section ref={demoSectionRef} id="demo" className="mx-auto max-w-4xl px-6 pb-28">
           <CollabDemoCard ref={demoRef} />
         </section>
 
-        {/* FEATURES */}
+
         <section id="features" className="border-t border-neutral-200">
           <div className="mx-auto max-w-5xl px-6 py-24">
             <Reveal>
@@ -682,7 +682,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* CTA */}
+
         <section className="border-t border-neutral-200">
           <Reveal
             variants={staggerContainer}
@@ -719,7 +719,7 @@ export default function HomePage() {
           </Reveal>
         </section>
 
-        {/* FOOTER */}
+
         <footer className="border-t border-neutral-200">
           <div className="mx-auto max-w-5xl px-6 py-8 text-center text-sm text-neutral-400">
             © {new Date().getFullYear()} mathboard

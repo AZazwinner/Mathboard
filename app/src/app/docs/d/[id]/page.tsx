@@ -78,7 +78,7 @@ export default function DocPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, router])
 
-  // Waits for the WebSocket disconnect (from unmounting TextEditor) to tear down the live room before restoring, so the restore doesn't race an open session.
+
   async function handleRestoreVersion(versionId: number) {
     setRestoring(true)
     await new Promise((resolve) => setTimeout(resolve, 700))
@@ -130,10 +130,10 @@ export default function DocPage() {
         onConfirm={confirmDelete}
       />
 
-      {/* TOP BAR */}
+
       <div className="flex items-center justify-between border-b px-4 py-2 print:hidden">
 
-        {/* Left side */}
+
         <div className="flex items-center gap-3 min-w-0">
           <Button
             variant="ghost"
@@ -156,7 +156,7 @@ export default function DocPage() {
           <SaveStatus status={status} />
         </div>
 
-        {/* Right side */}
+
         <div className="flex items-center gap-3">
           <PresenceStack users={presence} />
 
@@ -190,7 +190,7 @@ export default function DocPage() {
         </div>
       )}
 
-      {/* EDITOR AREA (includes its own formatting toolbar) */}
+
       {restoring ? (
         <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
           Restoring version…

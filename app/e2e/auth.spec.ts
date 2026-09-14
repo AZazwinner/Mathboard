@@ -51,7 +51,7 @@ test("forgot password -> reset -> old password rejected, new one works", async (
     await page.getByLabel("Password").fill(oldPassword)
     await page.getByRole("button", { name: "Sign in" }).click()
     await page.waitForTimeout(400)
-    await expect(page).toHaveURL(/\/signin/) // old password still rejected
+    await expect(page).toHaveURL(/\/signin/)
 
     await page.getByLabel("Password").fill(newPassword)
     await page.getByRole("button", { name: "Sign in" }).click()

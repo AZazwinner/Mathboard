@@ -1,6 +1,6 @@
 "use client"
 
-// Only triggers for errors that escape every route-segment error.tsx. Must define its own <html>/<body> since it replaces the root layout.
+
 export default function GlobalError({
     reset,
 }: {

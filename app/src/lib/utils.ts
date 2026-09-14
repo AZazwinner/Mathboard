@@ -16,7 +16,7 @@ const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
 
 const relativeFormatter = new Intl.RelativeTimeFormat("en", { numeric: "auto" })
 
-// "2h ago" instead of a raw date, matching SaveStatus.
+
 export function formatRelativeTime(iso: string): string {
   const then = new Date(iso).getTime()
   if (Number.isNaN(then)) return ""

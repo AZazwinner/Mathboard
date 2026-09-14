@@ -198,13 +198,13 @@ def delete_document(
         doc: Document,
         db: Session,
 ):
-    # DocumentYDoc has no ORM relationship to Document, so it's removed explicitly
+
     db.query(DocumentYDoc).filter(DocumentYDoc.doc_id == doc.id).delete()
     db.delete(doc)
     db.commit()
 
 
-# ---- DocumentShare ----
+
 def create_documentshare(
         doc_id: int,
         user_id: int,

@@ -38,5 +38,5 @@ export function updateTitle(doc_id: string, newTitle: string) {
         } catch (err) {
             console.error(err)
         }
-    }, 500) // 0.5 sec debounce
+    }, 500)
 }

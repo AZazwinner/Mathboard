@@ -52,7 +52,7 @@ def update_user__password_hash(data: AuthUserUpdate__PasswordHash, db: Session) 
 
 def delete_user(id: int, db: Session) -> bool:
     assert False
-    # TODO - no point rn tbh
+
 
 
 def create_password_reset_token(

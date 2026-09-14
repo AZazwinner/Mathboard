@@ -8,7 +8,7 @@ test("a named template seeds distinct starter content", async ({ page }) => {
     await page.waitForURL("**/docs/d/*")
     await page.waitForTimeout(1000)
 
-    // the doc title is a plain <input>, not a heading element
+
     await expect(page.locator("input").first()).toHaveValue(/Homework/)
     const blockCount = await page.locator(".cm-content").count()
     expect(blockCount).toBeGreaterThan(1)

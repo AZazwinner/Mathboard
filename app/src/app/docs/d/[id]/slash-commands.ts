@@ -10,7 +10,7 @@ export type SlashCommand = {
     cursorOffset: number
 }
 
-// Triggered by "/" as the first character of an empty block; selecting one replaces the block's content with `template` and places the cursor at `cursorOffset`.
+
 export const SLASH_COMMANDS: SlashCommand[] = [
     {
         id: "paragraph",

@@ -7,23 +7,23 @@ from sqlalchemy import pool
 
 from alembic import context
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+
+
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
+
+
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# The DB URL comes from the same .env every other part of the app reads,
-# not from the placeholder in alembic.ini.
+
+
 load_dotenv()
 database_url = os.getenv("DATABASE_URL")
 assert database_url, "DATABASE_URL must be set (see .env.example)"
 config.set_main_option("sqlalchemy.url", database_url)
 
-# Import every model module so Base.metadata is aware of all tables for autogenerate.
+
 from db.base import Base
 from db.core.auth import models as _auth_models  # noqa: F401
 from db.modules.users import models as _user_models  # noqa: F401
@@ -31,10 +31,10 @@ from db.modules.docs import models as _doc_models  # noqa: F401
 
 target_metadata = Base.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+
+
+
+
 
 
 def run_migrations_offline() -> None:

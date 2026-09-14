@@ -50,7 +50,7 @@ export async function signinUser(data: SigninUserInput): Promise<SigninUserRespo
   })
 
   if (!res.ok) {
-    // Surfaces the backend's HTTPException detail (e.g. rate-limit lockout message) instead of a generic error.
+
     const body = await res.json().catch(() => null)
     throw new Error(body?.detail || "Network error")
   }
@@ -60,7 +60,7 @@ export async function signinUser(data: SigninUserInput): Promise<SigninUserRespo
 
 export type ForgotPasswordResponse = {
   success: boolean
-  // Dev-only stand-in until a real email provider is wired up.
+
   dev_reset_link?: string
 }
 

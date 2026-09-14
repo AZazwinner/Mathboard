@@ -3,8 +3,8 @@ import tempfile
 
 import pytest
 
-# Must be set before any app module is imported - db/database.py and
-# db/core/auth/utils/token.py both assert on these at import time.
+
+
 _TMP_DB_FD, _TMP_DB_PATH = tempfile.mkstemp(suffix=".db")
 os.close(_TMP_DB_FD)
 
@@ -16,7 +16,7 @@ os.environ.pop("RESEND_API_KEY", None)
 from db.base import Base
 from db.database import engine, SessionLocal
 
-# Import every model module so Base.metadata is aware of all tables before create_all().
+
 from db.core.auth import models as _auth_models  # noqa: F401
 from db.modules.users import models as _user_models  # noqa: F401
 from db.modules.docs import models as _doc_models  # noqa: F401

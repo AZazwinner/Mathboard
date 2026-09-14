@@ -10,14 +10,14 @@ import { cn } from "@/lib/utils";
 import { convertLatexBracketDelimiters } from "./latex-bracket-delimiters";
 import { SAFE_IMAGE_DATA_URI } from "@/app/docs/d/[id]/format-commands";
 
-// Only trust KaTeX's DOM-annotation commands, not \href/\url/\includegraphics, since this content can come from other collaborators.
+
 const TRUSTED_HTML_COMMANDS = new Set(["\\htmlClass", "\\htmlId", "\\htmlData"]);
 
 function trustHtmlAnnotationsOnly(context: { command: string }): boolean {
   return TRUSTED_HTML_COMMANDS.has(context.command);
 }
 
-// Images are stored as base64 data: URIs (no server-side file storage), so allow those through react-markdown's default sanitizer, which otherwise strips all data: URIs.
+
 function urlTransform(value: string): string {
   if (SAFE_IMAGE_DATA_URI.test(value)) return value;
   return defaultUrlTransform(value);
@@ -27,7 +27,7 @@ interface Props {
   content: string;
 }
 
-// Tailwind's preflight resets h1-h6 to inherit, so headings need explicit sizing here.
+
 const components: Components = {
   h1: (props) => <h1 className="text-xl font-bold mt-1 mb-1" {...props} />,
   h2: (props) => <h2 className="text-lg font-bold mt-1 mb-1" {...props} />,
@@ -36,7 +36,7 @@ const components: Components = {
     <pre className="scrollbar-custom my-2 overflow-x-auto rounded-md bg-muted p-3 font-mono text-sm" {...props} />
   ),
   code: ({ className, children, ...props }: ComponentProps<"code">) => {
-    // A multi-line children means this is a fenced block, not an inline span - inline code can't contain a literal newline.
+
     const isBlock = String(children).includes("\n");
     return (
       <code
@@ -69,10 +69,10 @@ const components: Components = {
 export default function LatexRenderer({ content }: Props) {
   return (
     <div className="w-full text-base font-serif leading-relaxed min-h-[1.5em] break-words">
-      {/* react-markdown renders to React elements, never dangerouslySetInnerHTML, so raw HTML in a block's text stays literal text. */}
+
       <ReactMarkdown
         remarkPlugins={[remarkMath, remarkGfm]}
-        // throwOnError: false so malformed LaTeX from a collaborator renders KaTeX's inline error span instead of crashing the route.
+
         rehypePlugins={[[rehypeKatex, { trust: trustHtmlAnnotationsOnly, throwOnError: false }]]}
         components={components}
         urlTransform={urlTransform}

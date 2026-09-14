@@ -1,22 +1,22 @@
 export type MathSymbol = {
-    // what you type after "/" - e.g. "sigma" for \sigma
+
     trigger: string
-    // the LaTeX command, shown as the menu's subtitle so the entry stays
-    // readable even when `template` below is a whole snippet
+
+
     latex: string
-    // preview glyph shown in the menu - the literal character KaTeX renders,
-    // or (for upright operators like \sin, \lim) the word itself
+
+
     glyph: string
-    // extra consumer-friendly search terms - e.g. "infinity" for \infty,
-    // so people don't have to already know the LaTeX name
+
+
     aliases?: string[]
-    // CodeMirror snippet body with tab stops (${1:default}, ${0} final stop); falls back to `latex` when omitted.
+
     template?: string
 }
 
-// A curated subset of KaTeX's symbol set, cross-checked against katex/src/{symbols,macros}.ts.
+
 export const MATH_SYMBOLS: MathSymbol[] = [
-    // ---- Greek (lowercase) ----
+
     { trigger: "alpha", latex: "\\alpha", glyph: "α" },
     { trigger: "beta", latex: "\\beta", glyph: "β" },
     { trigger: "gamma", latex: "\\gamma", glyph: "γ" },
@@ -48,7 +48,7 @@ export const MATH_SYMBOLS: MathSymbol[] = [
     { trigger: "psi", latex: "\\psi", glyph: "ψ" },
     { trigger: "omega", latex: "\\omega", glyph: "ω" },
 
-    // ---- Greek (uppercase - only the ones visually distinct from Latin) ----
+
     { trigger: "Gamma", latex: "\\Gamma", glyph: "Γ" },
     { trigger: "Delta", latex: "\\Delta", glyph: "Δ" },
     { trigger: "Theta", latex: "\\Theta", glyph: "Θ" },
@@ -61,7 +61,7 @@ export const MATH_SYMBOLS: MathSymbol[] = [
     { trigger: "Psi", latex: "\\Psi", glyph: "Ψ" },
     { trigger: "Omega", latex: "\\Omega", glyph: "Ω" },
 
-    // ---- Big operators & calculus ----
+
     {
         trigger: "sum",
         latex: "\\sum",
@@ -121,7 +121,7 @@ export const MATH_SYMBOLS: MathSymbol[] = [
     { trigger: "sup", latex: "\\sup", glyph: "sup" },
     { trigger: "inf", latex: "\\inf", glyph: "inf" },
 
-    // ---- Relations ----
+
     { trigger: "leq", latex: "\\leq", glyph: "≤", aliases: ["le", "lessthanorequal"] },
     { trigger: "geq", latex: "\\geq", glyph: "≥", aliases: ["ge", "greaterthanorequal"] },
     { trigger: "neq", latex: "\\neq", glyph: "≠", aliases: ["ne", "notequal"] },
@@ -139,7 +139,7 @@ export const MATH_SYMBOLS: MathSymbol[] = [
     { trigger: "subseteq", latex: "\\subseteq", glyph: "⊆" },
     { trigger: "supseteq", latex: "\\supseteq", glyph: "⊇" },
 
-    // ---- Set theory & logic ----
+
     { trigger: "cup", latex: "\\cup", glyph: "∪", aliases: ["union"] },
     { trigger: "cap", latex: "\\cap", glyph: "∩", aliases: ["intersect", "intersection"] },
     { trigger: "setminus", latex: "\\setminus", glyph: "∖" },
@@ -154,7 +154,7 @@ export const MATH_SYMBOLS: MathSymbol[] = [
     { trigger: "therefore", latex: "\\therefore", glyph: "∴" },
     { trigger: "because", latex: "\\because", glyph: "∵" },
 
-    // ---- Arithmetic & binary operators ----
+
     { trigger: "pm", latex: "\\pm", glyph: "±", aliases: ["plusminus"] },
     { trigger: "mp", latex: "\\mp", glyph: "∓", aliases: ["minusplus"] },
     { trigger: "times", latex: "\\times", glyph: "×", aliases: ["multiply", "cross"] },
@@ -166,7 +166,7 @@ export const MATH_SYMBOLS: MathSymbol[] = [
     { trigger: "oplus", latex: "\\oplus", glyph: "⊕" },
     { trigger: "otimes", latex: "\\otimes", glyph: "⊗" },
 
-    // ---- Arrows ----
+
     { trigger: "to", latex: "\\to", glyph: "→", aliases: ["rightarrow", "arrow"] },
     { trigger: "leftarrow", latex: "\\leftarrow", glyph: "←", aliases: ["gets", "arrow"] },
     { trigger: "leftrightarrow", latex: "\\leftrightarrow", glyph: "↔" },
@@ -181,13 +181,13 @@ export const MATH_SYMBOLS: MathSymbol[] = [
     { trigger: "swarrow", latex: "\\swarrow", glyph: "↙" },
     { trigger: "nwarrow", latex: "\\nwarrow", glyph: "↖" },
 
-    // ---- Dots ----
+
     { trigger: "ldots", latex: "\\ldots", glyph: "…", aliases: ["dots"] },
     { trigger: "cdots", latex: "\\cdots", glyph: "⋯" },
     { trigger: "vdots", latex: "\\vdots", glyph: "⋮" },
     { trigger: "ddots", latex: "\\ddots", glyph: "⋱" },
 
-    // ---- Misc ----
+
     { trigger: "hbar", latex: "\\hbar", glyph: "ℏ", aliases: ["planck"] },
     { trigger: "ell", latex: "\\ell", glyph: "ℓ" },
     { trigger: "aleph", latex: "\\aleph", glyph: "ℵ" },

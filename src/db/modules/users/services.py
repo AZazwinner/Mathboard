@@ -32,7 +32,7 @@ def create_user__password(
         return {
             "code": 100,
             "user": user,
-            # Minted from users.id, not auth_users.id - matches what get_current_user() checks against.
+
             "token": create_access_token(user.id, user.token_version)
         }
     else:
@@ -50,7 +50,7 @@ def login_user__password(
         
     if user is None:
         return
-    # password_hash is nullable (OAuth-only accounts), so this must fail cleanly instead of raising.
+
     if user.authuser.password_hash is None:
         return
     elif verify_password(data.password, user.authuser.password_hash):
@@ -85,7 +85,7 @@ def get_current_user(
     user = db.query(User).get(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    # A password change bumps token_version, invalidating tokens minted before it.
+
     if user.token_version != token_version:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     return user

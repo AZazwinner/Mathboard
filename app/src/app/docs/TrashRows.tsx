@@ -4,7 +4,7 @@ import { RotateCcw, Trash2 } from "lucide-react"
 import type { TrashedDocument } from "@/api/docs"
 import { formatRelativeTime } from "@/lib/utils"
 
-// Same convention as DocRows' monogram(); kept as a local copy since TrashedDocument shares no type with DocListItem.
+
 function monogram(title: string): string {
   const clean = (title || "Untitled").trim()
   const words = clean.split(/\s+/).filter(Boolean)

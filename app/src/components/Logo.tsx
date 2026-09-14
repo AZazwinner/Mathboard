@@ -1,6 +1,6 @@
-// The brand mark: a radical sign whose bar becomes the top edge of a document
-// frame. Drawn to match lucide-react's icon conventions (stroke-based,
-// currentColor, 24x24 viewBox) so it drops in anywhere a lucide icon was used.
+
+
+
 export function Logo({ className }: { className?: string }) {
   return (
     <svg

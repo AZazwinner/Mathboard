@@ -31,13 +31,13 @@ interface SharedUser {
   permission: "read" | "write"
 }
 
-// Human-readable labels for the raw "read"/"write" permission values.
+
 const PERMISSION_LABELS: Record<"read" | "write", string> = {
   read: "Can view",
   write: "Can edit",
 }
 
-// Invite/share form, reused by SharePopover (below) and the docs-list row menu.
+
 export function ShareContent({
   doc,
   user
@@ -106,9 +106,9 @@ export function ShareContent({
     }
   }
 
-  // Changing an existing collaborator's permission - unlike handleAddUser,
-  // this already has the user_id (from sharedUsers) so it doesn't need a
-  // username lookup, and updates optimistically rather than waiting on one.
+
+
+
   const handleChangePermission = async (userId: number, username: string, shareType: "read" | "write") => {
     setError(null)
     const previous = sharedUsers
@@ -139,7 +139,7 @@ export function ShareContent({
 
       {error && <div className="text-xs text-red-500">{error}</div>}
 
-      {/* Add user by username */}
+
       {doc.permission !== "read" && <div className="flex items-center gap-2">
         <Input
           placeholder="Enter username"
@@ -157,7 +157,7 @@ export function ShareContent({
         </Button>
       </div>}
 
-      {/* Shared users list */}
+
       <div className="space-y-2 px-4">
         <div
           className="flex items-center justify-between border rounded-md px-2 py-1 gap-2"
@@ -248,7 +248,7 @@ export function ShareContent({
         )}
       </div>
 
-      {/* Share link */}
+
       <div className="flex items-center gap-2">
         <Input value={shareLink} readOnly />
         <Button onClick={handleCopy} size="sm" variant={copied ? "secondary" : "default"}>
@@ -260,7 +260,7 @@ export function ShareContent({
   )
 }
 
-// Self-contained trigger button + Popover, for the doc editor's toolbar.
+
 export function SharePopover({
   doc,
   user

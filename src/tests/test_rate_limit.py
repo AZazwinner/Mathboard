@@ -10,7 +10,7 @@ def test_locks_out_after_max_attempts():
     for _ in range(rl.MAX_ATTEMPTS - 1):
         rl.record_failure("key")
     locked, _ = rl.is_locked_out("key")
-    assert locked is False  # one shy of the limit
+    assert locked is False
 
     rl.record_failure("key")
     locked, remaining = rl.is_locked_out("key")
@@ -23,7 +23,7 @@ def test_success_clears_the_failure_count():
         rl.record_failure("key")
     rl.record_success("key")
 
-    # Same number of failures again shouldn't lock out, since success reset the counter.
+
     for _ in range(rl.MAX_ATTEMPTS - 1):
         rl.record_failure("key")
     locked, _ = rl.is_locked_out("key")

@@ -48,7 +48,7 @@ def create_authuser(
         "password_hash": hash_password(data.password)
     }), db)
 
-    # No token minted here: tokens' `sub` maps to users.id, not auth_users.id, which the caller resolves once it creates the paired User row.
+
     return {
         "code": 100,
         "user": user,
@@ -78,7 +78,7 @@ def update_authuser__password(
         "password_hash": hash_password(data.password)
     }), db)
     if success:
-        # data.id is auth_users.id here; find the paired users.id to invalidate its tokens.
+
         user_row = get_user_by_authuser_id(data.id, db)
         if user_row is not None:
             bump_token_version(user_row.id, db)

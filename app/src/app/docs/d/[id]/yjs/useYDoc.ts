@@ -21,7 +21,7 @@ function blocksOf(doc: Y.Doc): Y.Array<Y.Map<any>> {
   return doc.get("blocks", Y.Array) as Y.Array<Y.Map<any>>
 }
 
-// Owns the Y.Doc + YjsProvider lifecycle and exposes the ordered block list as React state; block content edits bypass React and are handled per-block by BlockEditor's CodeMirror/yCollab binding.
+
 export function useYDoc(wsUrl: string, localUser?: LocalUser) {
   const [ready, setReady] = useState<{ doc: Y.Doc; provider: YjsProvider; undoManager: Y.UndoManager } | null>(null)
   const [status, setStatus] = useState<ConnectionStatus>("connecting")
@@ -31,7 +31,7 @@ export function useYDoc(wsUrl: string, localUser?: LocalUser) {
     const doc = new Y.Doc()
     const provider = new YjsProvider(wsUrl, doc)
     const blocksArray = blocksOf(doc)
-    // One shared undo/redo history scoped to the whole Doc (not per-block, yCollab's default), so Ctrl+Z still works after focus moves to an unedited block, and covers block insert/delete/merge too.
+
     const undoManager = new Y.UndoManager(doc)
 
     if (localUser) {
@@ -83,7 +83,7 @@ export function useYDoc(wsUrl: string, localUser?: LocalUser) {
     })
   }
 
-  // Multi-block selection delete/cut. A document must never end up with zero blocks, so wiping every block leaves one empty paragraph behind.
+
   const deleteBlockRange = (start: number, end: number) => {
     if (!ready) return
     const blocksArray = blocksOf(ready.doc)
@@ -99,7 +99,7 @@ export function useYDoc(wsUrl: string, localUser?: LocalUser) {
     })
   }
 
-  // Inserts a run of plain-paragraph blocks starting at `position`, used by block-preserving paste (blockClipboard.ts).
+
   const insertBlocks = (position: number, contents: string[]) => {
     if (!ready || contents.length === 0) return
     const blocksArray = blocksOf(ready.doc)
@@ -115,7 +115,7 @@ export function useYDoc(wsUrl: string, localUser?: LocalUser) {
     })
   }
 
-  // Backspace-at-start-of-block: folds `position`'s text onto `position - 1` and removes `position` in one transaction. Returns the pre-merge join offset so the caller can place the cursor at the seam.
+
   const mergeBlockIntoPrevious = (position: number): number | null => {
     if (!ready || position <= 0) return null
     const blocksArray = blocksOf(ready.doc)

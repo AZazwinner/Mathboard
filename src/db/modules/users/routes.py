@@ -93,7 +93,7 @@ def update_password(
         "id": current_user.authuser_id,
         "password": data.password
     })
-    # update_authuser__password already bumps token_version on success, invalidating old tokens.
+
     success = update_authuser__password(auth_services_data, db)
     return {
         "success": success
@@ -137,7 +137,7 @@ class ForgotPasswordData(BaseModel):
 
 class ForgotPasswordResponse(BaseModel):
     success: bool
-    # Populated only when no email provider is configured, so the reset link is still usable in dev.
+
     dev_reset_link: Optional[str] = None
 
 @router.post("/forgot-password", response_model=ForgotPasswordResponse)

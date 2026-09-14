@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og"
 
-// Next.js wires this up as the og:image (and twitter:image, absent a separate file) for routes that don't define their own.
+
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
@@ -24,7 +24,7 @@ export default function OpengraphImage() {
           fontFamily: "system-ui, sans-serif",
         }}
       >
-        {/* the mark: a radical whose bar becomes the top edge of a document frame */}
+
         <div style={{ display: "flex", position: "relative", width: 170, height: 170, marginBottom: 28 }}>
           <div
             style={{

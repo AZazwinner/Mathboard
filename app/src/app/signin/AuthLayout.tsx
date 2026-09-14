@@ -8,7 +8,7 @@ $$\left(\sum_i u_i v_i\right)^2 \;\leq\; \left(\sum_i u_i^2\right)\left(\sum_i v
 
 with equality iff $u$ and $v$ are linearly dependent.`
 
-// Split-screen auth shell: a static brand panel plus the form.
+
 export function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-background text-foreground">

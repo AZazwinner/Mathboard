@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-// Generic confirm dialog, not delete-specific - actionLabel/destructive let non-delete actions reuse it.
+
 export function DeleteConfirmDialog({
   open,
   onOpenChange,

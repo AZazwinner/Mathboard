@@ -9,7 +9,7 @@ const COPY: Record<ConnectionStatus, string> = {
   disconnected: "Offline — will sync when reconnected",
 }
 
-// Content syncs over the Yjs websocket as it's typed, so connection status is the save status.
+
 export function SaveStatus({ status }: { status: ConnectionStatus }) {
   return (
     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">

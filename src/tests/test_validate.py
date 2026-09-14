@@ -24,7 +24,7 @@ def test_validate_password_raises_on_a_weak_password():
 
 
 def test_validate_password_passes_silently_for_a_strong_password():
-    validate_password("a-reasonably-long-password")  # should not raise
+    validate_password("a-reasonably-long-password")
 
 
 def test_validate_email_rejects_malformed_addresses():
@@ -33,4 +33,4 @@ def test_validate_email_rejects_malformed_addresses():
 
 
 def test_validate_email_accepts_a_real_looking_address():
-    validate_email("someone@example.com")  # should not raise
+    validate_email("someone@example.com")

@@ -1,5 +1,5 @@
-// Client-side file builders for the Export menu. There's no server-side conversion pipeline, so
-// formats that would need one (e.g. DOCX, which needs OMML for real equations) are left out.
+
+
 
 export type ExportBlock = { id: string; content: string }
 
@@ -24,7 +24,7 @@ export function downloadMarkdown(title: string, blocks: ExportBlock[]) {
   triggerDownload(`${slugifyFilename(title)}.md`, `# ${title}\n\n${body}\n`, "text/markdown;charset=utf-8")
 }
 
-// Strips markdown formatting syntax but leaves LaTeX alone - there's no plain-text equivalent for it.
+
 function stripMarkdownSyntax(source: string): string {
   return source
     .replace(/^#{1,6}\s+/gm, "")
@@ -40,11 +40,11 @@ export function downloadPlainText(title: string, blocks: ExportBlock[]) {
   triggerDownload(`${slugifyFilename(title)}.txt`, `${title}\n\n${body}\n`, "text/plain;charset=utf-8")
 }
 
-// bodyHtml is the already-KaTeX-rendered markup for every block, captured post-render so the
-// exported file shows the same math without needing a client-side re-render. KaTeX's CSS is
-// pulled from the CDN rather than inlined since its fonts are too large to bundle.
-// title only lands in <title>, not as a body heading - the live document doesn't render its
-// title inline either, so a synthetic heading here wouldn't match the actual document.
+
+
+
+
+
 function buildStandaloneHtml(title: string, bodyHtml: string): string {
   return `<!doctype html>
 <html lang="en">
@@ -75,8 +75,8 @@ function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!))
 }
 
-// Hex-only stand-in for the app's real theme tokens (globals.css) - see downloadPdf for why plain
-// hex rather than oklch().
+
+
 const PDF_THEME_OVERRIDES = `
   :root {
     --background: #ffffff; --foreground: #1c1b1a;
@@ -94,11 +94,11 @@ const PDF_THEME_OVERRIDES = `
   }
 `
 
-// Rasterizes bodyHtml and slices it across as many A4 pages as it takes, since jsPDF can't lay
-// out arbitrary HTML on its own. Captured in an isolated iframe cloned with the app's real
-// stylesheets so fonts/spacing/theme stay pixel-faithful; PDF_THEME_OVERRIDES swaps in plain hex
-// because html2canvas's color parser throws on oklch()/lab(). html2canvas/jsPDF are loaded on
-// demand to keep them out of the main bundle.
+
+
+
+
+
 export async function downloadPdf(title: string, bodyHtml: string) {
   const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
     import("html2canvas"),
@@ -138,12 +138,12 @@ export async function downloadPdf(title: string, bodyHtml: string) {
     iframeDoc.body.style.margin = "0"
     iframeDoc.body.innerHTML = bodyHtml
 
-    // fonts can still be loading after the iframe's load event fires
+
     await iframeDoc.fonts?.ready
-    // give the browser a couple frames to lay out against the loaded fonts/stylesheets
+
     await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
 
-    // grow the iframe past its placeholder height so html2canvas doesn't clip
+
     iframe.style.height = `${iframeDoc.documentElement.scrollHeight}px`
 
     const canvas = await html2canvas(iframeDoc.body, {
@@ -157,19 +157,19 @@ export async function downloadPdf(title: string, bodyHtml: string) {
     const pageHeight = pdf.internal.pageSize.getHeight()
     const imgWidth = pageWidth
     const imgHeight = (canvas.height * imgWidth) / canvas.width
-    // JPEG rather than PNG - a lossless PNG re-embedded uncompressed by jsPDF runs several MB
+
     const imgData = canvas.toDataURL("image/jpeg", 0.92)
 
-    // fill the page first so the leftover strip on the last page matches the theme (JPEG has no
-    // transparency, and jsPDF's default fill is white)
+
+
     const [r, g, b] = isDark ? [10, 10, 10] : [255, 255, 255]
     const fillPage = () => {
       pdf.setFillColor(r, g, b)
       pdf.rect(0, 0, pageWidth, pageHeight, "F")
     }
 
-    // "paging" means redrawing the same full-height image on each page with a growing negative
-    // y-offset, so each page's viewport scrolls down over the one tall image
+
+
     let heightLeft = imgHeight
     let position = 0
     fillPage()

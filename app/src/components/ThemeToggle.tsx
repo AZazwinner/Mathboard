@@ -5,7 +5,7 @@ import { Moon, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-// The `dark` class is applied pre-hydration by layout.tsx's inline script; this just mirrors that state and persists toggles.
+
 export function ThemeToggle({ className }: { className?: string }) {
   const [isDark, setIsDark] = useState(false)
 

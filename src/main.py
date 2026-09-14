@@ -10,7 +10,7 @@ from db.modules.liveshare.ydoc_room import registry as yroom_registry
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield
-    # Flush every open Yjs room so edits in an unflushed debounce window aren't lost.
+
     yroom_registry.flush_all()
 
 app = FastAPI(lifespan=lifespan)
@@ -19,10 +19,10 @@ app = FastAPI(lifespan=lifespan)
 def health():
     return {"status": "ok"}
 
-# Allows a new frontend domain to be allowlisted via env var instead of a code change.
+
 _extra_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
 origins = [
-    "http://localhost:12000",  # Next.js dev server
+    "http://localhost:12000",
     "http://127.0.0.1:12000",
     "https://mathboard-git-hosting-apolloiheos-projects.vercel.app",
     "https://mathboard-nine.vercel.app",
@@ -31,13 +31,13 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # or ["*"] for dev only
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# -- Routers
+
 from modules.test.routes import router as test_router
 from db.modules.docs.routes import router as doc_router
 from db.modules.users.routes import router as user_router
@@ -51,11 +51,11 @@ for router in [
 ]:
     app.include_router(router)
 
-## -- Database
-# Schema is managed by Alembic now (see alembic/versions/) - run `alembic upgrade
-# head` before starting the app, rather than relying on create_all() here.
 
-## -- Uvicorn
+
+
+
+
 
 def main():
     pass

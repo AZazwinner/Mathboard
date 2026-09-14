@@ -3,13 +3,13 @@ from datetime import datetime
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
-# ---------- Create ----------
+
 
 class AuthUserCreate(BaseModel):
-    username: Optional[str] = None          # may be auto-generated for OAuth
+    username: Optional[str] = None
     email: str
-    password: Optional[str] = None          # only for password-based accounts
-    google_id: Optional[str] = None         # only for Google OAuth
+    password: Optional[str] = None
+    google_id: Optional[str] = None
 
 class AuthUserCreate__Password(BaseModel):
     username: str
@@ -32,7 +32,7 @@ class AuthUserResponse(BaseModel):
     class Config:
         from_attributes = True
 
-# ---------- Update ----------
+
 
 class AuthUserUpdate(BaseModel):
     username: Optional[str] = None
@@ -55,7 +55,7 @@ class AuthUserUpdate__PasswordHash(BaseModel):
     password_hash: str
 
 
-# ---------- Login ----------
+
 
 class AuthUserLogin__UsernamePassword(BaseModel):
     username: str

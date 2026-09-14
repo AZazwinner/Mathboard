@@ -45,7 +45,7 @@ def test_expired_token_is_rejected():
 
 
 def test_token_missing_the_version_claim_defaults_to_zero():
-    # Tokens minted before "ver" existed shouldn't crash verification.
+
     legacy = jwt.encode(
         {"sub": "1", "exp": datetime.utcnow() + timedelta(minutes=5)},
         SECRET_KEY,

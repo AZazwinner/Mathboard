@@ -1,6 +1,6 @@
-// Deterministic per-user color, so the same user id always maps to the same hue everywhere (cursors, avatars, sharing list).
+
 export function colorForUser(userId: number): { color: string; colorLight: string } {
-  const hue = (userId * 137.508) % 360 // golden-angle spread for distinct hues
+  const hue = (userId * 137.508) % 360
   return {
     color: `hsl(${hue}, 65%, 45%)`,
     colorLight: `hsl(${hue}, 65%, 90%)`,

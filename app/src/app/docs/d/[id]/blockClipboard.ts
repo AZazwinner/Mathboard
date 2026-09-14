@@ -1,4 +1,4 @@
-// Multi-block copies round-trip through the clipboard as text/html, with each block wrapped in a marked <div>, so paste can recognize our own copies and split back into blocks.
+
 const BLOCK_MARKER_ATTR = "data-mathboard-block"
 
 function escapeHtml(text: string): string {
@@ -25,12 +25,12 @@ export async function writeBlocksToClipboard(contents: string[]): Promise<void> 
             }),
         ])
     } catch {
-        // Fallback for browsers without multi-type ClipboardItem support.
+
         await navigator.clipboard.writeText(plain).catch(() => {})
     }
 }
 
-// Returns per-block contents if the clipboard data was written by writeBlocksToClipboard above, otherwise null.
+
 export function extractBlocksFromClipboardEvent(event: ClipboardEvent): string[] | null {
     const html = event.clipboardData?.getData("text/html")
     if (!html) return null
