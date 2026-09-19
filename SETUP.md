@@ -75,6 +75,9 @@ docker compose --profile test run --rm backend-test
 
 The frontend bakes its `NEXT_PUBLIC_*` URLs in at build time (see `args` in `docker-compose.yml`), so an image built for one environment won't work in another.
 
+## Kubernetes
+`bash deploy/kind/up.sh` runs the whole stack on a local kind cluster. See [deploy/README.md](deploy/README.md).
+
 ## Test
 `cd app && PORT=12000 npm run dev`
 `cd src && python main.py`

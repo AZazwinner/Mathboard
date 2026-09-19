@@ -1,0 +1,47 @@
+backend:
+  image:
+    repository: mathboard-backend
+    tag: dev
+    pullPolicy: IfNotPresent
+  replicas: 1
+  port: 12001
+  dbPoolSize: 10
+  dbMaxOverflow: 20
+  terminationGracePeriodSeconds: 40
+  resources:
+    requests:
+      cpu: 100m
+      memory: 192Mi
+    limits:
+      memory: 512Mi
+
+frontend:
+  image:
+    repository: mathboard-frontend
+    tag: dev
+    pullPolicy: IfNotPresent
+  replicas: 1
+  port: 12000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 192Mi
+    limits:
+      memory: 512Mi
+
+config:
+  appUrl: http://app.localhost:8080
+  corsOrigins:
+    - http://app.localhost:8080
+
+database:
+  secretName: mathboard-db-app
+  secretKey: uri
+
+secretKey: ""
+
+gateway:
+  enabled: true
+  name: mathboard-gateway
+  appHost: app.localhost
+  apiHost: api.localhost
