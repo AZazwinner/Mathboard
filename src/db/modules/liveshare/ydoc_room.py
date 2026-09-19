@@ -457,6 +457,10 @@ class RoomRegistry:
         if self._bus is not None:
             await self._bus.close()
             self._bus = None
+        # Rooms are closed and their tasks stopped, and an asyncio.Lock that has been contended stays bound to
+        # this event loop. Leaving either behind would break the next loop that uses this registry.
+        self.rooms.clear()
+        self._locks.clear()
 
 
 registry = RoomRegistry()
