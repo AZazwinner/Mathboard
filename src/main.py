@@ -8,7 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 import uvicorn
 
-from db.database import run_in_db
+import metrics
+from db.database import engine, pool_limit, run_in_db
 from db.modules.liveshare.ydoc_room import registry as yroom_registry
 
 DATABASE_CHECK_SECONDS = 2
@@ -40,13 +41,20 @@ async def lifespan(app: FastAPI):
     app.state.database_ok_at = None
     await _check_database(app)
     watcher = asyncio.create_task(_watch_database(app))
+    loop_monitor = asyncio.create_task(metrics.monitor_event_loop())
+    metrics.install_runtime_collector(lambda: yroom_registry.rooms, engine, pool_limit)
+    metrics_server = metrics.start_metrics_server()
     yield
 
     app.state.shutting_down = True
     watcher.cancel()
+    loop_monitor.cancel()
     await yroom_registry.shutdown()
+    if metrics_server is not None:
+        metrics_server[0].shutdown()
 
 app = FastAPI(lifespan=lifespan)
+app.add_middleware(metrics.RequestMetricsMiddleware)
 
 @app.get("/health")
 async def health():

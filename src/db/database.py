@@ -20,6 +20,8 @@ pool_options = {} if is_sqlite else {
     "max_overflow": int(os.getenv("DB_MAX_OVERFLOW", "20")),
 }
 
+pool_limit = pool_options.get("pool_size", 0) + pool_options.get("max_overflow", 0)
+
 engine = create_engine(
     DATABASE_URL,
 
