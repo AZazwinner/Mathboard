@@ -6,7 +6,7 @@ python-jose==3.5.0
 cryptography==50.0.0
 passlib==1.7.4
 python-multipart==0.0.32
-psycopg2-binary==2.9.12
+psycopg2-binary==2.9.13
 pydantic[email]==2.13.4
 passlib[bcrypt]==1.7.4
 uvicorn[standard]==0.52.1
