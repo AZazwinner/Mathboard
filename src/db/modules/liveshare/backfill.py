@@ -1,4 +1,5 @@
 import json
+from dataclasses import dataclass
 from datetime import datetime
 
 import pycrdt
@@ -47,7 +48,10 @@ def load_or_create_ydoc(doc_id: int, db: Session) -> pycrdt.Doc:
 
 def persist_ydoc_state(doc_id: int, ydoc: pycrdt.Doc, db: Session) -> None:
     """Snapshot the Y.Doc's full state into document_ydocs (the canonical store)."""
-    state = ydoc.get_update()
+    store_state(doc_id, ydoc.get_update(), db)
+
+
+def store_state(doc_id: int, state: bytes, db: Session) -> None:
     row = db.get(DocumentYDoc, doc_id)
     if row is None:
         db.add(DocumentYDoc(doc_id=doc_id, state=state))
@@ -62,9 +66,8 @@ def ydoc_blocks(ydoc: pycrdt.Doc) -> list[dict]:
     return [block_map.to_py() for block_map in blocks_array]
 
 
-def mirror_blocks_to_db(doc_id: int, ydoc: pycrdt.Doc, db: Session) -> None:
-    """Rewrite `document_blocks` to match the Y.Doc's current state (delete-all-and-reinsert-in-order)."""
-    blocks = ydoc_blocks(ydoc)
+def mirror_blocks_to_db(doc_id: int, blocks: list[dict], db: Session) -> None:
+    """Rewrite `document_blocks` to match the given blocks (delete-all-and-reinsert-in-order)."""
     now = datetime.utcnow()
 
     db.execute(
@@ -86,20 +89,29 @@ def mirror_blocks_to_db(doc_id: int, ydoc: pycrdt.Doc, db: Session) -> None:
     db.commit()
 
 
-def flush_ydoc(doc_id: int, ydoc: pycrdt.Doc, db: Session) -> None:
+@dataclass
+class YDocSnapshot:
+    """A Y.Doc's persistable state, read out in memory so the DB write can run on another thread without touching the doc."""
+    state: bytes
+    blocks: list[dict]
+
+
+def capture_ydoc(ydoc: pycrdt.Doc) -> YDocSnapshot:
+    return YDocSnapshot(state=ydoc.get_update(), blocks=ydoc_blocks(ydoc))
+
+
+def write_snapshot(doc_id: int, snapshot: YDocSnapshot, db: Session) -> None:
     """Persist both the canonical CRDT snapshot and the read-model mirror."""
-    persist_ydoc_state(doc_id, ydoc, db)
-    mirror_blocks_to_db(doc_id, ydoc, db)
+    store_state(doc_id, snapshot.state, db)
+    mirror_blocks_to_db(doc_id, snapshot.blocks, db)
 
 
 
 MAX_VERSIONS_PER_DOC = 50
 
 
-def create_version_snapshot(doc_id: int, ydoc: pycrdt.Doc, db: Session) -> None:
-    """Records the current state of `ydoc`'s blocks as a restorable version."""
-    blocks = ydoc_blocks(ydoc)
-
+def create_version_snapshot(doc_id: int, blocks: list[dict], db: Session) -> None:
+    """Records `blocks` as a restorable version."""
     if not any(block.get("text", "").strip() for block in blocks):
         return
     db.add(DocumentVersion(doc_id=doc_id, blocks_json=json.dumps(blocks)))

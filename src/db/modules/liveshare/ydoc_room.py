@@ -1,12 +1,17 @@
 import asyncio
 import time
 
+import anyio
 import pycrdt
 from fastapi import WebSocket
-from sqlalchemy.orm import Session
 
-from db.database import SessionLocal
-from db.modules.liveshare.backfill import create_version_snapshot, flush_ydoc, load_or_create_ydoc
+from db.database import run_in_db
+from db.modules.liveshare.backfill import (
+    capture_ydoc,
+    create_version_snapshot,
+    load_or_create_ydoc,
+    write_snapshot,
+)
 
 DEBOUNCE_SECONDS = 2
 MAX_INTERVAL_SECONDS = 5
@@ -30,6 +35,8 @@ class YRoom:
         self.socket_client_ids: dict[WebSocket, set[int]] = {}
 
         self._save_task: asyncio.Task | None = None
+        self._flush_lock = asyncio.Lock()
+        self._background: set[asyncio.Task] = set()
         self._last_save_time: float = 0.0
         self._last_snapshot_time: float = 0.0
 
@@ -120,33 +127,44 @@ class YRoom:
     async def _debounce_save(self) -> None:
         try:
             await asyncio.sleep(DEBOUNCE_SECONDS)
+            await asyncio.shield(self._flush_logged())
         except asyncio.CancelledError:
             return
-        self.flush()
+
+    async def _flush_logged(self, snapshot: bool = False) -> None:
+        try:
+            await self.flush(snapshot=snapshot)
+        except Exception as e:
+            print(f"liveshare: flush failed for doc {self.doc_id}: {e}")
 
     def cancel_pending_save(self) -> None:
         if self._save_task is not None:
             self._save_task.cancel()
             self._save_task = None
 
-    def flush(self, snapshot: bool = False) -> None:
-        db = SessionLocal()
-        try:
-            flush_ydoc(self.doc_id, self.ydoc, db)
+    async def flush(self, snapshot: bool = False) -> None:
+        """Serialized per room, and the Y.Doc is read on the event loop before the DB write moves to a worker thread, so an older snapshot can't land after a newer one and the doc is never touched from two threads."""
+        async with self._flush_lock:
+            captured = capture_ydoc(self.ydoc)
             now = time.time()
             self._last_save_time = now
 
+            await run_in_db(write_snapshot, self.doc_id, captured)
+
             if snapshot and now - self._last_snapshot_time > MIN_SNAPSHOT_GAP_SECONDS:
-                create_version_snapshot(self.doc_id, self.ydoc, db)
+                await run_in_db(create_version_snapshot, self.doc_id, captured.blocks)
                 self._last_snapshot_time = now
-        finally:
-            db.close()
 
     def maybe_flush_on_interval(self) -> None:
         now = time.time()
-        if now - self._last_save_time > MAX_INTERVAL_SECONDS:
-            due_for_snapshot = now - self._last_snapshot_time > SNAPSHOT_INTERVAL_SECONDS
-            self.flush(snapshot=due_for_snapshot)
+        if self._flush_lock.locked() or now - self._last_save_time <= MAX_INTERVAL_SECONDS:
+            return
+
+        self._last_save_time = now
+        due_for_snapshot = now - self._last_snapshot_time > SNAPSHOT_INTERVAL_SECONDS
+        task = asyncio.create_task(self._flush_logged(snapshot=due_for_snapshot))
+        self._background.add(task)
+        task.add_done_callback(self._background.discard)
 
 
 class RoomRegistry:
@@ -157,35 +175,37 @@ class RoomRegistry:
     def _lock_for(self, doc_id: int) -> asyncio.Lock:
         return self._locks.setdefault(doc_id, asyncio.Lock())
 
-    async def get_or_create(self, doc_id: int, db: Session) -> YRoom:
+    async def get_or_create(self, doc_id: int) -> YRoom:
         async with self._lock_for(doc_id):
             room = self.rooms.get(doc_id)
             if room is None:
-                ydoc = load_or_create_ydoc(doc_id, db)
+                ydoc = await run_in_db(load_or_create_ydoc, doc_id)
                 room = YRoom(doc_id, ydoc)
                 self.rooms[doc_id] = room
             return room
 
     async def drop_socket(self, doc_id: int, websocket: WebSocket) -> None:
+        """Shielded from cancellation: this runs from the endpoint's `finally`, and if the server cancels the handler the last flush must still finish."""
+        with anyio.CancelScope(shield=True):
+            async with self._lock_for(doc_id):
+                room = self.rooms.get(doc_id)
+                if room is None:
+                    return
+                client_ids = room.remove_socket(websocket)
+                room.forget_clients(client_ids, origin=websocket)
 
-        async with self._lock_for(doc_id):
-            room = self.rooms.get(doc_id)
-            if room is None:
-                return
-            client_ids = room.remove_socket(websocket)
-            room.forget_clients(client_ids, origin=websocket)
+                if not room.sockets:
+                    room.cancel_pending_save()
 
-            if not room.sockets:
-                room.cancel_pending_save()
+                    await room.flush(snapshot=True)
+                    del self.rooms[doc_id]
 
-                room.flush(snapshot=True)
-                del self.rooms[doc_id]
-
-    def flush_all(self) -> None:
+    async def flush_all(self) -> None:
         """Called from the FastAPI lifespan shutdown hook."""
-        for room in self.rooms.values():
+        rooms = list(self.rooms.values())
+        for room in rooms:
             room.cancel_pending_save()
-            room.flush(snapshot=True)
+        await asyncio.gather(*(room._flush_logged(snapshot=True) for room in rooms))
 
 
 registry = RoomRegistry()

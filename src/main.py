@@ -1,17 +1,21 @@
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 import uvicorn
 
+from db.database import run_in_db
 from db.modules.liveshare.ydoc_room import registry as yroom_registry
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    app.state.shutting_down = False
     yield
 
-    yroom_registry.flush_all()
+    app.state.shutting_down = True
+    await yroom_registry.flush_all()
 
 app = FastAPI(lifespan=lifespan)
 
@@ -19,13 +23,24 @@ app = FastAPI(lifespan=lifespan)
 def health():
     return {"status": "ok"}
 
+def _ping_database(db):
+    db.execute(text("SELECT 1"))
+
+@app.get("/ready")
+async def ready():
+    if getattr(app.state, "shutting_down", False):
+        raise HTTPException(status_code=503, detail="shutting down")
+    try:
+        await run_in_db(_ping_database)
+    except Exception:
+        raise HTTPException(status_code=503, detail="database unavailable")
+    return {"status": "ready"}
+
 
 _extra_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
 origins = [
     "http://localhost:12000",
     "http://127.0.0.1:12000",
-    "https://mathboard-git-hosting-apolloiheos-projects.vercel.app",
-    "https://mathboard-nine.vercel.app",
     *_extra_origins,
 ]
 
