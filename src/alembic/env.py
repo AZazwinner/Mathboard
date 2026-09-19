@@ -21,7 +21,11 @@ if config.config_file_name is not None:
 load_dotenv()
 database_url = os.getenv("DATABASE_URL")
 assert database_url, "DATABASE_URL must be set (see .env.example)"
-config.set_main_option("sqlalchemy.url", database_url)
+from db.url import normalize_database_url
+
+config.set_main_option(
+    "sqlalchemy.url", normalize_database_url(database_url).replace("%", "%%")
+)
 
 
 from db.base import Base

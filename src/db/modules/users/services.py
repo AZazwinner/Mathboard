@@ -4,7 +4,7 @@ from db.core.auth.schemas import AuthUserCreate__Password
 from db.core.auth.services import create_authuser
 from db.core.auth.utils.password import hash_password, verify_password
 from db.core.auth.utils.token import create_access_token, verify_access_token
-from db.database import get_db
+from db.database import get_db, run_in_db
 from fastapi import Depends, HTTPException, Header, WebSocket
 from sqlalchemy.orm import Session
 
@@ -90,10 +90,11 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     return user
 
-async def get_current_user_ws(
-    websocket: WebSocket,
-    db: Session = Depends(get_db),
-) -> int|None:
+def _current_token_version(user_id: int, db: Session) -> int | None:
+    user = db.get(User, user_id)
+    return user.token_version if user else None
+
+async def get_current_user_ws(websocket: WebSocket) -> int|None:
     token = websocket.query_params.get("token")
 
     if not token:
@@ -104,8 +105,8 @@ async def get_current_user_ws(
         return None
     user_id, token_version = result
 
-    user = db.query(User).get(user_id)
-    if not user or user.token_version != token_version:
+    current_version = await run_in_db(_current_token_version, user_id)
+    if current_version is None or current_version != token_version:
         return None
 
     return user_id
