@@ -28,6 +28,12 @@ def share(client, owner_token, doc_id, user_id, share_type):
     assert resp.json()["success"] is True
 
 
+def block_content(db_session, block_id):
+    db_session.expire_all()
+    row = db_session.query(DocumentBlock).filter(DocumentBlock.id == block_id).first()
+    return row.content if row is not None else None
+
+
 def connect(client, doc_id, token):
     return client.websocket_connect(f"/ws/docs/{doc_id}?token={token}")
 
@@ -122,7 +128,7 @@ def test_a_read_only_user_is_disconnected_for_writing(client, owner, other, db_s
             ws.receive_bytes()
         assert excinfo.value.code == 4403
 
-    assert db_session.get(DocumentBlock, "blk-forbidden") is None
+    assert block_content(db_session, "blk-forbidden") is None
 
 
 def wait_until(condition, timeout=3.0):
@@ -198,7 +204,7 @@ def test_downgrading_write_to_read_stops_further_edits(client, owner, other, db_
             ws.receive_bytes()
         assert excinfo.value.code == 4403
 
-    assert db_session.get(DocumentBlock, "blk-after-downgrade") is None
+    assert block_content(db_session, "blk-after-downgrade") is None
 
 
 def test_flush_all_persists_rooms_that_are_still_open(client, owner, db_session):
@@ -212,12 +218,11 @@ def test_flush_all_persists_rooms_that_are_still_open(client, owner, db_session)
     async def scenario():
         room = await registry.get_or_create(doc_id)
         pycrdt.handle_sync_message(new_block_update("blk-shutdown", "kept at shutdown")[1:], room.ydoc)
-        await registry.flush_all()
+        await registry.shutdown()
 
     try:
         asyncio.run(scenario())
     finally:
         registry.rooms.pop(doc_id, None)
 
-    row = db_session.get(DocumentBlock, "blk-shutdown")
-    assert row is not None and row.content == "kept at shutdown"
+    assert block_content(db_session, "blk-shutdown") == "kept at shutdown"

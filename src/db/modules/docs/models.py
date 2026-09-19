@@ -29,7 +29,7 @@ class DocumentBlock(Base):
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
 
-    doc_id: Mapped[int] = mapped_column(ForeignKey("documents.id"))
+    doc_id: Mapped[int] = mapped_column(ForeignKey("documents.id"), primary_key=True)
     document: Mapped["Document"] = relationship(
         back_populates="blocks"
     )
@@ -56,6 +56,7 @@ class DocumentYDoc(Base):
 
     doc_id: Mapped[int] = mapped_column(ForeignKey("documents.id"), primary_key=True)
     state: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    stream_id: Mapped[str | None] = mapped_column(String, nullable=True)
 
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

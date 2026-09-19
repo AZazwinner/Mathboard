@@ -15,7 +15,7 @@ async def lifespan(app: FastAPI):
     yield
 
     app.state.shutting_down = True
-    await yroom_registry.flush_all()
+    await yroom_registry.shutdown()
 
 app = FastAPI(lifespan=lifespan)
 

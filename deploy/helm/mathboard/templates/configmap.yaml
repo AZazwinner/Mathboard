@@ -10,3 +10,6 @@ data:
   DB_POOL_SIZE: {{ .Values.backend.dbPoolSize | quote }}
   DB_MAX_OVERFLOW: {{ .Values.backend.dbMaxOverflow | quote }}
   PORT: {{ .Values.backend.port | quote }}
+  {{- if .Values.valkey.enabled }}
+  VALKEY_URL: {{ printf "redis://%s-valkey:6379/0" .Release.Name | quote }}
+  {{- end }}

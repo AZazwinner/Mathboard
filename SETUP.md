@@ -67,7 +67,9 @@ docker compose up --build
 App: localhost:12000, API: localhost:12001. Migrations run automatically before the backend starts.
 The dev defaults (database password, `SECRET_KEY`) are for local use only; copy `.env.example` to `.env` to override them.
 
-Run the backend tests in a container against Postgres:
+This also starts Valkey, which lets several backend replicas share live edits (see `docs/adr/0001-multi-replica-document-sync.md`).
+
+Run the backend tests in a container against Postgres and Valkey:
 
 ```
 docker compose --profile test run --rm backend-test

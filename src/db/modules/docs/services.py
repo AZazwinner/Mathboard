@@ -194,6 +194,7 @@ def restore_document_version__check_permissions(
         db: Session,
 ) -> tuple[bool, str | None]:
     """Restoring is blocked while anyone currently has the doc open, since a live session's periodic flush would overwrite it."""
+    from db.coordination import clear_document_stream, is_document_live_elsewhere
     from db.modules.liveshare.ydoc_room import registry as yroom_registry
 
     if not user_can_write_document(doc_id, user_id, db):
@@ -203,11 +204,12 @@ def restore_document_version__check_permissions(
     if version is None or version.doc_id != doc_id:
         return False, "Version not found."
 
-    if doc_id in yroom_registry.rooms:
+    if doc_id in yroom_registry.rooms or is_document_live_elsewhere(doc_id):
         return False, "Close this document everywhere it's currently open, then try restoring again."
 
     blocks = json.loads(version.blocks_json)
     restore_document_from_snapshot(doc_id, blocks, db)
+    clear_document_stream(doc_id)
     return True, None
 
 def permanently_delete_doc__check_permissions(

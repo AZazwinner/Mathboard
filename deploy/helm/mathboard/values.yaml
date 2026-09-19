@@ -3,7 +3,7 @@ backend:
     repository: mathboard-backend
     tag: dev
     pullPolicy: IfNotPresent
-  replicas: 1
+  replicas: 3
   port: 12001
   dbPoolSize: 10
   dbMaxOverflow: 20
@@ -14,6 +14,20 @@ backend:
       memory: 192Mi
     limits:
       memory: 512Mi
+
+valkey:
+  enabled: true
+  image:
+    repository: valkey/valkey
+    tag: 9.1-alpine
+    pullPolicy: IfNotPresent
+  maxMemory: 256mb
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 320Mi
 
 frontend:
   image:

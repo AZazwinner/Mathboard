@@ -22,6 +22,12 @@ else:
     os.close(_TMP_DB_FD)
     os.environ["DATABASE_URL"] = f"sqlite:///{_TMP_DB_PATH}"
 
+TEST_VALKEY_URL = os.getenv("TEST_VALKEY_URL")
+if TEST_VALKEY_URL:
+    os.environ["VALKEY_URL"] = TEST_VALKEY_URL
+else:
+    os.environ.pop("VALKEY_URL", None)
+
 os.environ["SECRET_KEY"] = "test-secret-key-do-not-use-in-production"
 os.environ["CORS_ORIGINS"] = ""
 os.environ.pop("RESEND_API_KEY", None)
@@ -73,6 +79,22 @@ def _clean_tables():
         else:
             for table in reversed(Base.metadata.sorted_tables):
                 conn.execute(table.delete())
+
+
+@pytest.fixture(autouse=True)
+def _clean_valkey():
+    def wipe():
+        if not TEST_VALKEY_URL:
+            return
+        import valkey
+        client = valkey.Valkey.from_url(TEST_VALKEY_URL)
+        for key in client.scan_iter(match="mb:*", count=500):
+            client.delete(key)
+        client.close()
+
+    wipe()
+    yield
+    wipe()
 
 
 @pytest.fixture(autouse=True)

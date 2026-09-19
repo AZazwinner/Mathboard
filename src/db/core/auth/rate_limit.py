@@ -1,5 +1,8 @@
+import hashlib
 import time
 from collections import defaultdict
+
+from db.coordination import get_sync_client
 
 
 MAX_ATTEMPTS = 5
@@ -14,8 +17,7 @@ def _prune(key: str, now: float) -> None:
     _attempts[key] = [t for t in _attempts[key] if now - t < WINDOW_SECONDS]
 
 
-def is_locked_out(key: str) -> tuple[bool, float]:
-    """Returns (locked, seconds_remaining)."""
+def _memory_is_locked_out(key: str) -> tuple[bool, float]:
     now = time.time()
     until = _locked_until.get(key)
     if until is None:
@@ -26,7 +28,7 @@ def is_locked_out(key: str) -> tuple[bool, float]:
     return True, until - now
 
 
-def record_failure(key: str) -> None:
+def _memory_record_failure(key: str) -> None:
     now = time.time()
     _prune(key, now)
     _attempts[key].append(now)
@@ -35,6 +37,65 @@ def record_failure(key: str) -> None:
         _attempts[key] = []
 
 
-def record_success(key: str) -> None:
+def _memory_record_success(key: str) -> None:
     _attempts.pop(key, None)
     _locked_until.pop(key, None)
+
+
+def _failures_key(key: str) -> str:
+    return f"mb:rl:f:{hashlib.sha256(key.encode()).hexdigest()[:32]}"
+
+
+def _lock_key(key: str) -> str:
+    return f"mb:rl:l:{hashlib.sha256(key.encode()).hexdigest()[:32]}"
+
+
+def _valkey_is_locked_out(client, key: str) -> tuple[bool, float]:
+    remaining_ms = client.pttl(_lock_key(key))
+    if remaining_ms is None or remaining_ms <= 0:
+        return False, 0.0
+    return True, remaining_ms / 1000
+
+
+def _valkey_record_failure(client, key: str) -> None:
+    now = time.time()
+    failures = _failures_key(key)
+    pipe = client.pipeline()
+    pipe.zremrangebyscore(failures, 0, now - WINDOW_SECONDS)
+    pipe.zadd(failures, {f"{now}:{time.monotonic_ns()}": now})
+    pipe.expire(failures, WINDOW_SECONDS)
+    pipe.zcard(failures)
+    count = pipe.execute()[-1]
+    if count >= MAX_ATTEMPTS:
+        pipe = client.pipeline()
+        pipe.set(_lock_key(key), 1, ex=LOCKOUT_SECONDS)
+        pipe.delete(failures)
+        pipe.execute()
+
+
+def _valkey_record_success(client, key: str) -> None:
+    client.delete(_failures_key(key), _lock_key(key))
+
+
+def _shared(valkey_fn, memory_fn, key: str):
+    """Counts live in Valkey so every backend replica sees the same attempts. If Valkey isn't configured or can't be reached, fall back to this process's own counters: weaker (per replica) but never blocks logins."""
+    client = get_sync_client()
+    if client is not None:
+        try:
+            return valkey_fn(client, key)
+        except Exception as e:
+            print(f"rate_limit: Valkey unavailable, using in-memory counters: {e}")
+    return memory_fn(key)
+
+
+def is_locked_out(key: str) -> tuple[bool, float]:
+    """Returns (locked, seconds_remaining)."""
+    return _shared(_valkey_is_locked_out, _memory_is_locked_out, key)
+
+
+def record_failure(key: str) -> None:
+    _shared(_valkey_record_failure, _memory_record_failure, key)
+
+
+def record_success(key: str) -> None:
+    _shared(_valkey_record_success, _memory_record_success, key)
