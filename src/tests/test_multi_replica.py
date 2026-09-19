@@ -378,3 +378,26 @@ def test_the_stream_position_is_saved_with_the_state(doc_id, db_session):
     applied = asyncio.run(scenario())
     db_session.expire_all()
     assert db_session.get(DocumentYDoc, doc_id).stream_id == applied
+
+
+def test_a_registry_can_be_reused_on_a_new_event_loop_after_shutdown():
+    """The production registry is a module-level singleton, so it can outlive an event loop (tests start a new one per client). An asyncio.Lock that has ever been contended is bound to that loop; if shutdown left it behind, the next loop's first contention on the same document id raised "bound to a different event loop", intermittently, depending on timing."""
+    registry = RoomRegistry(bus_url=None)
+
+    async def contend_for_a_document():
+        lock = registry._lock_for(1)
+
+        async def holder():
+            async with lock:
+                await asyncio.sleep(0.05)
+
+        async def waiter():
+            await asyncio.sleep(0.01)
+            async with lock:
+                pass
+
+        await asyncio.gather(holder(), waiter())
+        await registry.shutdown()
+
+    asyncio.run(contend_for_a_document())
+    asyncio.run(contend_for_a_document())
