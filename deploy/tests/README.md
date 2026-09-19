@@ -134,6 +134,19 @@ inside Kubernetes' 10% tolerance and is deliberately ignored. The dashboard
 
 ![The Mathboard Grafana dashboard during the autoscaling run](../../docs/images/grafana-dashboard.png)
 
+## Restore drill
+
+```
+bash deploy/tests/run-restore-drill.sh     # needs: bash deploy/kind/backups.sh up
+```
+
+Proves the backups restore, including to a chosen point in time: it writes 100 rows and takes a base backup,
+writes 50 more and notes the time, writes 50 after that and waits for them to be archived, then restores a
+second cluster to the noted time. It passes only if the restored database has the first 150 rows and none of the
+last 50, and every real application table has the same row count as the original. Latest run (`results/restore-drill-latest.md`):
+passed twice; base backup 14 s and 50 s (the first backup after a fresh install was the slow one); restore to a ready cluster 51 s and 52 s; every table matched (about 61,000 blocks and 2,600 documents). See
+[ADR 5](../../docs/adr/0005-database-backups-and-restore-drill.md).
+
 ## What these tests found
 
 The first load runs did not pass. Each of these was found by the test, diagnosed with evidence, fixed, and

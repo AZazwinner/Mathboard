@@ -27,6 +27,8 @@ curl use `-H "Host: api.localhost" http://127.0.0.1:8080/...`.
 | Live sync | [Valkey](https://valkey.io/) 9.1: carries edits and cursors between backend replicas, and holds shared login rate limits |
 | App | Helm chart in `helm/mathboard`: 3 backend replicas, frontend, migration Job, config, routes |
 | Monitoring (optional) | Prometheus, Grafana and [KEDA](https://keda.sh/), added by `kind/observability.sh` |
+| GitOps (optional) | [Argo CD](https://argo-cd.readthedocs.io/) deploys the chart from git, added by `kind/argocd.sh` |
+| Backups (optional) | CloudNativePG's Barman Cloud plugin, cert-manager and a SeaweedFS S3 store, added by `kind/backups.sh` |
 
 Traffic: `localhost:8080` -> kind node port 30080 -> Envoy -> `app.localhost` goes to the frontend,
 `api.localhost` (including WebSockets) goes to the backend.
@@ -103,6 +105,40 @@ removes one pod a minute. `bash deploy/tests/run-autoscale.sh` shows it happenin
 alternatives are in [docs/adr/0003-metrics-and-connection-based-autoscaling.md](../docs/adr/0003-metrics-and-connection-based-autoscaling.md).
 
 ![Dashboard during an autoscaling run](../docs/images/grafana-dashboard.png)
+
+## GitOps with Argo CD (optional)
+
+```
+bash deploy/kind/argocd.sh up       # install Argo CD, take Mathboard over from Helm, deploy from git
+bash deploy/kind/argocd.sh ui       # UI at http://localhost:8081 (prints the admin password)
+bash deploy/kind/argocd.sh status
+bash deploy/kind/argocd.sh down     # back to a Helm-managed Mathboard built from your working copy
+```
+
+Once it's on, the cluster follows `main`: a merged pull request builds and scans two images
+([`.github/workflows/images.yml`](../.github/workflows/images.yml)), publishes them to GitHub Container
+Registry, commits the new image tag into [`gitops/values-kind.yaml`](gitops/values-kind.yaml), and Argo CD
+applies it. While it manages Mathboard, `up.sh` leaves the application alone. Two one-time steps: the
+GHCR packages are private when first published, so make `mathboard-backend` and `mathboard-frontend` public
+in their package settings; and merge to `main` at least once so there are images to deploy. To try a branch
+instead: `REVISION=my-branch bash deploy/kind/argocd.sh up`. Why it's built this way:
+[docs/adr/0004-ci-supply-chain-and-gitops.md](../docs/adr/0004-ci-supply-chain-and-gitops.md).
+
+## Backups and restore (optional)
+
+```
+bash deploy/kind/backups.sh up            # cert-manager, the plugin, an object store, and backups on
+bash deploy/tests/run-restore-drill.sh    # restore a second cluster to a chosen moment and check it
+bash deploy/kind/backups.sh status
+bash deploy/kind/backups.sh down
+```
+
+Continuous WAL archiving plus a nightly base backup allow restoring to any moment, not only to a backup.
+The drill takes a backup, writes rows before and after a chosen time, restores a second cluster to that time
+and fails unless exactly the right rows come back and every real table matches. Latest: passed, base backup
+14 to 50 s across two runs, restore to a ready cluster 51 to 52 s ([results](tests/results/restore-drill-latest.md)). The object store
+lives inside the cluster, so it shows the mechanism but does not protect against losing the machine.
+See [docs/adr/0005-database-backups-and-restore-drill.md](../docs/adr/0005-database-backups-and-restore-drill.md).
 
 ## Useful commands
 
