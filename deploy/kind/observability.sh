@@ -30,6 +30,12 @@ if helm upgrade --help 2>/dev/null | grep -q -- '--force-conflicts'; then
 fi
 
 autoscaling() {
+    # Under Argo CD there is no Helm release to upgrade: the setting lives in git instead.
+    if kubectl get application.argoproj.io mathboard -n argocd >/dev/null 2>&1; then
+        echo "Argo CD manages Mathboard. To turn autoscaling $([ "$1" = true ] && echo on || echo off), set"
+        echo "autoscaling.enabled: $1 in deploy/gitops/values-kind.yaml and merge it."
+        return 0
+    fi
     helm upgrade mathboard ../helm/mathboard --reuse-values --set "autoscaling.enabled=$1"         ${FORCE[@]+"${FORCE[@]}"} --wait --timeout 5m
 }
 

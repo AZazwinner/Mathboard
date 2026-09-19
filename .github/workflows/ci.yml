@@ -129,5 +129,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: shellcheck
         run: shellcheck --severity=warning deploy/kind/*.sh deploy/tests/*.sh
+      - name: Markdown links
+        run: python3 scripts/check_links.py
       - name: actionlint
         run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
