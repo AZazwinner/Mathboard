@@ -72,6 +72,11 @@ database:
 
 secretKey: ""
 
+# Name of a Secret you create yourself with a SECRET_KEY entry. Set this when the chart is rendered
+# without cluster access, as GitOps tools like Argo CD do: the chart's own Secret keeps its generated
+# key stable across upgrades by reading the live Secret, which is impossible there.
+existingSecret: ""
+
 gateway:
   enabled: true
   name: mathboard-gateway

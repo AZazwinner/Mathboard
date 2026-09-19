@@ -66,17 +66,21 @@ kubectl apply -f infra/postgres.yaml
 kubectl wait --for=condition=Ready cluster/mathboard-db --timeout=5m
 
 step "Mathboard"
-# If observability.sh has installed KEDA, keep the backend autoscaled across re-runs.
-AUTOSCALING=false
-if kubectl get crd scaledobjects.keda.sh >/dev/null 2>&1; then
-    AUTOSCALING=true
+if kubectl get application.argoproj.io mathboard -n argocd >/dev/null 2>&1; then
+    echo "Argo CD manages Mathboard, so it is left alone (bash argocd.sh down to go back to Helm)"
+else
+    # If observability.sh has installed KEDA, keep the backend autoscaled across re-runs.
+    AUTOSCALING=false
+    if kubectl get crd scaledobjects.keda.sh >/dev/null 2>&1; then
+        AUTOSCALING=true
+    fi
+    helm upgrade --install mathboard ../helm/mathboard \
+        --set "autoscaling.enabled=${AUTOSCALING}" \
+        --set "backend.image.tag=${BACKEND_TAG}" \
+        --set "frontend.image.tag=${FRONTEND_TAG}" \
+        --set "config.appUrl=${APP_URL}" \
+        --set "config.corsOrigins={${APP_URL}}" \
+        --wait --timeout 5m
 fi
-helm upgrade --install mathboard ../helm/mathboard \
-    --set "autoscaling.enabled=${AUTOSCALING}" \
-    --set "backend.image.tag=${BACKEND_TAG}" \
-    --set "frontend.image.tag=${FRONTEND_TAG}" \
-    --set "config.appUrl=${APP_URL}" \
-    --set "config.corsOrigins={${APP_URL}}" \
-    --wait --timeout 5m
 
 printf '\nMathboard is up:\n  app  %s\n  api  %s/health\n' "${APP_URL}" "${API_URL}"

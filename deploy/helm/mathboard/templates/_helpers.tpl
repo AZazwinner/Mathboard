@@ -13,7 +13,7 @@ app.kubernetes.io/instance: {{ .root.Release.Name }}
 {{- end }}
 
 {{- define "mathboard.appSecretName" -}}
-{{ .Release.Name }}-app
+{{ default (printf "%s-app" .Release.Name) .Values.existingSecret }}
 {{- end }}
 
 {{- define "mathboard.minBackendReplicas" -}}
