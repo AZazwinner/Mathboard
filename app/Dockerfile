@@ -37,6 +37,12 @@ COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/public ./public
 
+# The standalone server needs only node. Drop the package managers the base image ships: they aren't used
+# at runtime, and their bundled dependencies show up in vulnerability scans.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+        /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack \
+        /usr/local/bin/yarn /usr/local/bin/yarnpkg /opt/yarn-*
+
 USER node
 EXPOSE 12000
 

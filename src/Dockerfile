@@ -22,7 +22,9 @@ CMD ["pytest", "-q"]
 
 FROM base AS runtime
 
-RUN rm -rf tests pytest.ini requirements-dev.txt \
+# pip isn't needed to run the app, and its vendored dependencies show up in vulnerability scans.
+RUN pip uninstall -y pip \
+    && rm -rf tests pytest.ini requirements-dev.txt \
     && useradd --system --uid 10001 --no-create-home app \
     && chown -R app:app /app
 
