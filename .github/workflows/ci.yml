@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Read-only by default; a job that needs more asks for it itself.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-sqlite:
+    name: Backend tests (SQLite, no Valkey)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: src
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: src/requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - run: pytest -q
+
+  backend-postgres:
+    name: Backend tests (Postgres and Valkey)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: src
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: mathboard_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      valkey:
+        image: valkey/valkey:9.1-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "valkey-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql://postgres:ci@localhost:5432/mathboard_test
+      TEST_VALKEY_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: src/requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      # Runs every migration against a fresh schema first (see tests/conftest.py), then the whole suite,
+      # including the multi-replica tests that need Valkey.
+      - run: pytest -q
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm test
+      - run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+      # Reported but not blocking: the code base has 21 existing lint errors (mostly no-explicit-any and
+      # React-hooks rules). Remove continue-on-error once they are fixed.
+      - run: npm run lint
+        continue-on-error: true
+
+  helm:
+    name: Helm chart
+    runs-on: ubuntu-24.04
+    env:
+      KUBECONFORM_VERSION: v0.8.0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+      - run: helm lint deploy/helm/mathboard
+      - name: Render the chart in each mode
+        run: |
+          mkdir -p rendered
+          helm template mathboard deploy/helm/mathboard > rendered/default.yaml
+          helm template mathboard deploy/helm/mathboard --set autoscaling.enabled=true > rendered/autoscaling.yaml
+          helm template mathboard deploy/helm/mathboard --set existingSecret=mathboard-app --set gateway.enabled=false > rendered/gitops.yaml
+      - name: The connection-budget guard refuses an unsafe configuration
+        run: |
+          if helm template mathboard deploy/helm/mathboard --set autoscaling.enabled=true --set autoscaling.maxReplicas=25 >/dev/null 2>guard.err; then
+            echo "expected the guard to refuse 25 replicas" >&2; exit 1
+          fi
+          grep -q "max_connections" guard.err
+      - name: Validate against the Kubernetes schemas
+        run: |
+          base="https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}"
+          curl -fsSL -o kubeconform.tgz "${base}/kubeconform-linux-amd64.tar.gz"
+          curl -fsSL -o kubeconform.sha "${base}/CHECKSUMS"
+          grep " kubeconform-linux-amd64.tar.gz\$" kubeconform.sha | sed 's/kubeconform-linux-amd64.tar.gz/kubeconform.tgz/' | sha256sum -c -
+          tar -xzf kubeconform.tgz kubeconform
+          # Gateway API, KEDA and CloudNativePG kinds have no schema in the default catalogue.
+          ./kubeconform -strict -summary -ignore-missing-schemas rendered/*.yaml
+
+  scripts-and-workflows:
+    name: Shell scripts and workflows
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: shellcheck
+        run: shellcheck --severity=warning deploy/kind/*.sh deploy/tests/*.sh
+      - name: actionlint
+        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color

@@ -4,6 +4,8 @@ A collaborative LaTeX editor that renders as you type. Write math like it's a do
 
 **Live:** https://mathboardx.vercel.app
 
+[![CI](https://github.com/AZazwinner/Mathboard/actions/workflows/ci.yml/badge.svg)](https://github.com/AZazwinner/Mathboard/actions/workflows/ci.yml)
+
 ## Features
 
 - Real-time collaborative editing
