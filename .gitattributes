@@ -1,0 +1,11 @@
+# Files that are run by bash or a Linux container must keep LF line endings even when checked out on
+# Windows (where git may otherwise convert them to CRLF, which breaks scripts and `source`d files).
+* text=auto
+*.sh text eol=lf
+*.env text eol=lf
+versions.env text eol=lf
+Dockerfile text eol=lf
+*.py text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.tpl text eol=lf
