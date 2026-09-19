@@ -347,7 +347,7 @@ class YRoom:
             now = time.time()
             self._last_save_time = now
 
-            result = await run_in_db(write_snapshot, self.doc_id, state, applied_stream_id)
+            result = await run_in_db(write_snapshot, self.doc_id, state, applied_stream_id, snapshot)
 
             if result.prior_state is not None and result.prior_state != self._last_db_state:
                 self.apply_external(result.prior_state)

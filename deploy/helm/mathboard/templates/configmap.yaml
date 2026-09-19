@@ -1,3 +1,7 @@
+{{- $worstCase := mul (int .Values.backend.replicas) (add (int .Values.backend.dbPoolSize) (int .Values.backend.dbMaxOverflow)) -}}
+{{- if gt $worstCase (int .Values.database.maxConnections) -}}
+{{- fail (printf "backend.replicas x (dbPoolSize + dbMaxOverflow) = %d, which exceeds the database's max_connections (%d). Lower the pool, or raise max_connections in the Postgres cluster and database.maxConnections here." $worstCase (int .Values.database.maxConnections)) -}}
+{{- end -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:

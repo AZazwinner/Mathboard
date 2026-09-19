@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 import pycrdt
-from sqlalchemy import text
+from sqlalchemy import insert, text
 from sqlalchemy.orm import Session
 
 from db.coordination import max_stream_id
@@ -108,29 +108,39 @@ def ydoc_blocks(ydoc: pycrdt.Doc) -> list[dict]:
 
 
 def mirror_blocks_to_db(doc_id: int, blocks: list[dict], db: Session) -> None:
-    """Rewrite `document_blocks` to match the given blocks (delete-all-and-reinsert-in-order). The caller commits."""
+    """Rewrite `document_blocks` to match the given blocks (delete-all-and-reinsert-in-order). The caller commits.
+
+    The table is only a derived read model of the Y.Doc, so it must never be able to stop the real state from saving: a block id that appears twice is written once instead of violating the primary key."""
     now = datetime.utcnow()
+
+    rows, seen_ids = [], set()
+    for block in blocks:
+        if block["id"] in seen_ids:
+            continue
+        seen_ids.add(block["id"])
+        rows.append({
+            "id": block["id"],
+            "doc_id": doc_id,
+            "type": block["type"],
+            "content": block["text"],
+            "position": len(rows),
+            "updated_at": now,
+        })
 
     db.execute(
         text("DELETE FROM document_blocks WHERE doc_id = :doc_id"),
         {"doc_id": doc_id},
     )
-    for position, block in enumerate(blocks):
-        db.execute(text("""
-            INSERT INTO document_blocks (id, doc_id, type, content, position, updated_at)
-            VALUES (:id, :doc_id, :type, :content, :position, :updated_at)
-        """), {
-            "id": block["id"],
-            "doc_id": doc_id,
-            "type": block["type"],
-            "content": block["text"],
-            "position": position,
-            "updated_at": now,
-        })
+    if rows:
+        db.execute(insert(DocumentBlock), rows)
 
 
-def write_snapshot(doc_id: int, local_state: bytes, applied_stream_id: str | None, db: Session) -> FlushResult:
+def write_snapshot(
+    doc_id: int, local_state: bytes, applied_stream_id: str | None, want_blocks: bool, db: Session
+) -> FlushResult:
     """Merge a replica's in-memory state into what the database holds, and persist the result plus the read-model mirror in one transaction.
+
+    If the merge adds nothing to what is already stored, which is what every replica but the first finds when several hold the same edits, nothing is rewritten. `want_blocks` asks for the block list even in that case (used for version snapshots).
 
     Overwriting the stored state with one replica's copy would silently drop edits that another replica already flushed; a CRDT merge under the document lock cannot lose either side. Runs on a worker thread, so it works on its own throwaway Y.Doc and never touches a live room's."""
     lock_document(db, doc_id)
@@ -142,9 +152,17 @@ def write_snapshot(doc_id: int, local_state: bytes, applied_stream_id: str | Non
         merged.apply_update(prior_state)
     merged.apply_update(local_state)
     merged_state = merged.get_update()
-    blocks = ydoc_blocks(merged)
     stream_id = max_stream_id(row.stream_id if row is not None else None, applied_stream_id)
 
+    if prior_state is not None and merged_state == prior_state:
+        if row.stream_id != stream_id:
+            row.stream_id = stream_id
+            db.commit()
+        else:
+            db.rollback()
+        return FlushResult(prior_state, prior_state, ydoc_blocks(merged) if want_blocks else [], stream_id)
+
+    blocks = ydoc_blocks(merged)
     store_state(doc_id, merged_state, stream_id, db)
     mirror_blocks_to_db(doc_id, blocks, db)
     db.commit()

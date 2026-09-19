@@ -8,12 +8,15 @@ spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:17
   storage:
     size: 2Gi
+  postgresql:
+    parameters:
+      max_connections: "200"
   resources:
     requests:
-      cpu: 100m
-      memory: 256Mi
-    limits:
+      cpu: 200m
       memory: 512Mi
+    limits:
+      memory: 1Gi
   bootstrap:
     initdb:
       database: mathboard

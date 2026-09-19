@@ -66,13 +66,15 @@ spec:
               path: /health
               port: http
             periodSeconds: 10
-            failureThreshold: 3
+            timeoutSeconds: 5
+            failureThreshold: 6
           readinessProbe:
             httpGet:
               path: /ready
               port: http
             periodSeconds: 5
-            failureThreshold: 2
+            timeoutSeconds: 3
+            failureThreshold: 3
           lifecycle:
             preStop:
               exec:

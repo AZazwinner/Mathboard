@@ -5,8 +5,8 @@ backend:
     pullPolicy: IfNotPresent
   replicas: 3
   port: 12001
-  dbPoolSize: 10
-  dbMaxOverflow: 20
+  dbPoolSize: 5
+  dbMaxOverflow: 5
   terminationGracePeriodSeconds: 40
   resources:
     requests:
@@ -51,6 +51,7 @@ config:
 database:
   secretName: mathboard-db-app
   secretKey: uri
+  maxConnections: 200
 
 secretKey: ""
 
