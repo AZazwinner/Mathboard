@@ -18,6 +18,10 @@ updates:
     directory: /app
     schedule:
       interval: weekly
+    ignore:
+      # Vitest 5 is a major migration; take it deliberately, not from a bot PR.
+      - dependency-name: vitest
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: docker
     directory: /src
@@ -28,3 +32,7 @@ updates:
     directory: /app
     schedule:
       interval: weekly
+    ignore:
+      # Odd-numbered Node releases are short-lived and never become LTS.
+      - dependency-name: node
+        versions: ["23.x", "25.x", "27.x"]
