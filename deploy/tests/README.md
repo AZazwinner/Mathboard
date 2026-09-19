@@ -173,6 +173,17 @@ re-measured:
    producing multi-second maximums at 3 and 5 replicas even at 200 users. Counting only edits sent after
    the receiver connected removed them (a 237 ms maximum instead of 4.7 s for the same configuration and load).
 
+7. **CI found an intermittent test failure that local runs rarely showed.** Four unrelated Dependabot pull
+   requests failed the same backend test with `asyncio.Lock ... is bound to a different event loop`. The room
+   registry is a module-level singleton whose per-document locks outlive the event loop that each test's client
+   creates, and document ids restart at 1 in every test, so a lock that had once been contended in an earlier
+   test was reused on a new loop. `shutdown()` now clears the rooms and locks it leaves behind. A deterministic
+   test fails with the exact error on the old code and passes on the new. Repeating the WebSocket-heavy tests 12
+   times gave 0 failures on the fixed code. On the old code the original failure showed up once locally (in a batch
+   that my new test mostly masked) and 0 times in a clean batch of 12, so the honest summary is "rare locally, common on
+   GitHub's runners, fixed at the cause". Production has one event loop for the life of the process, so this was a
+   test-isolation flaw, but `shutdown()` leaving stale state behind was a real defect too.
+
 ## Known limits and next steps
 
 - One profile of a backend at 800 users (3 replicas) put about 17% of the time it held Python's lock in

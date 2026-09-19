@@ -62,3 +62,17 @@ the runtime images brought both images to zero fixable HIGH or CRITICAL findings
 - A scan gate can fail a build on a day when nothing in the repository changed, because a new advisory was
   published. That is the point, but it means a red main is sometimes not the last commit's fault.
 - The images are `linux/amd64` only.
+
+## What the first real runs showed
+
+- The whole path worked on its first merge: CI and the image workflow passed on `main`, the bot committed the
+  new image tag, and Argo CD synced to that commit and reported Healthy.
+- **Argo CD showed permanent drift on the `HTTPRoute`.** The Kubernetes API server fills in fields the chart
+  left out (`group` and `kind` on references, `weight`, and a default path match), so the live object never
+  equalled the rendered one. The fix was to write those defaults into the template explicitly. The general
+  rule: a chart that a GitOps tool syncs should render what the API server would store.
+- **Dependabot opened eleven pull requests within minutes, and CI judged them.** It correctly rejected the
+  Vitest 5 bump (its peer dependency needs `@types/node` 22 or newer, and the project is on 20) and a Node 25
+  base-image bump that failed the image build. Four unrelated bumps also failed a backend test, which turned
+  out to be a real intermittent bug in the room registry, not a problem with those bumps (finding 7 in
+  [deploy/tests/README.md](../../deploy/tests/README.md)).
