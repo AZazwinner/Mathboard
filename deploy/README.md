@@ -66,15 +66,20 @@ Every other replica reads the stream and applies the same update. Periodically e
 copy into Postgres under a per-document lock, and reads back what others saved, which is also the
 fallback when Valkey is unreachable.
 
-What was measured on this cluster (12 real Yjs clients, one document, 540 edits over about 16 seconds,
-all three replicas serving sockets):
+The failure behavior is tested by a script, not by hand: `bash deploy/tests/run-chaos.sh` runs 12 simulated
+browsers on one document while a failure is injected, and passes only if every client ends with every edit,
+all clients hold the identical document, and Postgres holds every block. Latest run, 3 replicas:
 
-| Injected failure | Result |
-|---|---|
-| none | all clients identical, every edit in Postgres |
-| busiest pod deleted gracefully (a rolling deploy) | its clients reconnected once to another replica; no edit lost |
-| busiest pod force-killed (a crash) | same |
-| Valkey scaled to zero for 10 s | no client disconnected; converged about 4 s after the last edit; no edit lost |
+| Injected failure | Edits | Result |
+|---|---|---|
+| none | 540 | converged 0.5 s after the last edit |
+| busiest pod deleted gracefully (a rolling deploy) | 540 | its clients reconnected once; converged in 0.5 s; no edit lost |
+| busiest pod force-killed (a crash) | 540 | same |
+| Valkey scaled to zero for 10 s | 540 | no client disconnected; converged 2.7 s after the last edit |
+| rolling restart of every backend pod | 2,400 over 65 s | every client reconnected once or twice; converged in 2.2 s; no edit lost |
+
+Load behavior (how many users, how much latency, and what broke on the way) is in
+[tests/README.md](tests/README.md).
 
 ## Useful commands
 
