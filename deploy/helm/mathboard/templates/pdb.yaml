@@ -1,4 +1,4 @@
-{{- if gt (int .Values.backend.replicas) 1 }}
+{{- if gt (int (include "mathboard.minBackendReplicas" .)) 1 }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:

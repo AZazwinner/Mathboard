@@ -6,7 +6,9 @@ metadata:
     {{- include "mathboard.labels" . | nindent 4 }}
     app.kubernetes.io/component: backend
 spec:
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.backend.replicas }}
+  {{- end }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -21,6 +23,11 @@ spec:
         {{- include "mathboard.selector" (dict "component" "backend" "root" .) | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- if .Values.metrics.enabled }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.metrics.port | quote }}
+        prometheus.io/path: /metrics
+        {{- end }}
     spec:
       terminationGracePeriodSeconds: {{ .Values.backend.terminationGracePeriodSeconds }}
       topologySpreadConstraints:
@@ -41,6 +48,10 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.backend.port }}
+            {{- if .Values.metrics.enabled }}
+            - name: metrics
+              containerPort: {{ .Values.metrics.port }}
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-backend

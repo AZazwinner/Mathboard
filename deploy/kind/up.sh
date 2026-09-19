@@ -66,7 +66,13 @@ kubectl apply -f infra/postgres.yaml
 kubectl wait --for=condition=Ready cluster/mathboard-db --timeout=5m
 
 step "Mathboard"
+# If observability.sh has installed KEDA, keep the backend autoscaled across re-runs.
+AUTOSCALING=false
+if kubectl get crd scaledobjects.keda.sh >/dev/null 2>&1; then
+    AUTOSCALING=true
+fi
 helm upgrade --install mathboard ../helm/mathboard \
+    --set "autoscaling.enabled=${AUTOSCALING}" \
     --set "backend.image.tag=${BACKEND_TAG}" \
     --set "frontend.image.tag=${FRONTEND_TAG}" \
     --set "config.appUrl=${APP_URL}" \

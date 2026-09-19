@@ -53,8 +53,28 @@ cp load/ws-fanout.js "${WORK}/ws-fanout.js"
 
 WORK_FOR_DOCKER="$(cd "${WORK}" && (pwd -W 2>/dev/null || pwd))"
 
+# With autoscaling on (observability.sh up), KEDA would undo `kubectl scale`, so pin the replica count
+# through its documented pause annotation instead, and release it afterwards.
+PAUSE_ANNOTATION="autoscaling.keda.sh/paused-replicas"
+AUTOSCALED=false
+if kubectl get scaledobject mathboard-backend >/dev/null 2>&1; then
+    AUTOSCALED=true
+fi
+
+set_replicas() {
+    if [ "${AUTOSCALED}" = true ]; then
+        kubectl annotate scaledobject mathboard-backend "${PAUSE_ANNOTATION}=$1" --overwrite >/dev/null
+    else
+        kubectl scale deploy/mathboard-backend --replicas="$1" >/dev/null
+    fi
+}
+
 cleanup() {
-    kubectl scale deploy/mathboard-backend --replicas="${RESTORE_REPLICAS}" >/dev/null 2>&1 || true
+    if [ "${AUTOSCALED}" = true ]; then
+        kubectl annotate scaledobject mathboard-backend "${PAUSE_ANNOTATION}-" >/dev/null 2>&1 || true
+    else
+        kubectl scale deploy/mathboard-backend --replicas="${RESTORE_REPLICAS}" >/dev/null 2>&1 || true
+    fi
 }
 trap cleanup EXIT
 
@@ -77,7 +97,7 @@ wait_for_replicas() {
 for R in ${REPLICAS}; do
     echo
     echo "==> ${R} backend replica(s)"
-    kubectl scale deploy/mathboard-backend --replicas="${R}" >/dev/null
+    set_replicas "${R}"
     wait_for_replicas "${R}"
     sleep 15
     kubectl exec deploy/mathboard-valkey -- sh -c "valkey-cli --scan --pattern 'mb:rl:*' | xargs -r valkey-cli del" >/dev/null 2>&1 || true

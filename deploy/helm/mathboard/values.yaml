@@ -15,6 +15,23 @@ backend:
     limits:
       memory: 512Mi
 
+# Metrics are served on their own port, which the gateway never routes to, and found by Prometheus
+# through the prometheus.io/* pod annotations.
+metrics:
+  enabled: true
+  port: 9100
+
+# Scales the backend on open WebSocket connections. Needs KEDA and Prometheus installed first
+# (bash deploy/kind/observability.sh up); the chart does not install them. While this is on,
+# backend.replicas is ignored: KEDA owns the replica count.
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 5
+  connectionsPerReplica: 50
+  fallbackReplicas: 3
+  prometheusAddress: http://prometheus-server.monitoring.svc.cluster.local
+
 valkey:
   enabled: true
   image:

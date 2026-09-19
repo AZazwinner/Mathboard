@@ -15,3 +15,11 @@ app.kubernetes.io/instance: {{ .root.Release.Name }}
 {{- define "mathboard.appSecretName" -}}
 {{ .Release.Name }}-app
 {{- end }}
+
+{{- define "mathboard.minBackendReplicas" -}}
+{{ ternary .Values.autoscaling.minReplicas .Values.backend.replicas .Values.autoscaling.enabled }}
+{{- end }}
+
+{{- define "mathboard.maxBackendReplicas" -}}
+{{ ternary .Values.autoscaling.maxReplicas .Values.backend.replicas .Values.autoscaling.enabled }}
+{{- end }}

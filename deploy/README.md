@@ -26,6 +26,7 @@ curl use `-H "Host: api.localhost" http://127.0.0.1:8080/...`.
 | Database | PostgreSQL 17 via the [CloudNativePG](https://cloudnative-pg.io/) operator |
 | Live sync | [Valkey](https://valkey.io/) 9.1: carries edits and cursors between backend replicas, and holds shared login rate limits |
 | App | Helm chart in `helm/mathboard`: 3 backend replicas, frontend, migration Job, config, routes |
+| Monitoring (optional) | Prometheus, Grafana and [KEDA](https://keda.sh/), added by `kind/observability.sh` |
 
 Traffic: `localhost:8080` -> kind node port 30080 -> Envoy -> `app.localhost` goes to the frontend,
 `api.localhost` (including WebSockets) goes to the backend.
@@ -81,6 +82,28 @@ all clients hold the identical document, and Postgres holds every block. Latest 
 Load behavior (how many users, how much latency, and what broke on the way) is in
 [tests/README.md](tests/README.md).
 
+## Monitoring and autoscaling (optional)
+
+```
+bash deploy/kind/observability.sh up          # install Prometheus, Grafana and KEDA, and turn autoscaling on
+bash deploy/kind/observability.sh grafana     # dashboard at http://localhost:3000 (no login to view)
+bash deploy/kind/observability.sh status      # what's running and what the autoscaler is doing
+bash deploy/kind/observability.sh down        # autoscaling off, everything removed
+```
+
+It adds about 0.5 GiB of pod memory (Grafana about 250 MiB, Prometheus 100 to 300 MiB depending on how long
+it has run, KEDA about 75 MiB), so it is off until you ask for it. The backend serves
+metrics on a separate port (9100) that the gateway never routes to; Prometheus finds the pods through their
+`prometheus.io/*` annotations. Grafana has one dashboard, provisioned from
+`kind/observability/dashboards/mathboard.json`.
+
+With autoscaling on, KEDA keeps the backend between 2 and 5 replicas, aiming for 50 open WebSocket
+connections each, and `backend.replicas` is ignored. Scale-up is quick; scale-down waits 5 minutes and then
+removes one pod a minute. `bash deploy/tests/run-autoscale.sh` shows it happening. The reasoning and the
+alternatives are in [docs/adr/0003-metrics-and-connection-based-autoscaling.md](../docs/adr/0003-metrics-and-connection-based-autoscaling.md).
+
+![Dashboard during an autoscaling run](../docs/images/grafana-dashboard.png)
+
 ## Useful commands
 
 ```
@@ -88,7 +111,7 @@ kubectl get pods -A
 kubectl logs deploy/mathboard-backend
 kubectl exec mathboard-db-1 -c postgres -- psql -U postgres -d mathboard
 kubectl exec deploy/mathboard-valkey -- valkey-cli monitor
-kubectl scale deploy/mathboard-backend --replicas=5
+kubectl scale deploy/mathboard-backend --replicas=5   # not with autoscaling on: KEDA would undo it
 ```
 
 Valkey deliberately has no persistence (`emptyDir`, no snapshots): it only holds short-lived

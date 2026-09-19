@@ -47,6 +47,10 @@ hosting replica replays to a new arrival, not fan-out, so they are counted separ
 Each run ramps up for 20 s, holds for 40 s, and reports connection success, latency percentiles, sockets
 dropped, backend pods restarted by Kubernetes, and CPU. Results are in `results/`.
 
+If autoscaling is on (`bash deploy/kind/observability.sh up`), the script pins each replica count through
+KEDA's `autoscaling.keda.sh/paused-replicas` annotation, so the autoscaler doesn't undo the sweep, and
+releases it afterwards.
+
 ### Results
 
 Same code, same machine, 3 backend replica counts. "Edits/s in" is averaged over the whole run including the
@@ -102,6 +106,34 @@ ramp, so its ceiling for 800 users is about 680.
   not the application, may be the limit, and run-to-run noise is real. Running k6 from a second machine is the
   first thing to change to get trustworthy absolute numbers.
 
+## Autoscaling test
+
+```
+bash deploy/tests/run-autoscale.sh                       # 220 users, then watch the scale-down
+bash deploy/tests/run-autoscale.sh --vus 120 --after 60  # smaller, and stop watching sooner
+```
+
+With autoscaling on, this ramps users up over 30 s, holds them for 150 s, stops, and samples the replica count and
+the autoscaler's view of load every 5 s. It reports when the replica count changed. The autoscaler targets 50
+open connections per replica, between 2 and 5 replicas ([ADR 3](../../docs/adr/0003-metrics-and-connection-based-autoscaling.md)).
+
+Latest run, 220 users (`results/autoscale-latest.md`):
+
+| t (s) | Replicas | What happened |
+|---:|---:|---|
+| 0 | 2 | idle, at the minimum |
+| 28 | 4 | connections passed 50 per replica; scaled up by 2, the most one 30 s window allows |
+| 188 | 4 | users leave |
+| 483 | 3 | 5 minutes after the load fell, the first replica is removed |
+| 543 | 2 | one more minute, back at the minimum |
+
+All 220 connections succeeded, no socket closed unexpectedly during the scale-up, and fan-out p95 stayed at 12 ms.
+The autoscaler stopped at 4 replicas, not 5: at 55 connections per replica against a target of 50, the change is
+inside Kubernetes' 10% tolerance and is deliberately ignored. The dashboard
+(`docs/images/grafana-dashboard.png`) shows the same run.
+
+![The Mathboard Grafana dashboard during the autoscaling run](../../docs/images/grafana-dashboard.png)
+
 ## What these tests found
 
 The first load runs did not pass. Each of these was found by the test, diagnosed with evidence, fixed, and
@@ -133,6 +165,6 @@ re-measured:
 - One profile of a backend at 800 users (3 replicas) put about 17% of the time it held Python's lock in
   reading the Valkey stream, one blocking read per open document. A single multiplexed read per replica is the
   first thing to try if throughput per replica matters.
-- Prometheus metrics and a dashboard (active sockets, rooms, flush time, stream lag) would show why a run
-  degraded without a profiler; that is the next phase.
+- The backend now exports Prometheus metrics (event-loop lag, save time, pool use per pod), so the unexplained
+  3-replica latency at 600 users can be investigated from the dashboard instead of a profiler. That is still to do.
 - A connection pooler (PgBouncer) would decouple replica count from Postgres connections.
