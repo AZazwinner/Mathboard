@@ -98,7 +98,17 @@ def test_changing_password_invalidates_the_old_token(client):
     assert fresh.status_code == 200
 
 
-def test_password_reset_also_invalidates_old_tokens(client):
+def test_forgot_password_does_not_leak_the_reset_link_by_default(client):
+    signup(client)
+
+    known = client.post("/forgot-password", json={"email": "alice@example.com"}).json()
+    unknown = client.post("/forgot-password", json={"email": "nobody@example.com"}).json()
+
+    assert known == unknown == {"success": True, "dev_reset_link": None}
+
+
+def test_password_reset_also_invalidates_old_tokens(client, monkeypatch):
+    monkeypatch.setenv("ALLOW_DEV_RESET_LINK", "1")
     old_token = signup(client).json()["token"]
 
     forgot_resp = client.post("/forgot-password", json={"email": "alice@example.com"})
@@ -112,3 +122,65 @@ def test_password_reset_also_invalidates_old_tokens(client):
 
     stale = client.get("/me", headers={"Authorization": f"Bearer {old_token}"})
     assert stale.status_code == 401
+
+
+def _configure_smtp(monkeypatch):
+    monkeypatch.setenv("SMTP_HOST", "smtp.example.test")
+    monkeypatch.setenv("SMTP_USER", "mathboard@example.test")
+    monkeypatch.setenv("SMTP_PASSWORD", "app-password")
+
+
+def test_forgot_password_response_is_the_same_when_email_delivery_fails(client, monkeypatch):
+    import smtplib
+
+    def refuse(*_args, **_kwargs):
+        raise smtplib.SMTPConnectError(421, "mail server unreachable")
+
+    _configure_smtp(monkeypatch)
+    monkeypatch.setattr(smtplib, "SMTP", refuse)
+    signup(client)
+
+    known = client.post("/forgot-password", json={"email": "alice@example.com"})
+    unknown = client.post("/forgot-password", json={"email": "nobody@example.com"})
+
+    assert known.status_code == unknown.status_code == 200
+    assert known.json() == unknown.json() == {"success": True, "dev_reset_link": None}
+
+
+def test_forgot_password_sends_the_link_over_starttls_smtp(client, monkeypatch):
+    import smtplib
+
+    sent = []
+
+    class FakeSMTP:
+        def __init__(self, host, port, timeout=None):
+            sent.append(("connect", host, port))
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_exc):
+            return False
+
+        def starttls(self):
+            sent.append(("starttls",))
+
+        def login(self, user, password):
+            sent.append(("login", user))
+
+        def send_message(self, message):
+            sent.append(("message", message["To"], message["From"], message.get_body(("plain",)).get_content()))
+
+    _configure_smtp(monkeypatch)
+    monkeypatch.setattr(smtplib, "SMTP", FakeSMTP)
+    signup(client)
+
+    resp = client.post("/forgot-password", json={"email": "alice@example.com"})
+
+    assert resp.json() == {"success": True, "dev_reset_link": None}
+    steps = [s[0] for s in sent]
+    assert steps == ["connect", "starttls", "login", "message"], "the password must only be sent after STARTTLS"
+    _, to, sender, body = sent[-1]
+    assert to == "alice@example.com"
+    assert sender == "mathboard@example.test"
+    assert "/reset-password?token=" in body
