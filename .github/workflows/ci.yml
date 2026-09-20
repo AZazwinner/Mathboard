@@ -86,10 +86,7 @@ jobs:
       - run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: "1"
-      # Reported but not blocking: the code base has 21 existing lint errors (mostly no-explicit-any and
-      # React-hooks rules). Remove continue-on-error once they are fixed.
       - run: npm run lint
-        continue-on-error: true
 
   helm:
     name: Helm chart

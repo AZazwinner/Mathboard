@@ -11,15 +11,26 @@ export function useTrash() {
     try {
       const res = await getTrash()
       setDocs(res.docs)
-    } catch (err) {
+    } catch {
     } finally {
       setLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    loadTrash()
-  }, [loadTrash])
+    let active = true
+    getTrash()
+      .then((res) => {
+        if (active) setDocs(res.docs)
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [])
 
   function removeDocLocally(docId: number) {
     setDocs((prev) => prev.filter((doc) => doc.id !== docId))

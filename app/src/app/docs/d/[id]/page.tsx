@@ -20,6 +20,27 @@ import type { ConnectionStatus } from "./yjs/provider"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
+// "no-token" means the user is signed out; null means the request failed (already logged).
+async function fetchDocument(id: string): Promise<DocumentResponsePermission | "no-token" | null> {
+  const token = localStorage.getItem("token")
+  if (!token) return "no-token"
+
+  try {
+    const res = await apiFetch(`${API_URL}/docs/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!res.ok) throw new Error("Failed to load doc")
+
+    return await res.json()
+  } catch (err) {
+    console.error(err)
+    return null
+  }
+}
+
 export default function DocPage() {
   const router = useRouter()
   const params = useParams();
@@ -30,16 +51,13 @@ export default function DocPage() {
 
   const { user, loading: authLoading } = useAuth()
 
-  const [title, setTitle] = useState("Untitled Document")
-  useEffect(() => {
-    if (!doc) {
-      return
-    }
-    setTitle(doc.title)
-  }, [doc])
+  // What the user has typed into the title box; null means "show the saved title". Cleared whenever the
+  // document is (re)loaded, so a restored version's title replaces anything typed before it.
+  const [titleDraft, setTitleDraft] = useState<string | null>(null)
+  const title = titleDraft ?? doc?.title ?? "Untitled Document"
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
+    setTitleDraft(e.target.value);
     updateTitle(id, e.target.value);
   };
 
@@ -49,32 +67,32 @@ export default function DocPage() {
   const [restoring, setRestoring] = useState(false)
   const editorRef = useRef<TextEditorHandle>(null)
 
-  async function loadDoc() {
-    const token = localStorage.getItem("token")
-
-    if (!token) {
+  function applyFetched(result: DocumentResponsePermission | "no-token" | null) {
+    if (result === "no-token") {
       router.replace("/signin")
-      return
-    }
-
-    try {
-      const res = await apiFetch(`${API_URL}/docs/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (!res.ok) throw new Error("Failed to load doc")
-
-      const data = await res.json()
-      setDoc(data)
-    } catch (err) {
-      console.error(err)
+    } else if (result) {
+      setDoc(result)
+      setTitleDraft(null)
     }
   }
 
+  async function loadDoc() {
+    applyFetched(await fetchDocument(id))
+  }
+
+  // The first load is fetched here so it can be dropped if the page unmounts or the id changes first.
   useEffect(() => {
-    loadDoc().finally(() => setLoading(false))
+    let active = true
+    fetchDocument(id)
+      .then((result) => {
+        if (active) applyFetched(result)
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+    return () => {
+      active = false
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, router])
 
@@ -186,7 +204,7 @@ export default function DocPage() {
       {isReadOnly && (
         <div className="flex items-center gap-2 border-b bg-neutral-100 px-4 py-1.5 text-xs text-neutral-700 print:hidden dark:bg-neutral-800/60 dark:text-neutral-300">
           <Eye className="h-3.5 w-3.5" />
-          Viewing only — you don&apos;t have permission to edit this document.
+          Viewing only. You don&apos;t have permission to edit this document.
         </div>
       )}
 

@@ -1,23 +1,29 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
 import { Moon, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 
-export function ThemeToggle({ className }: { className?: string }) {
-  const [isDark, setIsDark] = useState(false)
+// The theme lives in a class on <html>, so read it from there. The server snapshot is "light",
+// which matches what the first client render used before this was an external-store read.
+function subscribe(onChange: () => void) {
+  const observer = new MutationObserver(onChange)
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+  return () => observer.disconnect()
+}
 
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains("dark"))
-  }, [])
+const getIsDark = () => document.documentElement.classList.contains("dark")
+const getIsDarkOnServer = () => false
+
+export function ThemeToggle({ className }: { className?: string }) {
+  const isDark = useSyncExternalStore(subscribe, getIsDark, getIsDarkOnServer)
 
   const toggle = () => {
     const next = !document.documentElement.classList.contains("dark")
     document.documentElement.classList.toggle("dark", next)
     localStorage.setItem("theme", next ? "dark" : "light")
-    setIsDark(next)
   }
 
   return (
