@@ -68,5 +68,7 @@ The number is a starting point to tune, not a measured optimum.
 - Scaling now depends on Prometheus being up; the fallback covers a short outage, not a long one.
 - Scale-down still drops the WebSockets of the removed pod. Clients reconnect on their own and
   the chaos suite covers that path, but it is a blip. The slow scale-down keeps it rare.
-- Event-loop lag and save time are now visible per pod, which is where the unexplained 3-replica latency
-  result in `deploy/tests/README.md` should be investigated next.
+- Event-loop lag and save time are visible per pod, and they explained the earlier odd 3-replica latency result
+  (see [deploy/tests/README.md](../../deploy/tests/README.md#the-3-replica-600-user-latency-explained)). It also
+  showed that connections are a proxy: what saturates a backend is the edit-applying work, which every replica
+  hosting a document repeats. Scaling on event-loop lag, alongside connections, would track that directly.
