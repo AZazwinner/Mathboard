@@ -5,12 +5,12 @@
 backend:
   image:
     repository: ghcr.io/azazwinner/mathboard-backend
-    tag: sha-797dd6a
+    tag: sha-b14f51e
     pullPolicy: IfNotPresent
 frontend:
   image:
     repository: ghcr.io/azazwinner/mathboard-frontend
-    tag: sha-797dd6a
+    tag: sha-b14f51e
     pullPolicy: IfNotPresent
 config:
   appUrl: http://app.localhost:8080
