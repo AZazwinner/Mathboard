@@ -1,7 +1,8 @@
 "use client"
 
 import { DocumentResponsePermission } from "@/api/docs"
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useReducer, useRef, useState } from "react"
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useReducer, useRef, useState } from "react"
+import { fetchWsTicket } from "@/api/user"
 import type { EditorView } from "@codemirror/view"
 import { BlockEditor } from "./BlockEditor"
 import { FormattingToolbar } from "./FormattingToolbar"
@@ -33,9 +34,10 @@ export const TextEditor = forwardRef<TextEditorHandle, Props>(function TextEdito
     onStatusChange,
     onPresenceChange,
 }, ref) {
-    const wsUrl = useMemo(() => {
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
-        return `${WS_URL}/ws/docs/${doc.id}?token=${token}`
+    // Called on every (re)connect, because a ticket only lives a minute.
+    const wsUrl = useCallback(async () => {
+        const ticket = await fetchWsTicket()
+        return `${WS_URL}/ws/docs/${doc.id}?token=${encodeURIComponent(ticket)}`
     }, [doc.id])
 
     const localUser = useMemo(

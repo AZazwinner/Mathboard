@@ -240,7 +240,8 @@ export const MAX_IMAGE_BYTES = 3 * 1024 * 1024
 export const SAFE_IMAGE_DATA_URI = /^data:image\/(png|jpeg|jpg|gif|webp);base64,/i
 
 
-export const IMAGE_MARKDOWN_RE = /!\[([^\]]*)\]\((data:image\/(?:png|jpeg|jpg|gif|webp);base64,[A-Za-z0-9+/=]+|https?:\/\/[^\s)]+)\)/g
+// Only embedded images: a link to another host would show as an image in the editor and tell that host who is reading.
+export const IMAGE_MARKDOWN_RE = /!\[([^\]]*)\]\((data:image\/(?:png|jpeg|jpg|gif|webp);base64,[A-Za-z0-9+/=]+)\)/g
 
 export function readImageAsDataUri(file: File): Promise<string> {
     return new Promise((resolve, reject) => {

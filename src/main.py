@@ -9,6 +9,7 @@ from sqlalchemy import text
 import uvicorn
 
 import metrics
+from body_limit import BodyLimitMiddleware
 from db.database import engine, pool_limit, run_in_db
 from db.modules.liveshare.ydoc_room import registry as yroom_registry
 
@@ -55,6 +56,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.add_middleware(metrics.RequestMetricsMiddleware)
+app.add_middleware(BodyLimitMiddleware)
 
 @app.get("/health")
 async def health():

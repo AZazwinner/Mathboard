@@ -14,13 +14,18 @@ from fastapi import Depends, HTTPException, Header, status
 
 from db.core.auth.utils.token import verify_access_token
 from db.modules.users.crud import bump_token_version, get_user_by_authuser_id
-from db.modules.users.utils.validate import is_valid_password, validate_email, validate_password
+from db.modules.users.utils.validate import is_valid_password, is_valid_username, validate_email, validate_password
 
 def create_authuser(
         data: AuthUserCreate__Password,
         db: Session = Depends(get_db),
 ) -> dict[str, Any]:
     """Creates a user; returns dict with `code` (100=success, 0=error, 10=bad username, 20=bad email, 30=bad password, 90=already exists) and `user` on success."""
+    if not is_valid_username(data.username):
+        return {
+            "code": 10
+        }
+
     try:
         validate_email(data.email)
     except HTTPException:

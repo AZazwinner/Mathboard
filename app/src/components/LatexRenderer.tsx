@@ -11,13 +11,6 @@ import { convertLatexBracketDelimiters } from "./latex-bracket-delimiters";
 import { SAFE_IMAGE_DATA_URI } from "@/app/docs/d/[id]/format-commands";
 
 
-const TRUSTED_HTML_COMMANDS = new Set(["\\htmlClass", "\\htmlId", "\\htmlData"]);
-
-function trustHtmlAnnotationsOnly(context: { command: string }): boolean {
-  return TRUSTED_HTML_COMMANDS.has(context.command);
-}
-
-
 function urlTransform(value: string): string {
   if (SAFE_IMAGE_DATA_URI.test(value)) return value;
   return defaultUrlTransform(value);
@@ -60,10 +53,17 @@ const components: Components = {
     <th className="border border-border px-2 py-1 text-left font-semibold" {...props} />
   ),
   td: (props) => <td className="border border-border px-2 py-1" {...props} />,
-  img: ({ alt, ...props }: ComponentProps<"img">) => (
-    // eslint-disable-next-line @next/next/no-img-element -- src can be a data: URI or arbitrary external host, not something next/image can optimize
-    <img alt={alt ?? ""} className="my-2 max-w-full rounded-md border" {...props} />
-  ),
+  // Only images embedded in the document (data: URIs) are drawn. A link to an image on another host would tell that
+  // host who opened the document and when, so anyone able to edit a shared document could track its readers.
+  img: ({ alt, src, ...props }: ComponentProps<"img">) =>
+    typeof src === "string" && SAFE_IMAGE_DATA_URI.test(src) ? (
+      // eslint-disable-next-line @next/next/no-img-element -- src is a data: URI, not something next/image can optimize
+      <img alt={alt ?? ""} src={src} className="my-2 max-w-full rounded-md border" {...props} />
+    ) : (
+      <span className="italic text-muted-foreground" title="Images from other websites are not loaded">
+        [external image not loaded{alt ? `: ${alt}` : ""}]
+      </span>
+    ),
 };
 
 export default function LatexRenderer({ content }: Props) {
@@ -73,7 +73,9 @@ export default function LatexRenderer({ content }: Props) {
       <ReactMarkdown
         remarkPlugins={[remarkMath, remarkGfm]}
 
-        rehypePlugins={[[rehypeKatex, { trust: trustHtmlAnnotationsOnly, throwOnError: false }]]}
+        // KaTeX's `trust` stays off: \htmlClass, \htmlId and \htmlData would let a collaborator put arbitrary CSS
+        // classes and element ids into a shared document (a full-screen fake overlay, or ids that shadow the app's own).
+        rehypePlugins={[[rehypeKatex, { throwOnError: false }]]}
         components={components}
         urlTransform={urlTransform}
       >

@@ -1,7 +1,8 @@
 "use client"
 
 
-const TOKEN_MAX_AGE_SECONDS = 60 * 60 * 300
+// Matches how long the backend honours a login token (ACCESS_TOKEN_EXPIRE_MINUTES).
+const TOKEN_MAX_AGE_SECONDS = 60 * 60 * 24 * 7
 
 
 export function setAuthToken(token: string) {

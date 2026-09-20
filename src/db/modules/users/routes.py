@@ -9,8 +9,8 @@ from db.core.auth.mailer import send_password_reset_email
 from db.core.auth.rate_limit import is_locked_out, record_failure, record_success
 from db.core.auth.schemas import AuthUserCreate__Password, AuthUserUpdate__Password
 from db.core.auth.services import request_password_reset, reset_password_with_token, update_authuser__password
-from db.core.auth.utils.token import create_access_token
-from db.modules.users.crud import get_user_by_id, get_user_by_username
+from db.core.auth.utils.token import create_access_token, create_ws_ticket
+from db.modules.users.crud import bump_token_version, get_user_by_id, get_user_by_username
 from db.modules.users.schemas import CreateUserResponse, UserPublicResponse, UserPrivateResponse, UserSignin, UserSigninResponse
 from db.modules.users.services import create_user__password, get_current_user, login_user__password
 from db.database import get_db
@@ -77,6 +77,28 @@ def get_me(
 ):
     return current_user
     
+
+class WsTicketResponse(BaseModel):
+    ticket: str
+
+@router.post("/ws-ticket", response_model=WsTicketResponse)
+def get_ws_ticket(
+        current_user: UserPrivateResponse = Depends(get_current_user),
+):
+    """Trades the login token for a one-minute ticket to open a live-editing WebSocket with."""
+    return {"ticket": create_ws_ticket(current_user.id, current_user.token_version)}
+
+class LogoutResponse(BaseModel):
+    success: bool
+
+@router.post("/logout", response_model=LogoutResponse)
+def logout(
+        current_user: UserPrivateResponse = Depends(get_current_user),
+        db: Session = Depends(get_db),
+):
+    """Revokes every login token this account has, on every device. Clearing the browser's copy alone would leave a stolen token working until it expired."""
+    bump_token_version(current_user.id, db)
+    return {"success": True}
 
 class UpdatePasswordData(BaseModel):
     password: str

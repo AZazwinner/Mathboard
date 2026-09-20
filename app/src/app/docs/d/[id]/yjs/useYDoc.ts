@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import * as Y from "yjs"
 import type { Awareness } from "y-protocols/awareness.js"
-import { ConnectionStatus, YjsProvider } from "./provider"
+import { ConnectionStatus, WsUrlSource, YjsProvider } from "./provider"
 
 export type BlockDescriptor = {
   id: string
@@ -24,7 +24,8 @@ function blocksOf(doc: Y.Doc): Y.Array<BlockMap> {
 }
 
 
-export function useYDoc(wsUrl: string, localUser?: LocalUser) {
+/** `wsUrl` must be a stable value (a string, or a memoized function): a new one tears down and reopens the connection. */
+export function useYDoc(wsUrl: WsUrlSource, localUser?: LocalUser) {
   const [ready, setReady] = useState<{ doc: Y.Doc; provider: YjsProvider; undoManager: Y.UndoManager } | null>(null)
   const [status, setStatus] = useState<ConnectionStatus>("connecting")
   const [blocks, setBlocks] = useState<BlockDescriptor[]>([])

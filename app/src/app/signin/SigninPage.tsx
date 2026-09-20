@@ -4,13 +4,14 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { AuthCard } from "./AuthCard"
 import { AuthLayout } from "./AuthLayout"
 import { useAuth } from "@/hooks/useAuth"
+import { safeRedirect } from "@/lib/safe-redirect"
 import { useEffect } from "react"
 
 export default function SignInPage() {
   const params = useSearchParams()
   const router = useRouter()
 
-  const redirectTo = params?.get("redirect") || "/docs"
+  const redirectTo = safeRedirect(params?.get("redirect"))
   const initialMode = params?.get("mode") === "signin" ? "signin" : "signup"
 
   const handleRedirect = () => {
