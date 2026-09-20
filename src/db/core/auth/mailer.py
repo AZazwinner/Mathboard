@@ -1,10 +1,14 @@
 import logging
 import os
+import re
 import smtplib
 from email.message import EmailMessage
+from email.utils import formataddr, parseaddr
 from html import escape
 
 logger = logging.getLogger("mathboard.mail")
+
+EMAIL_ADDRESS = re.compile(r"[^@\s<>\"]+@[^@\s<>\"]+\.[^@\s<>\"]+")
 
 SMTP_TIMEOUT_SECONDS = 15
 
@@ -27,6 +31,16 @@ def _open_connection(host: str, port: int) -> smtplib.SMTP:
     return server
 
 
+def _from_header(configured: str | None, user: str) -> str:
+    """SMTP_FROM must look like `Name <address@host>` or a bare address. Anything else (a forgotten `<>` turns the address into a quoted local part) would be rejected by the mail server, so fall back to the login address and say why."""
+    if configured:
+        _name, address = parseaddr(configured)
+        if EMAIL_ADDRESS.fullmatch(address):
+            return configured
+        logger.warning("SMTP_FROM=%r is not a valid sender, using %s instead. Write it as: Name <address@host>", configured, user)
+    return formataddr(("Mathboard", user))
+
+
 def send_password_reset_email(email: str, reset_link: str) -> None:
     """Never raises: a delivery failure must not change the API response, since an error only for registered emails would reveal which ones are. Failures go to the log."""
     if not is_configured():
@@ -36,7 +50,7 @@ def send_password_reset_email(email: str, reset_link: str) -> None:
     user = os.environ["SMTP_USER"]
     message = EmailMessage()
     message["Subject"] = "Reset your Mathboard password"
-    message["From"] = os.getenv("SMTP_FROM") or user
+    message["From"] = _from_header(os.getenv("SMTP_FROM"), user)
     message["To"] = email
     message.set_content(
         "Open the link below to reset your password:\n\n"
@@ -54,6 +68,7 @@ def send_password_reset_email(email: str, reset_link: str) -> None:
     try:
         with _open_connection(os.environ["SMTP_HOST"], int(os.getenv("SMTP_PORT", "587"))) as server:
             server.login(user, os.environ["SMTP_PASSWORD"])
-            server.send_message(message)
+            # Gmail only accepts the account you logged in as, so the envelope sender is always that account.
+            server.send_message(message, from_addr=user)
     except Exception:
         logger.exception("Password reset email to %s could not be sent", email)
