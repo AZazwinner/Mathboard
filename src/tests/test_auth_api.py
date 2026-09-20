@@ -168,8 +168,8 @@ def test_forgot_password_sends_the_link_over_starttls_smtp(client, monkeypatch):
         def login(self, user, password):
             sent.append(("login", user))
 
-        def send_message(self, message):
-            sent.append(("message", message["To"], message["From"], message.get_body(("plain",)).get_content()))
+        def send_message(self, message, from_addr=None):
+            sent.append(("message", message["To"], message["From"], message.get_body(("plain",)).get_content(), from_addr))
 
     _configure_smtp(monkeypatch)
     monkeypatch.setattr(smtplib, "SMTP", FakeSMTP)
@@ -180,7 +180,42 @@ def test_forgot_password_sends_the_link_over_starttls_smtp(client, monkeypatch):
     assert resp.json() == {"success": True, "dev_reset_link": None}
     steps = [s[0] for s in sent]
     assert steps == ["connect", "starttls", "login", "message"], "the password must only be sent after STARTTLS"
-    _, to, sender, body = sent[-1]
+    _, to, sender, body, envelope_sender = sent[-1]
     assert to == "alice@example.com"
-    assert sender == "mathboard@example.test"
+    assert "mathboard@example.test" in sender
+    assert envelope_sender == "mathboard@example.test"
     assert "/reset-password?token=" in body
+
+
+def test_a_malformed_smtp_from_falls_back_to_the_login_address(client, monkeypatch):
+    import smtplib
+
+    sent = []
+
+    class FakeSMTP:
+        def __init__(self, *_args, **_kwargs):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_exc):
+            return False
+
+        def starttls(self):
+            pass
+
+        def login(self, *_args):
+            pass
+
+        def send_message(self, message, from_addr=None):
+            sent.append((str(message["From"]), from_addr))
+
+    _configure_smtp(monkeypatch)
+    monkeypatch.setenv("SMTP_FROM", "Mathboard mathboard@example.test")
+    monkeypatch.setattr(smtplib, "SMTP", FakeSMTP)
+    signup(client)
+
+    client.post("/forgot-password", json={"email": "alice@example.com"})
+
+    assert sent == [("Mathboard <mathboard@example.test>", "mathboard@example.test")]
