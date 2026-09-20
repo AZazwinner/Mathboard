@@ -88,7 +88,8 @@ flowchart TD
     build --> scan{"Trivy: fixable<br/>HIGH or CRITICAL?"}
     scan -->|yes| stop["Stop: nothing is published"]
     scan -->|no| push["Publish to GHCR<br/>with provenance and SBOM"]
-    push --> bump["Bot commits the new tag<br/>into deploy/gitops"]
+    push --> sign["Sign the digest with cosign<br/>and verify it"]
+    sign --> bump["Bot commits the new tag<br/>into deploy/gitops"]
     bump --> argo["Argo CD syncs"]
     argo --> migrate["Migration Job<br/>(PreSync hook)"]
     migrate --> roll["Rolling update<br/>(never fewer ready pods)"]

@@ -28,6 +28,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+      # Lets the job ask GitHub for a short-lived identity token, which cosign exchanges for the signing
+      # certificate (keyless signing). Nothing is stored as a secret.
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
@@ -93,6 +96,7 @@ jobs:
 
       # Reuses the layers from the build above, and adds provenance and an SBOM as attestations.
       - name: Publish
+        id: publish
         if: github.event_name != 'pull_request'
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
@@ -105,6 +109,28 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.name }}
+
+      # Keyless signing: the certificate says "this workflow, in this repository, built and signed this image",
+      # and the signature is recorded in the public Sigstore transparency log. It signs the digest, not a tag,
+      # so it covers exactly the bytes that were pushed however the tags move later.
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+        if: github.event_name != 'pull_request'
+
+      - name: Sign the image
+        if: github.event_name != 'pull_request'
+        env:
+          DIGEST: ${{ steps.publish.outputs.digest }}
+        run: cosign sign --yes "${IMAGE}@${DIGEST}"
+
+      # Verifies with the same check anyone else would use, so a signature that can't be verified fails the build.
+      - name: Verify the signature
+        if: github.event_name != 'pull_request'
+        env:
+          DIGEST: ${{ steps.publish.outputs.digest }}
+        run: |
+          cosign verify "${IMAGE}@${DIGEST}" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            --certificate-identity-regexp "^https://github\.com/${GITHUB_REPOSITORY}/\.github/workflows/images\.yml@refs/(heads/main|tags/v.+)$"
 
   gitops:
     name: Point the cluster at the new images
