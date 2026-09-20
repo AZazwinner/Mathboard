@@ -1,4 +1,4 @@
-# 4. CI, a scanned and attested supply chain, and GitOps deploys
+# 4. CI, a scanned, attested and signed supply chain, and GitOps deploys
 
 ## Problem
 
@@ -10,18 +10,23 @@ merged, and nothing recorded what was running or where it came from.
 
 1. **CI runs on every pull request and every push to main**, as separate jobs so a failure points at
    one thing: the backend suite on SQLite; the same suite on real Postgres 17 and Valkey (which also runs
-   every migration against a fresh schema and the multi-replica tests); the frontend (typecheck, unit tests,
-   production build); the Helm chart (lint, three renderings, schema validation with kubeconform, and a
+   every migration against a fresh schema and the multi-replica tests); the frontend (typecheck, lint, unit
+   tests, production build); the Helm chart (lint, three renderings, schema validation with kubeconform, and a
    negative test that the connection-budget guard from ADR 2 really refuses an unsafe configuration); and
    shellcheck and actionlint over the scripts and workflows.
 2. **Third-party actions are pinned to a full commit SHA**, with the version in a comment, and Dependabot
    proposes updates weekly (as it does for pip, npm and the Dockerfiles). A tag can be moved to point at
    different code; a commit cannot. Workflows default to read-only permissions, and only the image job is
-   given `packages: write`, and only for pushes, not pull requests.
+   given `packages: write` and `id-token: write` (for signing, below).
 3. **Images are built, scanned, then published.** The image is built and loaded locally, scanned with Trivy,
    and only if there are no fixable HIGH or CRITICAL vulnerabilities is it pushed, with provenance and an SBOM
    attached as attestations. Tags are the short commit hash (`sha-1a2b3c4`, immutable in practice) and
    `latest` for main. The runtime images drop the tools they don't run with (pip, npm, yarn).
+   **The pushed image is then signed with cosign, keylessly.** The job asks GitHub for a short-lived identity
+   token, Sigstore issues a certificate saying "this workflow in this repository signed this", and the
+   signature goes into the public transparency log. There is no key to store or rotate. It signs the digest,
+   not a tag, and the job immediately verifies the signature the way a consumer would, so an image that
+   can't be verified fails the build. Pull requests publish and sign nothing.
 4. **Argo CD deploys from git.** It watches `main`, renders `deploy/helm/mathboard` with
    `deploy/gitops/values-kind.yaml`, and syncs automatically with pruning and self-healing. The last step of
    the image workflow commits the new image tags into that values file, so merging to main is the whole
@@ -47,14 +52,25 @@ the runtime images brought both images to zero fixable HIGH or CRITICAL findings
   reachable from GitHub anyway. Argo CD pulls, which is also the standard model.
 - **Argo CD Image Updater or Flux image automation** would update tags without a commit to main. A commit
   is one more thing to trust but leaves an auditable history of exactly what was deployed and when.
-- **Signing images with cosign** is the natural next step after provenance attestations.
-- **Making lint blocking.** The frontend has 21 existing lint errors (mostly `no-explicit-any` and React-hooks
-  rules). CI reports them without failing until they are fixed.
+- **Signing with a long-lived key** (`cosign generate-key-pair`) would put a private key in GitHub secrets,
+  to be guarded and rotated. Keyless ties the signature to the workflow's identity instead, and the
+  cost is depending on the public Sigstore services being reachable when the image is signed and verified.
 
 ## Consequences
 
 - **The bot commits to main.** If branch protection later requires pull requests, that push will be rejected
   and the bump needs an app token or a bot pull request.
+- **Nothing enforces the signature yet.** Argo CD and the cluster still pull any image the chart names. To
+  check an image by hand:
+
+  ```
+  cosign verify ghcr.io/<owner>/mathboard-backend@sha256:<digest> \
+    --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+    --certificate-identity-regexp '^https://github\.com/<owner>/<repo>/\.github/workflows/images\.yml@'
+  ```
+
+  Making the cluster refuse unsigned images would take an admission policy (Kyverno or Sigstore's policy
+  controller), which is a further step.
 - **GHCR packages are private when first published.** Making them public, once, is a manual step in
   GitHub's package settings (the repository is already public).
 - The frontend image bakes in `app.localhost:8080` URLs, so it is for the kind cluster only. The production

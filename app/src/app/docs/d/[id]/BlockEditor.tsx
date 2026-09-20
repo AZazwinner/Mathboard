@@ -79,7 +79,10 @@ export function BlockEditor({
 
 
     const latest = useRef({ position, insertBlock, deleteBlock, mergeBlockIntoPrevious, requestFocus, onFocusView, onActiveViewUpdate, isFocused, slashMenu, symbolMenu })
-    latest.current = { position, insertBlock, deleteBlock, mergeBlockIntoPrevious, requestFocus, onFocusView, onActiveViewUpdate, isFocused, slashMenu, symbolMenu }
+    // A layout effect (not an assignment during render) so the ref is current before any other effect or event handler reads it.
+    useLayoutEffect(() => {
+        latest.current = { position, insertBlock, deleteBlock, mergeBlockIntoPrevious, requestFocus, onFocusView, onActiveViewUpdate, isFocused, slashMenu, symbolMenu }
+    })
 
 
     const applySlashCommand = (view: EditorView, cmd: SlashCommand) => {

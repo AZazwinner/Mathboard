@@ -222,7 +222,7 @@ export type DocumentBlock = {
 export type DocumentResponsePermission = {
   id: number
   owner_id: number
-  owner: any
+  owner: unknown
 
   title: string
   text: string

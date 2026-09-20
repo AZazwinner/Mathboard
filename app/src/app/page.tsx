@@ -380,17 +380,13 @@ function AuthorLane({
 
 function useTypewriter(text: string, playToken: number) {
   const reduceMotion = useReducedMotion()
-  const [typedLength, setTypedLength] = useState(0)
+  const [animatedLength, setAnimatedLength] = useState(0)
+  // With reduced motion the whole text shows at once, so there is nothing to animate.
+  const typedLength = reduceMotion && playToken !== 0 ? text.length : animatedLength
 
   useEffect(() => {
-    if (playToken === 0) return
+    if (playToken === 0 || reduceMotion) return
 
-    if (reduceMotion) {
-      setTypedLength(text.length)
-      return
-    }
-
-    setTypedLength(0)
     let raf = 0
     let last = performance.now()
     let acc = 0
@@ -404,14 +400,17 @@ function useTypewriter(text: string, playToken: number) {
       if (whole > 0) {
         acc -= whole
         count = Math.min(text.length, count + whole)
-        setTypedLength(count)
+        setAnimatedLength(count)
       }
       if (count < text.length) {
         raf = requestAnimationFrame(tick)
       }
     }
     raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+    return () => {
+      cancelAnimationFrame(raf)
+      setAnimatedLength(0)
+    }
   }, [text, playToken, reduceMotion])
 
   return { typed: text.slice(0, typedLength), done: typedLength >= text.length }
@@ -428,12 +427,12 @@ const CollabDemoCard = forwardRef<DemoHandle>(function CollabDemoCard(_props, re
   const bothDone = a.done && b.done
 
   useEffect(() => {
-    if (!bothDone) {
-      setShowRender(false)
-      return
-    }
+    if (!bothDone) return
     const t = setTimeout(() => setShowRender(true), 300)
-    return () => clearTimeout(t)
+    return () => {
+      clearTimeout(t)
+      setShowRender(false)
+    }
   }, [bothDone])
 
   const replay = () => {

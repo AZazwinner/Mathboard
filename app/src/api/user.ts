@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL
 export type UserPublicResponse = {
     id: number
     authuser_id: number
-    authuser: any
+    authuser: unknown
 }
 
 export type GetUserResponse = {

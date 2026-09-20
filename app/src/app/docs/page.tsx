@@ -99,9 +99,13 @@ export default function DocsPage() {
   }, [user, authLoading, router])
 
 
-  useEffect(() => {
+  // Back to the first page whenever the filters change. Done while rendering (not in an effect) so the
+  // stale page size is never painted.
+  const [pagedFor, setPagedFor] = useState({ tab, query, sort })
+  if (pagedFor.tab !== tab || pagedFor.query !== query || pagedFor.sort !== sort) {
+    setPagedFor({ tab, query, sort })
     setVisibleCount(PAGE_SIZE)
-  }, [tab, query, sort])
+  }
 
   const visibleDocs: DocListItem[] = useMemo(() => {
     const owned: DocListItem[] = docs.map((d) => ({ ...d, _shared: false }))

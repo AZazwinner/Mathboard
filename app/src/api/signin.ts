@@ -10,7 +10,7 @@ export type CreateUserInput = {
 
 export type CreateUserResponse = {
   code: number
-  user?: any
+  user?: unknown
   token?: string
 }
 
@@ -36,7 +36,7 @@ export type SigninUserInput = {
 }
 
 export type SigninUserResponse = {
-    user: any
+    user: unknown
     token?: string
 }
 

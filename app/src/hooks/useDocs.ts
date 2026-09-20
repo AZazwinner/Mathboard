@@ -9,7 +9,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL
 export type Document = {
   id: number
   owner_id: number
-  owner: any
+  owner: unknown
   owner_username: string
 
   title: string
@@ -48,15 +48,35 @@ export function useDocuments() {
 
       const data = await res.json()
       setDocs(data["docs"] as Document[])
-    } catch (err) {
+    } catch {
     } finally {
       setLoading(false)
     }
   }, [router])
 
+  // Refetching goes through loadDocs. The first load runs here instead so that it can be cancelled on unmount.
   useEffect(() => {
-    loadDocs()
-  }, [loadDocs])
+    const token = localStorage.getItem("token")
+    if (!token) {
+      router.replace("/signin")
+      return
+    }
+
+    let active = true
+    apiFetch(`${API_URL}/my-docs`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to fetch documents")
+        const data = await res.json()
+        if (active) setDocs(data["docs"] as Document[])
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [router])
 
   function removeDoc(docId: number) {
     setDocs((prev) => prev.filter((doc) => doc.id !== docId))
@@ -98,7 +118,7 @@ export function useSharedDocuments() {
 
         const data = await res.json()
         setDocs(data["docs"] as Document[])
-      } catch (err) {
+      } catch {
       } finally {
         setLoading(false)
       }

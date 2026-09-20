@@ -40,7 +40,9 @@ export async function createAccountHandler(data: {
   }
 }
 
-export type SigninResult = any;
+export type SigninResult =
+  | { ok: true; token: string }
+  | { ok: false; error?: string }
 
 export async function signinHandler(data: {
   username: string

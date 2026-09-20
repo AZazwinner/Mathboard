@@ -19,9 +19,9 @@ const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
 });
 
-const title = "Mathboard — write math like it's a document";
+const title = "Mathboard. Write math like it's a document";
 const description =
-  "A collaborative LaTeX editor that renders as you type — built for proofs, papers, and problem sets.";
+  "A collaborative LaTeX editor that renders as you type. Built for proofs, papers, and problem sets.";
 
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:12000";

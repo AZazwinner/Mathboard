@@ -17,8 +17,10 @@ export type LocalUser = {
   colorLight: string
 }
 
-function blocksOf(doc: Y.Doc): Y.Array<Y.Map<any>> {
-  return doc.get("blocks", Y.Array) as Y.Array<Y.Map<any>>
+type BlockMap = Y.Map<unknown>
+
+function blocksOf(doc: Y.Doc): Y.Array<BlockMap> {
+  return doc.get("blocks", Y.Array) as Y.Array<BlockMap>
 }
 
 
@@ -47,10 +49,12 @@ export function useYDoc(wsUrl: string, localUser?: LocalUser) {
         }))
       )
     }
-    syncBlocks()
     blocksArray.observe(syncBlocks)
     const unsubStatus = provider.onStatus(setStatus)
 
+    // The doc and provider are created here because the provider opens a socket, which must not happen
+    // during render. Consumers need them as state so they re-render once the connection objects exist.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReady({ doc, provider, undoManager })
 
     return () => {
@@ -59,6 +63,7 @@ export function useYDoc(wsUrl: string, localUser?: LocalUser) {
       undoManager.destroy()
       provider.destroy()
       setReady(null)
+      setBlocks([])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wsUrl])
@@ -67,7 +72,7 @@ export function useYDoc(wsUrl: string, localUser?: LocalUser) {
     if (!ready) return
     const blocksArray = blocksOf(ready.doc)
     ready.doc.transact(() => {
-      const map = new Y.Map<any>()
+      const map = new Y.Map<unknown>()
       map.set("id", id)
       map.set("type", type)
       map.set("text", new Y.Text(content))
@@ -90,7 +95,7 @@ export function useYDoc(wsUrl: string, localUser?: LocalUser) {
     ready.doc.transact(() => {
       blocksArray.delete(start, end - start + 1)
       if (blocksArray.length === 0) {
-        const map = new Y.Map<any>()
+        const map = new Y.Map<unknown>()
         map.set("id", crypto.randomUUID())
         map.set("type", "paragraph")
         map.set("text", new Y.Text(""))
@@ -105,7 +110,7 @@ export function useYDoc(wsUrl: string, localUser?: LocalUser) {
     const blocksArray = blocksOf(ready.doc)
     ready.doc.transact(() => {
       const maps = contents.map((content) => {
-        const map = new Y.Map<any>()
+        const map = new Y.Map<unknown>()
         map.set("id", crypto.randomUUID())
         map.set("type", "paragraph")
         map.set("text", new Y.Text(content))

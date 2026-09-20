@@ -366,7 +366,7 @@ export const TextEditor = forwardRef<TextEditorHandle, Props>(function TextEdito
                 >
                     {status === "disconnected" && (
                         <div className="text-xs text-neutral-500 px-10 pb-2">
-                            Connection lost — reconnecting…
+                            Connection lost. Reconnecting…
                         </div>
                     )}
                     {blocks.map((block, i) =>

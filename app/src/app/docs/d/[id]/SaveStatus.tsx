@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 const COPY: Record<ConnectionStatus, string> = {
   connected: "Saved",
   connecting: "Connecting…",
-  disconnected: "Offline — will sync when reconnected",
+  disconnected: "Offline. Will sync when reconnected",
 }
 
 
