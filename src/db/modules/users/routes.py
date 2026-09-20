@@ -1,7 +1,7 @@
 import os
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from db.core.auth import mailer
@@ -144,9 +144,10 @@ class ForgotPasswordResponse(BaseModel):
 def forgot_password(
     data: ForgotPasswordData,
     request: Request,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
-    """Always reports success regardless of whether the email is registered, to avoid leaking which emails have accounts."""
+    """Always reports success regardless of whether the email is registered, to avoid leaking which emails have accounts. The email is sent after the response so a slow mail server can't show which addresses exist."""
     client_ip = request.client.host if request.client else "unknown"
     throttle_key = f"forgot:{client_ip}:{data.email.strip().lower()}"
 
@@ -164,11 +165,11 @@ def forgot_password(
 
     app_url = os.getenv("APP_URL", "http://localhost:12000")
     reset_link = f"{app_url}/reset-password?token={token}"
-    send_password_reset_email(data.email, reset_link)
+    background_tasks.add_task(send_password_reset_email, data.email, reset_link)
 
     return {
         "success": True,
-        "dev_reset_link": None if mailer.is_configured() else reset_link,
+        "dev_reset_link": reset_link if mailer.dev_reset_links_enabled() and not mailer.is_configured() else None,
     }
 
 class ResetPasswordData(BaseModel):

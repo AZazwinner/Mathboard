@@ -30,7 +30,8 @@ else:
 
 os.environ["SECRET_KEY"] = "test-secret-key-do-not-use-in-production"
 os.environ["CORS_ORIGINS"] = ""
-os.environ.pop("RESEND_API_KEY", None)
+for _name in ("SMTP_HOST", "SMTP_USER", "SMTP_PASSWORD", "SMTP_PORT", "SMTP_FROM", "ALLOW_DEV_RESET_LINK"):
+    os.environ.pop(_name, None)
 
 from sqlalchemy import text
 
