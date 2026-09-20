@@ -3,7 +3,7 @@
 from db.core.auth.schemas import AuthUserCreate__Password
 from db.core.auth.services import create_authuser
 from db.core.auth.utils.password import hash_password, verify_password
-from db.core.auth.utils.token import create_access_token, verify_access_token
+from db.core.auth.utils.token import create_access_token, verify_access_token, verify_ws_credential
 from db.database import get_db, run_in_db
 from fastapi import Depends, HTTPException, Header, WebSocket
 from sqlalchemy.orm import Session
@@ -100,7 +100,7 @@ async def get_current_user_ws(websocket: WebSocket) -> int|None:
     if not token:
         return None
 
-    result = verify_access_token(token)
+    result = verify_ws_credential(token)
     if not result:
         return None
     user_id, token_version = result

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from db.core.auth.schemas import AuthUserUpdate__Password
 from db.core.auth.services import update_authuser__password
@@ -17,9 +17,11 @@ from db.database import get_db
 
 router = APIRouter()
 
+MAX_TITLE_LENGTH = 255
+
 class CreateDocData(BaseModel):
-    template: Optional[str] = "Blank Document"
-    title: Optional[str] = "New document"
+    template: Optional[str] = Field("Blank Document", max_length=100)
+    title: Optional[str] = Field("New document", max_length=MAX_TITLE_LENGTH)
 
 class CreateDocResponse(BaseModel):
     doc_id: int
@@ -115,7 +117,7 @@ class SuccessResponse(BaseModel):
 
 class UpdateDocData(BaseModel):
     doc_id: int
-    title: Optional[str|None]=None
+    title: Optional[str] = Field(None, max_length=MAX_TITLE_LENGTH)
     text: Optional[str|None]=None
 
 @router.post("/update-doc", response_model=SuccessResponse)

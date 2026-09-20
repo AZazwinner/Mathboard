@@ -13,18 +13,21 @@ const MAX_RECONNECT_DELAY_MS = 30000;
 export type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
 
+/** A URL, or a function that produces one. Reconnects call the function again, so it can mint a fresh short-lived ticket each time. */
+export type WsUrlSource = string | (() => Promise<string>);
+
 export class YjsProvider {
   readonly doc: Y.Doc;
   readonly awareness: awarenessProtocol.Awareness;
 
-  private url: string;
+  private url: WsUrlSource;
   private ws: WebSocket | null = null;
   private shouldReconnect = true;
   private reconnectAttempt = 0;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private statusListeners = new Set<(status: ConnectionStatus) => void>();
 
-  constructor(url: string, doc: Y.Doc) {
+  constructor(url: WsUrlSource, doc: Y.Doc) {
     this.url = url;
     this.doc = doc;
     this.awareness = new awarenessProtocol.Awareness(doc);
@@ -36,7 +39,7 @@ export class YjsProvider {
       window.addEventListener("beforeunload", this.handleUnload);
     }
 
-    this.connect();
+    void this.connect();
   }
 
   onStatus(fn: (status: ConnectionStatus) => void): () => void {
@@ -48,10 +51,23 @@ export class YjsProvider {
     this.statusListeners.forEach((fn) => fn(status));
   }
 
-  private connect() {
+  private async connect() {
     this.setStatus("connecting");
 
-    const ws = new WebSocket(this.url);
+    let url: string;
+    try {
+      url = typeof this.url === "string" ? this.url : await this.url();
+    } catch {
+      // No ticket (offline, or the session was revoked): retry with the usual backoff.
+      if (this.shouldReconnect) {
+        this.setStatus("disconnected");
+        this.scheduleReconnect();
+      }
+      return;
+    }
+    if (!this.shouldReconnect) return;
+
+    const ws = new WebSocket(url);
     ws.binaryType = "arraybuffer";
     this.ws = ws;
 
@@ -101,7 +117,7 @@ export class YjsProvider {
     );
     const jitter = Math.random() * 0.3 * backoff;
     this.reconnectAttempt += 1;
-    this.reconnectTimer = setTimeout(() => this.connect(), backoff + jitter);
+    this.reconnectTimer = setTimeout(() => void this.connect(), backoff + jitter);
   }
 
   private handleMessage(message: Uint8Array) {

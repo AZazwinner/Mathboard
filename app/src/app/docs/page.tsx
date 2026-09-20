@@ -11,6 +11,7 @@ import { DocRows, type DocListItem } from "./DocRows"
 import { TrashRows } from "./TrashRows"
 import { createDoc, deleteDoc, duplicateDoc, permanentlyDeleteDoc, renameDoc, restoreDoc, type TrashedDocument } from "@/api/docs"
 import { clearAuthToken } from "@/lib/auth-token"
+import { revokeSessionOnServer } from "@/api/user"
 import { cn } from "@/lib/utils"
 import { UserAvatar } from "@/components/UserAvatar"
 import { ThemeToggle } from "@/components/ThemeToggle"
@@ -211,6 +212,7 @@ export default function DocsPage() {
   }
 
   function handleSignOut() {
+    revokeSessionOnServer()
     clearAuthToken()
     router.push("/")
   }

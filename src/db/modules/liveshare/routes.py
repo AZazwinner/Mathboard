@@ -1,4 +1,5 @@
 import asyncio
+import time
 from dataclasses import dataclass
 
 import pycrdt
@@ -16,10 +17,41 @@ router = APIRouter()
 
 PERMISSION_RECHECK_SECONDS = 5
 
+# An image is capped at 3 MB in the browser and travels as base64 inside one update, so a legitimate message is
+# never much over 4 MB. Awareness (cursors, names) is a few hundred bytes.
+MAX_MESSAGE_BYTES = 8 * 1024 * 1024
+MAX_AWARENESS_BYTES = 64 * 1024
+
+# Stops one connection streaming updates fast enough to fill the database or memory. Generous for real editing
+# (a paste of several images), tiny next to what an abusive client would send.
+BUDGET_WINDOW_SECONDS = 60
+BUDGET_BYTES_PER_WINDOW = 32 * 1024 * 1024
+
+CLOSE_MESSAGE_TOO_BIG = 1009
+CLOSE_OVER_BUDGET = 4429
+
 
 @dataclass
 class SocketAccess:
     can_write: bool
+
+
+class ByteBudget:
+    """Counts the bytes one socket has sent in the current window."""
+
+    def __init__(self, limit: int, window: float):
+        self.limit = limit
+        self.window = window
+        self._window_start = time.monotonic()
+        self._used = 0
+
+    def allow(self, size: int) -> bool:
+        now = time.monotonic()
+        if now - self._window_start >= self.window:
+            self._window_start = now
+            self._used = 0
+        self._used += size
+        return self._used <= self.limit
 
 
 def _load_access(doc_id: int, user_id: int, db: Session) -> tuple[bool, bool]:
@@ -52,9 +84,16 @@ async def websocket_endpoint(
         _watch_permissions(websocket, doc_id, current_user_id, access)
     )
 
+    budget = ByteBudget(BUDGET_BYTES_PER_WINDOW, BUDGET_WINDOW_SECONDS)
     try:
         while True:
             message = await websocket.receive_bytes()
+            if len(message) > MAX_MESSAGE_BYTES:
+                await websocket.close(code=CLOSE_MESSAGE_TOO_BIG)
+                return
+            if not budget.allow(len(message)):
+                await websocket.close(code=CLOSE_OVER_BUDGET)
+                return
             try:
                 await _handle_message(room, message, websocket, access.can_write)
             except PermissionError:
@@ -108,4 +147,6 @@ async def _handle_message(room: YRoom, message: bytes, sender: WebSocket, can_wr
         await room.handle_sync(message, sender)
 
     elif msg_type == pycrdt.YMessageType.AWARENESS:
+        if len(message) > MAX_AWARENESS_BYTES:
+            return
         await room.handle_awareness(message, sender)
