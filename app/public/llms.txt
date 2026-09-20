@@ -1,8 +1,8 @@
 # Mathboard
 
-> A collaborative LaTeX editor that renders as you type — built for proofs, papers, and problem sets.
+> A collaborative LaTeX editor that renders as you type. Built for proofs, papers, and problem sets.
 
-Mathboard is a block-based document editor for math-heavy writing. Type Markdown mixed with LaTeX (`$...$` for inline math, `$$...$$` for display math) and it renders live, in place, as you go — no separate compile step. Documents are collaboratively edited in real time (multiple cursors, presence, live sync) and support version history, PDF/Markdown/HTML/plain-text export, and slash commands for inserting math symbols, headings, code blocks, tables, and images.
+Mathboard is a block-based document editor for math-heavy writing. Type Markdown mixed with LaTeX (`$...$` for inline math, `$$...$$` for display math) and it renders live, in place, as you go, with no separate compile step. Documents are collaboratively edited in real time (multiple cursors, presence, live sync) and support version history, PDF/Markdown/HTML/plain-text export, and slash commands for inserting math symbols, headings, code blocks, tables, and images.
 
 ## Pages
 
@@ -12,5 +12,5 @@ Mathboard is a block-based document editor for math-heavy writing. Type Markdown
 
 ## Notes for automated agents
 
-- `/docs` and everything under it is authenticated, per-user content and is not indexed or crawlable — see /robots.txt.
+- `/docs` and everything under it is authenticated, per-user content and is not indexed or crawlable. See /robots.txt.
 - There is no public API; document data is only reachable by an authenticated user through the app itself.
