@@ -93,8 +93,10 @@ Kubernetes), see [SETUP.md](SETUP.md).
 ## Honest limits
 
 - The performance numbers come from one machine running both the cluster and the load generator.
-- One result is unexplained: 3 replicas at 600 users showed elevated latency in every sweep, while 1 and 5
-  replicas did not. It is documented, not solved.
+- Adding replicas does not reduce the work of applying each edit, because every replica hosting a document applies
+  every edit; it only divides the socket fan-out. An early odd result (3 replicas slow at 600 users) turned out to be
+  a saturated backend amplifying noise on a busy machine, and is [explained](deploy/tests/README.md#the-3-replica-600-user-latency-explained),
+  but the ceiling itself is not raised.
 - The demo backup store lives inside the cluster, so it shows the mechanism but would not survive losing the machine.
 - The Kubernetes setup is a local demonstration. Production still runs the plain application on one small server.
 - The frontend has 21 existing lint errors, so lint is reported in CI but does not fail it.

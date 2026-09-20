@@ -97,10 +97,9 @@ ramp, so its ceiling for 800 users is about 680.
 - **Replicas cost CPU.** At 400 users the same roughly 316 edits/s took 2.0 cores at 1 replica, 2.9 at 3 and 3.7 at
   5. Every replica that hosts a document applies every edit to it, reads its stream, and saves it, so
   extra replicas buy availability and connection capacity, not cheaper edits.
-- **Unexplained:** 3 replicas at 600 users had elevated latency (p95 1.7 s) in this sweep and in both earlier
-  ones I ran (5 to 7 s before I fixed the way history was counted), while 1 and 5 replicas were fine. I
-  haven't traced it. Candidates are pod placement (3 replicas on 2 workers puts two on one node) and an
-  interaction I haven't found. The 3-replica run at 400 users also had a one-off p99 spike.
+- **The 3-replica result at 600 users** (p95 1.7 s, while 1 and 5 replicas were fine) was later investigated and
+  is explained below. It does not reproduce on a quiet machine, and it is what a saturated backend looks like
+  when the machine is busy.
 - **Treat the numbers as indicative.** The load generator and the whole cluster share one laptop (20 logical
   CPUs, hyperthreaded). k6 used 0.5 to 2.4 cores and the cluster up to 8, so at the higher levels the machine,
   not the application, may be the limit, and run-to-run noise is real. Running k6 from a second machine is the
@@ -184,11 +183,72 @@ re-measured:
    GitHub's runners, fixed at the cause". Production has one event loop for the life of the process, so this was a
    test-isolation flaw, but `shutdown()` leaving stale state behind was a real defect too.
 
+## The 3-replica, 600-user latency, explained
+
+Early sweeps showed 3 replicas at 600 users with p95 latency around 1.7 s, while 1 and 5 replicas were fine, and
+I could not say why. After the backend gained metrics, I investigated it in four steps.
+
+**1. It does not reproduce on a quiet machine.** Two fresh runs at 3 replicas gave p95 79 ms and 174 ms. The
+original 1, 3, 5 sequence, rerun, gave a smooth improvement (`results/load-u600-rerun-quiet.md`).
+
+**2. It does reproduce when the machine is busy.** The same runs with a container burning 10 cores next door
+(`results/load-u600-rerun-contended*.md`):
+
+| Replicas | p95 quiet | p95 with a busy neighbour | p99 with a busy neighbour |
+|---|---|---|---|
+| 1 | 204 ms | 731 ms | 897 ms |
+| 3 | 174 ms | **2,146 ms** | **4,741 ms** (max 10.7 s) |
+| 5 | 122 ms | 573 ms | 796 ms |
+
+That is the size of the original anomaly, and 3 replicas is the worst of the three.
+
+**3. Load balance and pod placement are not the cause.** Connections were exactly even (200, 200, 200), and all
+three pods were equally slow (event-loop lag p99 of 469, 481 and 486 ms) whether they ran on the node with Postgres
+or the node with Valkey and the gateway.
+
+**4. Every pod was near the edge, and adding replicas does not reduce the work that puts it there.**
+`prom_report.py` (below) shows each pod running at roughly one core, and applying about the same number of edits per
+second whatever the replica count:
+
+| Replicas | Edits applied per second, per pod | of which arrive from other replicas | CPU per pod |
+|---|---|---|---|
+| 1 | about 600 | 0 | 1.0 to 1.5 cores |
+| 3 | about 590 | about 390 | 1.0 to 1.1 cores |
+| 5 | about 500 to 580 | about 380 to 460 | 0.9 cores |
+
+Every replica hosting a document applies every edit to it, and in this test each 10-person document has users on
+every replica, so it is hosted everywhere. More replicas divide the socket fan-out, but not the edit-applying
+work. Three replicas pays the whole replication overhead (stream reads and writes, merging into Postgres from
+each replica) while removing only a third of the fan-out; one replica has no replication overhead, and five remove
+enough fan-out to leave headroom. A backend on the edge of a core cannot catch up after a disturbance, its queue grows,
+and edits take seconds instead of milliseconds.
+
+**What is established and what is not.** Established: a saturated backend, with no headroom, turns machine noise
+into multi-second tail latency, and the shape (worst at 3 replicas, better at 1 and 5) follows the numbers above.
+Not proven: what disturbed the original runs. There were no metrics then, and I was doing other work on the same
+laptop, which is consistent with the burner experiment but is not evidence of it. Each contended figure is also a
+single run, so the ordering (3 worst) is well supported but the exact milliseconds are not.
+
+**What it implies.**
+- A 10-person document spread across every replica is close to a worst case for replication cost. Documents with
+  two or three editors touch at most that many replicas, so real usage would sit further from this edge.
+- Autoscaling on connections ([ADR 3](../../docs/adr/0003-metrics-and-connection-based-autoscaling.md)) is
+  conservative here: 50 per replica leaves a wide margin below the roughly 200 connections per replica seen at
+  the edge. But because the limit is edit-applying work, not sockets, connection count is a proxy; event-loop
+  lag would be a more direct scaling signal.
+- The way to raise the ceiling is to reduce per-replica edit work: keep each document on few replicas, or make each
+  replicated edit cheaper. Neither is done.
+
+To look inside a run yourself: `kubectl -n monitoring port-forward svc/prometheus-server 9090:80`, then
+`python deploy/tests/load/prom_report.py --last-minutes 15` prints, per stretch of load and per pod, connections,
+event-loop lag, save time, edits applied and CPU.
+
 ## Known limits and next steps
 
 - One profile of a backend at 800 users (3 replicas) put about 17% of the time it held Python's lock in
   reading the Valkey stream, one blocking read per open document. A single multiplexed read per replica is the
   first thing to try if throughput per replica matters.
-- The backend now exports Prometheus metrics (event-loop lag, save time, pool use per pod), so the unexplained
-  3-replica latency at 600 users can be investigated from the dashboard instead of a profiler. That is still to do.
+- Keeping each document on few replicas (for example, routing a document's connections to one replica) would
+  divide the edit-applying work instead of repeating it. Envoy Gateway's load-balancing options would need checking
+  for whether it can key on the document id in the URL path; I have not verified that.
 - A connection pooler (PgBouncer) would decouple replica count from Postgres connections.
