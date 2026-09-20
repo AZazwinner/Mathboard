@@ -720,8 +720,16 @@ export default function HomePage() {
 
 
         <footer className="border-t border-neutral-200">
-          <div className="mx-auto max-w-5xl px-6 py-8 text-center text-sm text-neutral-400">
-            © {new Date().getFullYear()} mathboard
+          <div className="mx-auto flex max-w-5xl flex-col items-center gap-2 px-6 py-8 text-sm text-neutral-400 sm:flex-row sm:justify-between">
+            <span>© {new Date().getFullYear()} mathboard</span>
+            <a
+              href="https://github.com/AZazwinner/Mathboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-neutral-900"
+            >
+              GitHub
+            </a>
           </div>
         </footer>
       </div>
