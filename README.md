@@ -52,7 +52,7 @@ takes between replicas, and the delivery pipeline are in [docs/architecture.md](
 | **Load tested, and fixed** | k6 simulates up to 800 users. The first runs failed; the findings (connection exhaustion, slow saves, probes killing busy pods) are fixed and documented. | [deploy/tests](deploy/tests/README.md) |
 | **Observable** | Prometheus metrics on a private port, a Grafana dashboard, five alert rules. | [ADR 3](docs/adr/0003-metrics-and-connection-based-autoscaling.md) |
 | **Autoscaled** | KEDA scales the backend on open WebSocket connections. | [ADR 3](docs/adr/0003-metrics-and-connection-based-autoscaling.md) |
-| **Delivered from git** | CI on every pull request, images scanned before they are published, Argo CD deploying what is merged. | [ADR 4](docs/adr/0004-ci-supply-chain-and-gitops.md) |
+| **Delivered from git** | CI on every pull request, images scanned before they are published and then signed, Argo CD deploying what is merged. | [ADR 4](docs/adr/0004-ci-supply-chain-and-gitops.md) |
 | **Recoverable** | Continuous backup with point-in-time recovery, proven by a restore drill. | [ADR 5](docs/adr/0005-database-backups-and-restore-drill.md) |
 
 All decisions, with the alternatives considered and what each costs, are indexed in
@@ -90,22 +90,13 @@ bash deploy/kind/status.sh               # what is on
 Details and design notes are in [deploy/README.md](deploy/README.md). For the plain application (no
 Kubernetes), see [SETUP.md](SETUP.md).
 
-## Honest limits
-
-- The performance numbers come from one machine running both the cluster and the load generator.
-- Adding replicas does not reduce the work of applying each edit, because every replica hosting a document applies
-  every edit; it only divides the socket fan-out. An early odd result (3 replicas slow at 600 users) turned out to be
-  a saturated backend amplifying noise on a busy machine, and is [explained](deploy/tests/README.md#the-3-replica-600-user-latency-explained),
-  but the ceiling itself is not raised.
-- The demo backup store lives inside the cluster, so it shows the mechanism but would not survive losing the machine.
-- The Kubernetes setup is a local demonstration. Production still runs the plain application on one small server.
-- The frontend has 21 existing lint errors, so lint is reported in CI but does not fail it.
-- The published images are `linux/amd64` only, and the frontend image is built for the local cluster's URLs.
-
 ## Documentation
 
 - [docs/architecture.md](docs/architecture.md): diagrams
 - [docs/adr](docs/adr/README.md): decision records
 - [deploy/README.md](deploy/README.md): running and operating the cluster
 - [deploy/tests/README.md](deploy/tests/README.md): chaos, load, autoscaling and restore tests, and what they found
-- [docs/demo.md](docs/demo.md): a script for a walkthrough video
+
+## License
+
+[MIT](LICENSE)
