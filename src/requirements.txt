@@ -1,5 +1,5 @@
 fastapi==0.141.1
-uvicorn==0.52.1
+uvicorn==0.53.0
 sqlalchemy==2.0.54
 python-dotenv==1.2.3
 python-jose==3.5.0
@@ -9,7 +9,7 @@ python-multipart==0.0.32
 psycopg2-binary==2.9.13
 pydantic[email]==2.13.5
 passlib[bcrypt]==1.7.4
-uvicorn[standard]==0.52.1
+uvicorn[standard]==0.53.0
 argon2-cffi==25.1.0
 pycrdt==0.14.2
 alembic==1.20.0
